@@ -11,7 +11,8 @@ html, body {max-width: 100vw; overflow-x: hidden}
 body {font-family:"HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif}
 p, li {margin-bottom:0.5em}
 p {text-align:justify}
-label, strong {font-weight:bold}
+
+
 ul {list-style-type:none; padding-left:20px}
 a {text-decoration:none; color:#26a69a; white-space:nowrap}
 a:hover {cursor:pointer}
@@ -63,14 +64,6 @@ header, main, footer {display:block; with:100%} /* IE fix */
 .relative>div {position:absolute}
 .spaced {margin-bottom:20px; margin-top:20px}
 .hidden {display:none !important}
-
-/*** forms ***/
-input:not([type]), input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]), [type=file]:before {outline:none; padding:0.5em 1em; margin:0.5px; border-bottom:1px solid #ddd; width:100%}
-textarea {width:100%; border:1px solid #ddd; padding:4px 8px; outline:none; outline:none}
-select {-webkit-appearance:none; outline:none; padding:0.5em 1em; border-radius:0; margin:0.5px; border-bottom:1px solid #ddd; width:100%;background-color:transparent}
-input, textarea, select, button, .btn {font-size:12px}
-input:not([type]):hover, input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):hover, select:hover, textarea:hover {background-color:#fbf6d9; transition:background-color 1s ease}
-input:invalid, input.error, textarea:invalid, textarea.error {background: #ffdfdf}
 
 /*** grid ***/
 .container {margin-right:-20px}

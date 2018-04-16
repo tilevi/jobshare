@@ -11,13 +11,13 @@
   <p><a class="btn red" href="{{=URL('default', 'add')}}"><i class="fa fa-plus"></i> Add</a>
   </p>
 
-  {{for cl in checklists:}}
-      <div class="checklist_title">{{=cl.title}}</div>
+  {{for j in jobs:}}
+      <div class="checklist_title">{{=j.name}}</div>
   {{pass}}
 
-  {{if not checklists:}}
+  {{if not jobs:}}
 
-    <p>You don't have any checklist.  Press on the Add button above to create one.</p>
+    <p>You don't have any jobs.  Press on the Add button above to create one.</p>
 
   {{pass}}
 

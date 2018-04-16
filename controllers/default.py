@@ -18,19 +18,18 @@ def index():
     return auth.wiki()
     """
     logger.info('The session is: %r' % session)
-    checklists = None
+    jobs = None
     if auth.user is not None:
-        checklists = db(db.checklist.user_email == auth.user.email).select()
-    return dict(checklists=checklists)
+        jobs = db(db.job.user_email == auth.user.email).select()
+    return dict(jobs=jobs)
 
 
 def no_swearing(form):
-    if 'shit' in form.vars.memo:
-        form.errors.memo = T('No swearing please')
+    ""
 
 def add():
     """Adds a checklist."""
-    form = SQLFORM(db.checklist)
+    form = SQLFORM(db.job, formstyle='bootstrap')
     if form.process(onvalidation=no_swearing).accepted:
         session.flash = T("Checklist added.")
         redirect(URL('default','index'))
