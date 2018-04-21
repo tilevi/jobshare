@@ -1,34 +1,108 @@
 {{extend 'layout.html'}}
 
+<script src="{{=URL('static','js/jscolor.js')}}"></script>
+<script src="{{=URL('static','js/tagify.js')}}"></script>
+<script src="{{=URL('static','js/jQuery.tagify.js')}}"></script>
+
 <div class="mycontent">
     <div class="container">
 
-        <h1>Create a Job</h1>
+        <h1>Job Creation</h1>
 
         <div class="half compressible" style="padding: 10px 25px 10px 25px;">
 
-            {{=form.custom.begin}}
+                {{=form.custom.begin}}
 
                 <div class="form-group">
-                    <label for="job_job_id">Job ID</label>
+                    <label for="job_job_id">ID</label>
                     {{=form.custom.widget.job_id}}
                 </div>
 
                 <div class="form-group">
-                    <label for="job_name">Job Name</label>
+                    <label for="job_name">Name</label>
                     {{=form.custom.widget.name}}
                 </div>
 
                 <div class="form-group">
-                    <label for="job_color">Color</label>
-                    <br/>
-                    {{=form.custom.widget.color}}
+                    <label for="job_description">Description</label>
+                    {{=form.custom.widget.description}}
                 </div>
 
-                {{=form.custom.submit}}
-            {{=form.custom.end}}
+                <div class="form-group">
+                    <label for="job_model">Player model</label>
+                    <br/>
+                    {{=form.custom.widget.model}}
+                </div>
         </div>
 
-        <div class="half compressible"></div>
+        <div class="half compressible" style="padding: 10px 25px 10px 25px;">
+
+            <div class="form-group">
+                <label for="job_color">Color</label>
+                <br/>
+                {{=form.custom.widget.color}}
+            </div>
+
+            <div class="form-group">
+                <label for="job_salary">Salary</label>
+                <br/>
+                {{=form.custom.widget.salary}}
+            </div>
+
+
+            <div class="form-group">
+                <label for="job_weapons">Weapons</label>
+                <br/>
+                <input id='weapon_tags' name='tags' placeholder='Add weapon classes' value=''>
+                {{=form.custom.widget.weapons}}
+            </div>
+
+            <script>
+                var input = document.querySelector('input[name=tags]'),
+                tagify = new Tagify(input, {
+                    whitelist : ["weapon_ak47", "weapon_ar2"]
+                })
+
+                var wepTags = [];
+
+                // listen to custom 'remove' tag event
+                tagify.on('remove', onRemoveTag);
+
+                function onRemoveTag(e){
+                    wepTags.splice(wepTags.indexOf(e.detail.value), 1);
+                    console.log(wepTags);
+                }
+
+                tagify.on('add', onAddTag);
+
+                function onAddTag(e) {
+                    wepTags.push(e.detail.value);
+                    console.log(wepTags);
+                }
+            </script>
+
+            <div class="form-check">
+              {{=form.custom.widget.vote}}
+              <label class="form-check-label" for="job_vote">
+                Vote
+              </label>
+            </div>
+
+            <div class="form-check">
+              {{=form.custom.widget.admin_only}}
+              <label class="form-check-label" for="job_admin_only">
+                Admin only
+              </label>
+            </div>
+
+            {{=form.custom.submit}}
+            {{=form.custom.end}}
+
+            <script>
+                $('form').submit(function() {
+                     $("#job_weapons").val(JSON.stringify(wepTags));
+                });
+            </script>
+        </div>
     </div>
 </div>

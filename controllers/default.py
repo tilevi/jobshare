@@ -25,7 +25,8 @@ def index():
 
 
 def no_swearing(form):
-    ""
+    logger.info(form.vars.weapons)
+    form.errors.weapons = 'Weapons error'
 
 def add():
     """Adds a checklist."""
@@ -34,7 +35,7 @@ def add():
         session.flash = T("Checklist added.")
         redirect(URL('default','index'))
     elif form.errors:
-        session.flash = T('Please correct the info')
+        session.flash = T('Please correct the information')
     return dict(form=form)
 
 
