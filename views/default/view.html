@@ -1,0 +1,234 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+    <script src="{{=URL('static', 'js/vue.js')}}"></script>
+    <script>
+        var add_comment_url = "{{=URL('api', 'add_comment', user_signature=True)}}";
+        var comments_url = "{{=URL('api', 'get_comments', user_signature=True)}}";
+        
+        var job_id = "" + {{=id}};
+    </script>
+{{end}}
+
+
+<link rel="stylesheet"
+      href="{{=URL('static','css/styles/default.css')}}">
+<script src="{{=URL('static','js/highlight.pack.js')}}"></script>
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+<div class="main_content">
+    <!-- This is loaded when the user is not logged in. -->
+    {{if auth.user is not None:}}
+    
+    <div class="fill" style="padding: 10px 0px 15px 0px; background-color: rgba(42, 45, 48);">
+        <div class="container" style="padding: 0px; background-color: rgba(42, 45, 48);">
+            <div class="header">
+                <h2 style="color: white; padding-left: 18px;">{{=job.name}}</h2>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+    <div class="fill" style="background-color: rgba(32, 32, 32);">
+        
+        <div class="container">
+
+            <div class="tab" style="padding-left: 15%; padding-right: 15%;">
+                <div class="tablinks active" onclick="openCity(event, 'Details')">Details</div>
+                <div class="tablinks" onclick="openCity(event, 'Code')">Code</div>
+                <div class="tablinks" onclick="openCity(event, 'Comments')">Comments</div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div id="Code" style="display: none;" class="container tabcontent">
+        <div class="full" style="padding-left: 15%; padding-right: 15%; margin: 8px;">
+            <div style="background-color: rgba(32, 32, 32);">
+                <h5 style="color: white; margin-bottom: 0px; padding: 20px;"><b>GLua Code</b></h5>
+            </div>
+            
+            <pre style="border: solid; border-width: 1px 1px 1px 1px; padding-top: 0px; padding-right: 25px; background-color: white; position: relative;">
+                <button id="copyButton" onclick="myFunction()" type="button" style="position: absolute; top: 0px; right: 0px; background-color: steelblue; color: white; border-radius: 2px !important;">Copy</button><code class="lua" style="background-color: white; padding: 20px;"><div id='genCode'>TEAM_{{=job.job_id}} = DarkRP.createJob("{{=job.name}}", {
+    color = Color<span id="jobHex"></span>
+    model = "{{=job.model}}",
+    description = "{{=job.description}}",
+    weapons = { {{=(', '.join('"' + item + '"' for item in weapons))}} },
+    command = "{{="".join((job.name.lower()).split())}}",
+    max = {{=job.max_players}},
+    salary = {{=job.salary}},
+    vote = {{="true" if job.vote else "false"}},
+    admin = {{="true" if job.admin_only else "false"}}
+})</div></code></pre>
+        </div>
+    </div>
+    
+    
+    <script>
+            copied = false;
+
+            $("#copyButton").click(function() {
+                if (!copied) {
+                    copied = true;
+                    $("#copyButton").text("Copied!");
+                    setTimeout(function() {
+                        $("#copyButton").text("Copy");
+                        copied = false;
+                    }, 1000);
+                }
+            });
+
+            function myFunction() {
+                var $temp = $("<textarea>");
+                $("body").append($temp);
+                $temp.val($("#genCode").text()).select();
+                document.execCommand("copy");
+                $temp.remove();
+            }
+    </script>
+    
+    
+
+    
+    <div id ="Details" style="display: none;" class="container tabcontent">
+        <div class="full" style="padding-left: 15%; padding-right: 15%;">
+    
+                    <div class="roundedCorners2" style="background: #{{=job.color}}59;">
+                        <div class="whiteGloss" style="background: #{{=job.color}}B3">
+                            <div class="myTextBottomLeft">
+                                {{=job.name}}
+                            </div>
+                        </div>
+                        
+                    <div class="table-responsive">
+                    
+                <table class="table table-striped">
+    <tbody>
+    <tr>
+        <th scope="row" style="width: 16.66%">Description:</th>
+        <td style="word-break: break-all; max-width: 83.34%; vertical-align: bottom;">{{=job.description}}</td>
+    </tr>
+    <tr>
+        <th scope="row" style="width: 20%">Player model:</th>
+        <td style="word-break: break-all; max-width: 80%; vertical-align: bottom;">{{=job.model}}</td>
+    </tr>
+    <tr>
+        <th scope="row" style="width: 20%">Salary:</th>
+        <td style="word-break: break-all; max-width: 80%; vertical-align: bottom;">${{=job.salary}}
+    </tr>
+    <tr>
+        <th scope="row" style="width: 20%">Max players:</th>
+        <td style="word-break: break-all; max-width: 80%; vertical-align: bottom;">{{=job.max_players}}
+    </tr>
+    <tr>
+        <th scope="row" style="width: 20%">Color:</th>
+        <td style="word-break: break-all; max-width: 80%; vertical-align: bottom;"><span id="jobColor"></span>
+    </tr>
+        
+    {{if len(weapons) > 0:}}
+        <tr>
+            <th scope="row" style="width: 20%">Weapons:</th>
+                <td style="word-break: break-all; max-width: 80%;">{{=", ".join(weapons )}}
+        </tr>
+    {{pass}}
+    </tbody>
+</table>
+            </div>
+        </div>
+                        
+                        
+                            <script>
+                                function hexToRgb(hex) {
+                                    var bigint = parseInt(hex, 16);
+                                    var r = (bigint >> 16) & 255;
+                                    var g = (bigint >> 8) & 255;
+                                    var b = bigint & 255;
+                                    return "(" + r + ", " + g + ", " + b + ")";
+                                }
+                                
+                                var hex = hexToRgb("{{=job.color}}");
+                                $("#jobColor").html(hex);
+                                $("#jobHex").html(hex);
+                            </script>
+                            
+                    </div>
+
+            
+    </div>
+    
+    <div id="Comments" style="display: none;" class="container tabcontent">
+        <div class="full" style="padding-left: 15%; padding-right: 15%;">
+            
+            <div id="vue-div" style="display: none;">
+                
+                
+                <div class="container" style="padding: 20px; background-color: white;">
+                    
+                    <div class="commentError" v-if="comment_error">
+                        Comment can't be empty.
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0px;">
+                        <textarea class="form-control" style="width: 100%;" placeholder="Leave a comment" v-model="comment_form"></textarea>
+                    </div>
+                
+                    <div style="margin-bottom: 0px; margin-top: 0px; text-align: right;">
+                        <input class="submitButton" type="button" value="Comment" v-on:click="add_comment()" style="display: inline-block;"/>
+                    </div>
+                </div>
+
+                    <div v-for="comment in comments"> 
+                        <div class="comment">
+                            <div class="comment_top">
+                                <b>${comment.username}</b> commented on ${comment.created_on}
+                            </div>
+                            
+                            <div class="comment_text">
+                                ${comment.body}
+                            </div>
+                        </div>
+                    </div>
+                
+                
+                    <div v-if="has_more" class="show_more">
+                        <button class="btn btn-default rounded" v-on:click="get_more()">
+                            <i class="fa fa-ellipsis-h"></i>
+                            Load more
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <script>
+            function openCity(evt, cityName, first) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    if (!first) {
+                        tablinks[i].className = tablinks[i].className.replace(" active", "");
+                    }
+                }
+                document.getElementById(cityName).style.display = "block";
+                
+                if (evt != null) {
+                    evt.currentTarget.className += " active";
+                }
+            }
+            
+            $(document).ready(function() {
+                openCity(null, 'Comments', true);
+            });
+        </script>
+    {{pass}}
+</div>
+
+<script src="{{=URL('static', 'js/default_index.js')}}"></script>

@@ -2,3 +2,205 @@
 .colorful {
   color: #bb8833;
 }
+
+.roundedCorners {
+    border-radius: 4px;
+    border: 2px solid #000;
+    background: rgba(0, 0, 0, 0.4);
+    margin: 8px;
+    width: 100%;
+    height: calc(75px + 4.5em);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.roundedCorners2 {
+    border-radius: 4px;
+    border: 2px solid #000;
+    background: rgba(0, 0, 0, 0.4);
+    margin: 8px;
+    width: 100%;
+}
+
+.createJobButton {
+    border-radius: 0px;
+    border: 1px solid #000 !important;
+    background-color: white;
+    padding: 20px;
+}
+
+.submitWrapper {
+    white-space: nowrap;
+}
+
+.whiteGloss {
+    border-radius: 2px;
+    width: 100%;
+    height: 75px;
+}
+
+.header {
+    display: inline-block; 
+    width: 100%;
+    margin-top: 10px;
+}
+.playerOne {
+    float: right;
+}
+.playerTwo {
+    float: left;
+}
+
+.myTextBottomLeft {
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+    -webkit-text-stroke: 2px black;
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.jobDescription {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 8px;
+    color: rgba(0, 0, 0, 0.75);
+    word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.jobDescription2 {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 8px;
+    color: rgba(0, 0, 0, 0.75);
+    word-wrap: break-word;
+    line-height: 2em;
+}
+
+
+.comment {
+    margin: 10px 0px 10px 0px;
+    background-color: white;
+}
+
+.comment_top {
+    background-color: rgba(33, 33, 33, 0.05);
+    padding: 10px;
+    font-size: 12px;
+}
+
+.comment_text {
+    padding: 10px;
+}
+
+.commentError {
+    color: red;
+    padding: 5px;
+}
+
+/*** grid ***/
+.container {margin-right:-20px}
+.container>.quarter, .container>.half, .container>.third, .container>.twothirds, .container>.threequarters, .container>.sixty, .container>.fourty {display:inline-block; padding: 0 20px 0 0; vertical-align:top}
+.container>.fill{display: inline-block; padding-right: 20px; margin-right:-10px}
+.container img, .container video {max-width:100%}
+.max900 {margin-left:auto; margin-right:auto}
+
+@media all and (min-width:800px) {
+  .max900 {max-width:900px}
+  .quarter {width:25%; margin-right:-5px}
+  .half {width:50%; margin-right:-10px}
+  .sixty {width: 60%; margin-right:-10px}
+  .fourty {width: 40%; margin-right:-10px}
+  .third {width:33.33%; margin-right:-6.66px}
+  .twothirds {width:66.66%; margin-right:-13.33px}
+  .threequarters {width:75%; margin-right:-15px}
+}
+@media all and (min-width:600px) and (max-width:799px) {
+  .quarter.compressible {width:25%; margin-right:-5px}
+  .half.compressible {width:50%; margin-right:-10px}
+  .fourty.compressible {width:40%; margin-right:-10px}
+  .sixty.compressible {width:60%; margin-right:-10px}
+  .threequarters.compressible {width:75%; margin-right:-15px}
+  .quarter:not(.compressible), .half:not(.compressible), .threequarters:not(.compressible) {width:100%; margin-right:-20px}
+  .third {width:33.33%; margin-right:-6.66px}
+  .twothirds {width:66.66%; margin-right:-13.33px}
+  label.quarter:not(.compressible).right, label.half:not(.compressible).right, 
+  label.fourty:not(.compressible).right,label.sixty:not(.compressible).right,label.threequarters:not(.compressible).right   {float:left; text-align:left}
+}
+@media all and (max-width:599px) {  
+  .quarter:not(.compressible), .half:not(.compressible), .fourty:not(.compressible), .sixty:not(.compressible), .third:not(.compressible), .twothirds:not(.compressible), .threequarters:not(.compressible) {width:100%;}
+  label.quarter:not(.compressible).right, label.half:not(.compressible).right, label.sixty:not(.compressible).right, label.fourty:not(.compressible).right, label.threequarters:not(.compressible).right,
+  label.third:not(.compressible).right, label.twothirds:not(.compressible).right   {float:left; text-align:left}
+  .quarter.compressible {width:25%; margin-right:-5px}
+  .half.compressible {width:50%; margin-right:-10px}
+  .fourty.compressible {width:40%; margin-right:-10px}
+  .sixty.compressible {width:60%; margin-right:-10px}
+  .third.compressible {width:33.33%; margin-right:-6.66px}
+  .twothirds.compressible {width:66.66%; margin-right:-13.33px}
+  .threequarters.compressible {width:75%; margin-right:-15px}
+}
+
+.submitButton {
+  padding: 5px 15px;
+  background: #ccc;
+  border: 0 none;
+  cursor: pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+
+
+
+
+
+/** Tabs **/
+
+
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    background-color: #202020;
+}
+
+/* Style the buttons inside the tab */
+.tab div {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    outline-width: 0;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    color: rgba(133, 133, 133, 1);
+}
+
+/* Change background color of buttons on hover */
+.tab div:hover {
+    background-color: #202020;
+    color: white;
+}
+
+/* Create an active/current tablink class */
+.tab div.active {
+    background-color: #202020;
+    color: white;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border-top: none;
+}

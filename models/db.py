@@ -66,7 +66,7 @@ service = Service()
 plugins = PluginManager()
 
 # create all tables needed by auth if not custom tables
-auth.define_tables(username=False, signature=False)
+auth.define_tables(username=True, signature=False)
 
 # configure email
 mail = auth.settings.mailer
@@ -97,3 +97,6 @@ logger.setLevel(logging.INFO)
 
 # Let's log the request.
 logger.info("====> Request: %r %r %r %r" % (request.env.request_method, request.env.path_info, request.args, request.vars))
+
+db.auth_user.first_name.readable = db.auth_user.first_name.writable = False
+db.auth_user.last_name.readable = db.auth_user.last_name.writable = False
