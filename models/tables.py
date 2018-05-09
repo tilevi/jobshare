@@ -88,7 +88,9 @@ db.define_table('job',
                 Field('max_players', 'integer', placeholder=2, widget=number_widget2),
                 Field('admin_only', 'boolean', default=False),
                 Field('vote', 'boolean', default=False),
-                Field('weapons', 'string', widget=tag_widget)
+                Field('weapons', 'string', widget=tag_widget),
+                Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
+                Field('is_public', 'boolean', default=False)
                 )
 
 db.define_table('post',
@@ -100,6 +102,7 @@ db.define_table('post',
                 )
 
 db.job.user_id.writable = db.job.user_id.readable = False
+db.job.is_public.writable = db.job.is_public.readable = False
 
 # after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)

@@ -9,26 +9,41 @@
 # -------------------------------------------------------------------------
 import json
 
-def index():
-    """
-    example action using the internationalization operator T and flash
-    rendered by views/default/index.html or views/generic.html
-
-    if you need a simple wiki simply replace the two lines below with:
-    return auth.wiki()
-    """
+def jobs():
     jobs = []
     search = request.vars.search or ''
-    pn = request.vars.page or 0
-    jobsPerPage = 2
+    
+    # We make a try-catch block to prevent any internal errors.
+    try:
+        pn = int(request.vars.page) - 1
+    except:
+        pn = 0
+    
+    jobsPerPage = 8
+    count = 0
     
     if auth.user is not None:
-        jobs = db((db.job.user_id == auth.user_id) & (db.job.name.contains(search))).select(
-    limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+        result = db((db.job.is_public == True) & (db.job.name.contains(search)))
+        count = result.count()
+        jobs = result.select(
+                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+        
+    rCount = (count // jobsPerPage)
+    if ((count % 8) > 0):
+        rCount = rCount + 1
+    
+    # This is just in-case someone visits a non-existent page.
+    if (pn > rCount):
+        redirect(URL('', vars={'page': rCount}))
+    elif (pn < 0):
+        redirect(URL('', vars={'page': 1}))
+    
     return dict(odd_jobs=[y for x,y in enumerate(jobs) if x%2 != 0],
-                even_jobs=[y for x,y in enumerate(jobs) if x%2 == 0])
+                even_jobs=[y for x,y in enumerate(jobs) if x%2 == 0],
+                count = count,
+                pages = rCount)
 
-def jobs():
+def index():
     jobs = []
     search = request.vars.search or ''
     
@@ -117,11 +132,9 @@ def validate(form):
 
 @auth.requires_login()
 def create():
-    """Adds a checklist."""
     form = SQLFORM(db.job, formstyle='bootstrap')
     if form.process(onvalidation=validate).accepted:
-        session.flash = T("Job created.")
-        redirect(URL('default','jobs'))
+        redirect(URL('default','index'))
     return dict(form=form)
 
 @auth.requires_login()
@@ -131,7 +144,7 @@ def delete():
         q = ((db.job.user_id == auth.user_id) &
              (db.job.id == request.args(0)))
         db(q).delete()
-    redirect(URL('default', 'jobs'))
+    redirect(URL('default', 'index'))
 
 @auth.requires_login()
 @auth.requires_signature()
@@ -160,10 +173,10 @@ def view():
     if request.args(0) is None:
         redirect(URL('default', 'jobs'))
     else:
-        q = ((db.job.user_id == auth.user_id) &
-             (db.job.id == request.args(0)))
+        q = (db.job.id == request.args(0))
         job = db(q).select().first()
-        if job is None:
+        
+        if (job is None) or ((not job.is_public) and (int(job.user_id)!= int(auth.user_id))):
             redirect(URL('default', 'jobs'))
     
     return dict(id=request.args(0), job=job, weapons=json.loads(job.weapons))

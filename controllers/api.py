@@ -32,6 +32,17 @@ def get_comments():
 
 @auth.requires_login()
 @auth.requires_signature()
+def toggle_visibility():
+    q = ((db.job.id == request.vars.job_id) & (db.job.user_id == auth.user_id))
+    row = db(q).select().first()
+    
+    is_public = row.is_public
+    row.update_record(is_public=(not is_public))
+    
+    return response.json(dict(is_public=row.is_public))
+
+@auth.requires_login()
+@auth.requires_signature()
 def add_comment():
     if request.vars.body.strip() == '':
         return response.json(dict(error='Comment cannot be empty.'))

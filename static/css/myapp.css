@@ -23,11 +23,11 @@
 
 .noDecoration {
     text-decoration: none;
-    color: white;
+    color: black;
 }
 
 .noDecoration:hover {
-    color: lightblue !important;
+    color: rgba(0, 0, 0, 0.25) !important;
 }
 
 .spaced {

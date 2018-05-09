@@ -105,8 +105,49 @@ var app = function() {
     return self;
 };
 
+// This is the js for the default/index.html view.
+
+var app2 = function() {
+    var self = {};
+    Vue.config.silent = false;
+    
+    self.toggle_job = function() {
+        console.log('clicked');
+        
+        $.post(toggle_job_url,
+            {
+                job_id: job_id
+            },
+            function (data) {
+                self.vue.is_public = data.is_public;
+            }
+        )
+    }
+    
+    self.vue = new Vue({
+        el: "#vue-div2",
+        delimiters: ['${', '}'],
+        unsafeDelimiters: ['!{', '}'],
+        data: {
+            is_public: null
+        },
+        methods: {
+            toggle_job: self.toggle_job
+        }
+    });
+    
+    $("#vue-div2").show();
+
+    return self;
+};
+
+
 var APP = null;
+var APP2 = null;
 
 // This will make everything accessible from the js console;
 // for instance, self.x above would be accessible as APP.x
-jQuery(function(){APP = app();});
+jQuery(function(){
+    APP = app();
+    APP2 = app2();
+});

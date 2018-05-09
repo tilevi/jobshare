@@ -5,6 +5,7 @@
     <script>
         var add_comment_url = "{{=URL('api', 'add_comment', user_signature=True)}}";
         var comments_url = "{{=URL('api', 'get_comments', user_signature=True)}}";
+        var toggle_job_url = "{{=URL('api', 'toggle_visibility', user_signature=True)}}";
         
         var job_id = "" + {{=id}};
     </script>
@@ -16,7 +17,6 @@
 <script src="{{=URL('static','js/highlight.pack.js')}}"></script>
 
 <script>hljs.initHighlightingOnLoad();</script>
-
 
 <div class="modal" id="deleteModal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -33,7 +33,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-primary">
             <a class="noDecoration" href="{{=URL('default', 'delete', args=[job.id], user_signature=True)}}">
-                <span class="noDecoration">Yes</span>
+                <span style="color: white;">Yes</span>
             </a>
         </button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -46,7 +46,6 @@
 
 <div class="main_content">
     <!-- This is loaded when the user is not logged in. -->
-    {{if auth.user is not None:}}
     
     <div class="fill" style="padding: 10px 0px 15px 0px; background-color: rgba(42, 45, 48);">
         <div class="container" style="padding: 0px; background-color: rgba(42, 45, 48);">
@@ -120,25 +119,31 @@
 
     
     <div id ="Details" style="display: none;" class="container tabcontent">
-        <div class="full" style="padding-left: 15%; padding-right: 15%;">
-    
-            <div class="topButtons" style="text-align: right; margin-bottom: 0px;">
-                
-                <div class="topButtonIcons" style="background: rgba(52, 58, 64, 0.75); vertical-align: text-bottom;">
-                    <a class="btn rounded red noDecoration" href="{{=URL('default', 'edit', args=[job.id], user_signature=True)}}">
-                        <i class="fa fa-edit fa-lg"></i>
-                    </a>
-                    
-                    <a class="btn rounded red noDecoration" href="{{=URL('default', 'view', args=[job.id], user_signature=True)}}">
-                        <i class="fa fa-users fa-lg"></i>
-                    </a>
-                    
-                    <a class="btn rounded red noDecoration" href="#" data-toggle="modal" data-target="#deleteModal">
-                        <i class="fa fa-trash fa-lg"></i>
-                    </a>
-                </div>
-            </div>
+        
+        <div id="vue-div2" style="display: none;">
             
+            <div class="full" style="padding-left: 15%; padding-right: 15%;">
+    
+            {{if (auth.user is not None) and (int(auth.user_id) == int(job.user_id)):}}
+                <div class="topButtons" style="text-align: right; margin-bottom: 0px;">
+
+                    <div class="topButtonIcons" style="background: #{{=job.color}}4B; vertical-align: text-bottom;">
+                        <a class="btn rounded red noDecoration" href="{{=URL('default', 'edit', args=[job.id], user_signature=True)}}">
+                            <i class="fa fa-edit fa-lg"></i>
+                        </a>
+
+                        <a class="btn rounded red noDecoration">
+                            <i v-if="is_public" v-on:click="toggle_job()" class="fa fa-users fa-lg noDecoration"></i>
+                            <i v-if="!is_public" v-on:click="toggle_job()" class="fa fa-user fa-lg noDecoration"></i>
+                        </a>
+
+                        <a class="btn rounded red noDecoration" href="#" data-toggle="modal" data-target="#deleteModal">
+                            <i class="fa fa-trash fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            {{pass}}
+                
                     <div class="roundedCorners2" style="background: #{{=job.color}}59;">
                         
                         <div class="whiteGloss" style="background: #{{=job.color}}B3">
@@ -184,23 +189,10 @@
         </div>
                         
                         
-                            <script>
-                                function hexToRgb(hex) {
-                                    var bigint = parseInt(hex, 16);
-                                    var r = (bigint >> 16) & 255;
-                                    var g = (bigint >> 8) & 255;
-                                    var b = bigint & 255;
-                                    return "(" + r + ", " + g + ", " + b + ")";
-                                }
-                                
-                                var hex = hexToRgb("{{=job.color}}");
-                                $("#jobColor").html(hex);
-                                $("#jobHex").html(hex);
-                            </script>
+                            
                             
                     </div>
-
-            
+        </div>  
     </div>
     
     <div id="Comments" style="display: none;" class="container tabcontent">
@@ -208,21 +200,23 @@
             
             <div id="vue-div" style="display: none;">
                 
+                {{if auth.user is not None:}}
                 
-                <div class="container" style="padding: 20px; background-color: white;">
-                    
-                    <div class="commentError" v-if="comment_error">
-                        Comment can't be empty.
+                    <div class="container" style="padding: 20px; background-color: white;">
+
+                        <div class="commentError" v-if="comment_error">
+                            Comment can't be empty.
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <textarea class="form-control" style="width: 100%;" placeholder="Leave a comment" v-model="comment_form"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 0px; margin-top: 0px; text-align: right;">
+                            <input class="submitButton" type="button" value="Comment" v-on:click="add_comment()" style="display: inline-block;"/>
+                        </div>
                     </div>
-                    
-                    <div class="form-group" style="margin-bottom: 0px;">
-                        <textarea class="form-control" style="width: 100%;" placeholder="Leave a comment" v-model="comment_form"></textarea>
-                    </div>
-                
-                    <div style="margin-bottom: 0px; margin-top: 0px; text-align: right;">
-                        <input class="submitButton" type="button" value="Comment" v-on:click="add_comment()" style="display: inline-block;"/>
-                    </div>
-                </div>
+                {{pass}}
 
                     <div v-for="comment in comments"> 
                         <div class="comment">
@@ -245,7 +239,6 @@
                 </div>
             </div>
         </div>
-        {{pass}}
     </div>
     
         <script>
@@ -274,3 +267,25 @@
         </script>
 
 <script src="{{=URL('static', 'js/default_index.js')}}"></script>
+
+<script>
+    function hexToRgb(hex) {
+        var bigint = parseInt(hex, 16);
+        var r = (bigint >> 16) & 255;
+        var g = (bigint >> 8) & 255;
+        var b = bigint & 255;
+        return "(" + r + ", " + g + ", " + b + ")";
+    }
+
+    var hex = hexToRgb("{{=job.color}}");
+    $("#jobColor").html(hex);
+    $("#jobHex").html(hex);
+
+    $(document).ready(function() {
+        {{if job.is_public:}}
+            APP2.vue.is_public = true
+        {{else:}}
+            APP2.vue.is_public = false
+        {{pass}}
+    })
+</script>
