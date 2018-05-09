@@ -124,6 +124,38 @@ def create():
         redirect(URL('default','jobs'))
     return dict(form=form)
 
+@auth.requires_login()
+@auth.requires_signature()
+def delete():
+    if request.args(0) is not None:
+        q = ((db.job.user_id == auth.user_id) &
+             (db.job.id == request.args(0)))
+        db(q).delete()
+    redirect(URL('default', 'jobs'))
+
+@auth.requires_login()
+@auth.requires_signature()
+def edit():
+    job = request.args(0)
+    if job is None:
+        # We send you back to the general index.
+        redirect(URL('default', 'index'))
+    else:
+        q = ((db.job.user_id == auth.user_id) &
+             (db.job.id == request.args(0)))
+        
+        j = db(q).select().first()
+        if j is None:
+            redirect(URL('default', 'index'))
+        # Always write invariants in your code.
+        # Here, the invariant is that the checklist is known to exist.
+        # Is this an edit form?
+        form = SQLFORM(db.job, record=j, deletable=False)
+        if form.process(onvalidation=validate).accepted:
+            redirect(URL('default', 'view', args=[job]))
+    return dict(form=form)
+
+
 def view():
     if request.args(0) is None:
         redirect(URL('default', 'jobs'))

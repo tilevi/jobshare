@@ -18,6 +18,32 @@
 <script>hljs.initHighlightingOnLoad();</script>
 
 
+<div class="modal" id="deleteModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Job</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this job?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">
+            <a class="noDecoration" href="{{=URL('default', 'delete', args=[job.id], user_signature=True)}}">
+                <span class="noDecoration">Yes</span>
+            </a>
+        </button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            No
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="main_content">
     <!-- This is loaded when the user is not logged in. -->
     {{if auth.user is not None:}}
@@ -96,7 +122,25 @@
     <div id ="Details" style="display: none;" class="container tabcontent">
         <div class="full" style="padding-left: 15%; padding-right: 15%;">
     
+            <div class="topButtons" style="text-align: right; margin-bottom: 0px;">
+                
+                <div class="topButtonIcons" style="background: rgba(52, 58, 64, 0.75); vertical-align: text-bottom;">
+                    <a class="btn rounded red noDecoration" href="{{=URL('default', 'edit', args=[job.id], user_signature=True)}}">
+                        <i class="fa fa-edit fa-lg"></i>
+                    </a>
+                    
+                    <a class="btn rounded red noDecoration" href="{{=URL('default', 'view', args=[job.id], user_signature=True)}}">
+                        <i class="fa fa-users fa-lg"></i>
+                    </a>
+                    
+                    <a class="btn rounded red noDecoration" href="#" data-toggle="modal" data-target="#deleteModal">
+                        <i class="fa fa-trash fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+            
                     <div class="roundedCorners2" style="background: #{{=job.color}}59;">
+                        
                         <div class="whiteGloss" style="background: #{{=job.color}}B3">
                             <div class="myTextBottomLeft">
                                 {{=job.name}}
@@ -128,12 +172,12 @@
         <td style="word-break: break-all; max-width: 80%; vertical-align: bottom;"><span id="jobColor"></span>
     </tr>
         
-    {{if len(weapons) > 0:}}
-        <tr>
-            <th scope="row" style="width: 20%">Weapons:</th>
-                <td style="word-break: break-all; max-width: 80%;">{{=", ".join(weapons )}}
-        </tr>
-    {{pass}}
+        {{if len(weapons) > 0:}}
+            <tr>
+                <th scope="row" style="width: 20%">Weapons:</th>
+                    <td style="word-break: break-all; max-width: 80%;">{{=", ".join(weapons )}}
+            </tr>
+        {{pass}}
     </tbody>
 </table>
             </div>
@@ -194,14 +238,14 @@
                 
                 
                     <div v-if="has_more" class="show_more">
-                        <button class="btn btn-default rounded" v-on:click="get_more()">
-                            <i class="fa fa-ellipsis-h"></i>
+                        <button class="btn btn-default rounded loadMore" v-on:click="get_more()">
                             Load more
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+        {{pass}}
     </div>
     
         <script>
@@ -225,10 +269,8 @@
             }
             
             $(document).ready(function() {
-                openCity(null, 'Comments', true);
+                openCity(null, 'Details', true);
             });
         </script>
-    {{pass}}
-</div>
 
 <script src="{{=URL('static', 'js/default_index.js')}}"></script>
