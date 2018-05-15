@@ -51,6 +51,10 @@ var app = function() {
         self.get_jobs(self.vue.search_form, 1);
     }
     
+    self.set_page = function(page) {
+        self.get_jobs(self.vue.search_form, page);
+    }
+    
     self.get_jobs = function(search, page) {
         $.getJSON(get_jobs_url(search, page), function (data) {
             self.vue.jobs = data.jobs;
@@ -69,6 +73,10 @@ var app = function() {
             self.vue.count = data.count;
             self.vue.pages = data.pages;
             
+            // Set the current page.
+            self.vue.current_page = data.page;
+            
+            // Set the new URL.
             self.setNewURL(search, page);
         })
     };
@@ -80,6 +88,18 @@ var app = function() {
         };
         var url = your_jobs_url + "?" + $.param(pp);
         window.history.replaceState(null, null, url);
+    }
+    
+    self.prev_page = function() {
+        if (self.vue.current_page > 1) {
+            self.set_page(self.vue.current_page - 1);
+        }
+    }
+    
+    self.next_page = function() {
+        if (self.vue.current_page < self.vue.pages) {
+            self.set_page(self.vue.current_page + 1);
+        }
     }
     
     var router = new VueRouter({
@@ -100,12 +120,16 @@ var app = function() {
             odd_jobs: [],
             count: 0,
             pages: 0,
+            current_page: 1,
             search_form: null
         },
         methods: {
             getJobViewURL: self.getJobViewURL,
             setNewURL: self.setNewURL,
-            search_jobs: self.search_jobs
+            search_jobs: self.search_jobs,
+            set_page: self.set_page,
+            prev_page: self.prev_page,
+            next_page: self.next_page
         }
     });
     
@@ -114,6 +138,8 @@ var app = function() {
     
     // Get the corresponding jobs.
     self.get_jobs(self.vue.$route.query.search, self.vue.$route.query.page);
+    
+    // Show the Vue div.
     $("#vue-div-main").show();
     
     return self;

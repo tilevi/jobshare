@@ -10,7 +10,7 @@ def get_jobs():
     except:
         pn = 0
     
-    jobsPerPage = 8
+    jobsPerPage = 2
     count = 0
     
     if auth.user is not None:
@@ -20,19 +20,22 @@ def get_jobs():
                 limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
         
     rCount = (count // jobsPerPage)
-    if ((count % 8) > 0):
+    if ((count % jobsPerPage) > 0):
         rCount = rCount + 1
     
     # This is just in-case someone visits a non-existent page.
-    #if (pn > rCount):
-    #    redirect(URL('', vars={'page': rCount}))
-    #elif (pn < 0):
-    #    redirect(URL('', vars={'page': 1}))
+    if (pn > rCount):
+        redirect(URL('', vars={'page': rCount}))
+    elif (pn < 0):
+        redirect(URL('', vars={'page': 1}))
     
     return response.json(
-        dict(   jobs = jobs,
+        dict(
+                jobs = jobs,
                 count = count,
-                pages = rCount)
+                pages = rCount,
+                page = (pn + 1)
+        )
     )
 
 def get_comments():

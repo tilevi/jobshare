@@ -96,19 +96,31 @@
             </div>
 
             <div class="container">
-
-                <div style="margin-bottom: 0px; margin-right: 18px; margin-top: 10px; text-align: right; position: relative;">
+                
+                <!-- https://jsfiddle.net/os7hp1cy/48/ -->
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end" style="margin-right: 18px !important;">
                         
-                    <button v-on:click="setNewURL()">Set new URL</button>
-                    
-                </div>
+                        <li class="page-item noSelect" v-bind:class="{disabled: current_page == 1}">
+                            <a class="page-link" v-on:click="prev_page()">Previous</a>
+                        </li>
+                        
+                        <li class="page-item noSelect" v-bind:class="{active: pageNumber == current_page}" v-for="pageNumber in pages">
+                            <a class="page-link" v-on:click="set_page(pageNumber)">${pageNumber}</a>
+                        </li>
+                        
+                        <li class="page-item noSelect" v-bind:class="{disabled: current_page == pages}">
+                            <a class="page-link" v-on:click="next_page()">Next</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         {{pass}}
       <!-- Here goes your main HTML code. -->
       {{if auth.user is not None:}}
 
 
-      {{if not even_jobs and not odd_jobs:}}
+      {{if False:}}
 
       {{pass}}
 

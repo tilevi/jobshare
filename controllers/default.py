@@ -33,50 +33,19 @@ def jobs():
         rCount = rCount + 1
     
     # This is just in-case someone visits a non-existent page.
-    if (pn > rCount):
-        redirect(URL('', vars={'page': rCount}))
-    elif (pn < 0):
-        redirect(URL('', vars={'page': 1}))
+    # if (pn > rCount):
+        #redirect(URL('', vars={'page': rCount}))
+    #elif (pn < 0):
+        #redirect(URL('', vars={'page': 1}))
     
     return dict(odd_jobs=[y for x,y in enumerate(jobs) if x%2 != 0],
                 even_jobs=[y for x,y in enumerate(jobs) if x%2 == 0],
                 count = count,
-                pages = rCount)
+                pages = rCount,
+                page = pn)
 
 def index():
-    jobs = []
-    search = request.vars.search or ''
-    
-    # We make a try-catch block to prevent any internal errors.
-    try:
-        pn = int(request.vars.page) - 1
-    except:
-        pn = 0
-    
-    jobsPerPage = 8
-    count = 0
-    
-    if auth.user is not None:
-        result = db((db.job.user_id == auth.user_id) & (db.job.name.contains(search)))
-        count = result.count()
-        jobs = result.select(
-                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
-        
-    rCount = (count // jobsPerPage)
-    if ((count % 8) > 0):
-        rCount = rCount + 1
-    
-    # This is just in-case someone visits a non-existent page.
-    if (pn > rCount):
-        redirect(URL('', vars={'page': rCount}))
-    elif (pn < 0):
-        redirect(URL('', vars={'page': 1}))
-    
-    return dict(odd_jobs=[y for x,y in enumerate(jobs) if x%2 != 0],
-                even_jobs=[y for x,y in enumerate(jobs) if x%2 == 0],
-                count = count,
-                pages = rCount)
-
+    return dict()
 
 allowed = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
            'A', 'B', 'C', 'D', 'E', 'F']
@@ -135,7 +104,7 @@ def validate(form):
 def create():
     form = SQLFORM(db.job, formstyle='bootstrap')
     if form.process(onvalidation=validate).accepted:
-        redirect(URL('default','index'))
+        redirect(URL('default', 'index'))
     return dict(form=form)
 
 @auth.requires_login()
