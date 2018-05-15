@@ -112,8 +112,6 @@ var app2 = function() {
     Vue.config.silent = false;
     
     self.toggle_job = function() {
-        console.log('clicked');
-        
         $.post(toggle_job_url,
             {
                 job_id: job_id

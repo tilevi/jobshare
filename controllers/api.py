@@ -1,5 +1,40 @@
 import datetime
 
+def get_jobs():
+    jobs = []
+    search = request.vars.search or ''
+    
+    # We make a try-catch block to prevent any internal errors.
+    try:
+        pn = int(request.vars.page) - 1
+    except:
+        pn = 0
+    
+    jobsPerPage = 8
+    count = 0
+    
+    if auth.user is not None:
+        result = db((db.job.user_id == auth.user_id) & (db.job.name.contains(search)))
+        count = result.count()
+        jobs = result.select(
+                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+        
+    rCount = (count // jobsPerPage)
+    if ((count % 8) > 0):
+        rCount = rCount + 1
+    
+    # This is just in-case someone visits a non-existent page.
+    #if (pn > rCount):
+    #    redirect(URL('', vars={'page': rCount}))
+    #elif (pn < 0):
+    #    redirect(URL('', vars={'page': 1}))
+    
+    return response.json(
+        dict(   jobs = jobs,
+                count = count,
+                pages = rCount)
+    )
+
 def get_comments():
     start_idx = int(request.vars.start_idx) if request.vars.start_idx is not None else 0
     end_idx = int(request.vars.end_idx) if request.vars.end_idx is not None else 0

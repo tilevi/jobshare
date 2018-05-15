@@ -1,145 +1,131 @@
 {{extend 'layout.html'}}
 
 {{block head}}
+    <script src="{{=URL('static', 'js/vue.js')}}"></script>
+    <script src="https://unpkg.com/vue-router"></script>
+    <script>
+        var jobs_url = "{{=URL('api', 'get_jobs')}}";
+        var your_jobs_url = "{{=URL('default', 'index')}}";
+        var view_url = "{{=URL('default', 'view')}}";
+    </script>
 {{end}}
-
-<script src="{{=URL('static', 'js/jquery.twbsPagination.js')}}"></script>
 
 <div class="main_content">
 
-    <!-- This is loaded when the user is not logged in. -->
-    {{if auth.user is not None:}}
+    <div id="vue-div-main" style="display: none;">
     
-        <div class="fill" style="padding: 10px 0px 15px 0px; background-color: rgba(32, 32, 32);">
-            <div class="container" style="padding: 0px; background-color: rgba(32, 32, 32);">
-                <div class="header">
-                    <div class="playerTwo">
-                        <h2 style="color: white; padding-left: 18px;">Your Jobs</h2>
-                    </div>
-                    <div class="playerOne">
-                        
-                        
-                    
-                        <div class="input-group" style="padding-left: 18px; padding-right: 28px;">
-                            <form id="form_search" name="form_search" method="get" action="" class="form-inline">
-                                
+        <!-- This is loaded when the user is not logged in. -->
+        {{if auth.user is not None:}}
 
-                                
-                                <div class="input-group">
-                                    <input type="text" class="form-control width100" name="search" value="{{=request.vars.search or ""}}" placeholder="Search jobs..">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-info" type="submit" style="background-color: black;/"><i class="fa fa-search"></i>&#8203;</button>
-                                    </span>
-                                </div>
-                                
-                                
-                                
-                            </form>
+            <div class="fill" style="padding: 10px 0px 15px 0px; background-color: rgba(32, 32, 32);">
+                <div class="container" style="padding: 0px; background-color: rgba(32, 32, 32);">
+                    <div class="header">
+                        <div class="playerTwo">
+                            <h2 style="color: white; padding-left: 18px;">Your Jobs</h2>
                         </div>
-                    
-              
-                        
+                        <div class="playerOne">
+
+
+
+                            <div class="input-group" style="padding-left: 18px; padding-right: 28px;">
+                                
+                                    <div class="input-group">
+                                        <input v-on:keyup.enter="search_jobs()" v-model="search_form" type="text" class="form-control width100" name="search" placeholder="Search jobs..">
+                                        <span class="input-group-btn">
+                                            <button v-on:click="search_jobs()" class="btn btn-info" type="submit" style="background-color: black;/"><i class="fa fa-search"></i>&#8203;</button>
+                                        </span>
+                                    </div>
+
+
+                            </div>
+
+
+
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    
-        <div class="container">
-            <div style="margin-bottom: 0px; margin-right: 18px; margin-top: 10px; text-align: right;">
-                <a href="{{=URL('default', 'create')}}"><button class="createJobButton"><i class="fa fa-plus" style="margin-right: 10px;"></i>Create new</button></a>
+
+            <div class="container">
+                <div style="margin-bottom: 0px; margin-right: 18px; margin-top: 10px; text-align: right;">
+                    <a href="{{=URL('default', 'create')}}"><button class="createJobButton"><i class="fa fa-plus" style="margin-right: 10px;"></i>Create new</button></a>
+                </div>
             </div>
-        </div>
 
-        <div class="container">
-            
-            <div class="half compressible">
-                {{for j in even_jobs:}}
+            <div class="container">
+                
+                <div class="half compressible">
+                    
+                    <div v-for="job in even_jobs">
+                        <a v-bind:href="getJobViewURL(job.id)" style="text-decoration: none">
+                            <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }">
+                                <div class="whiteGloss" v-bind:style="{ background: '#' + job.color + 'B3' }">
+                                    <div class="myTextBottomLeft">
+                                        ${job.name}
+                                    </div>
+                                </div>
 
-                <a href="{{=URL('default', 'view', args=[j.id])}}" style="text-decoration: none">
-                    <div class="roundedCorners" style="background: #{{=j.color}}59">
-                        <div class="whiteGloss" style="background: #{{=j.color}}B3">
-                            <div class="myTextBottomLeft">
-                                {{=j.name}}
-                            </div>
-                        </div>
-
-                        <div class="jobDescription">
-                            {{=j.description}}               
-                        </div>
-                    </div>
-                </a>
-                {{pass}}
-            </div>
-            <div class="half compressible">
-                {{for j in odd_jobs:}}
-                    <a href="{{=URL('default', 'view', args=[j.id])}}" style="text-decoration: none">
-                        <div class="roundedCorners" style="background: #{{=j.color}}59">
-                            <div class="whiteGloss" style="background: #{{=j.color}}B3">
-                                <div class="myTextBottomLeft">
-                                    {{=j.name}}
+                                <div class="jobDescription">
+                                    ${job.description}           
                                 </div>
                             </div>
-
-                            <div class="jobDescription">
-                                {{=j.description}}
-                            </div>                    
-                        </div>
-                    </a>
-                {{pass}}
-            </div>
-        </div>
-    
-        <div class="container">
-            
-            <div style="margin-bottom: 0px; margin-right: 18px; margin-top: 10px; text-align: right; position: relative;">
-                
-                <ul id="pagination" class="pagination-sm"
-                    style="position: absolute; right: 0px;"></ul>
-                
-                <script>
-                    $("#homeLink").addClass('active');
+                        </a>
+                    </div>
                     
-                    if($('#pagination').data("twbs-pagination")){
-                        $('#pagination').twbsPagination('destroy');
-                    }
+                </div>
+                
+                <div class="half compressible">
+                    
+                    <div v-for="job in odd_jobs">
+                        <a v-bind:href="getJobViewURL(job.id)" style="text-decoration: none">
+                            <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }">
+                                <div class="whiteGloss" v-bind:style="{ background: '#' + job.color + 'B3' }">
+                                    <div class="myTextBottomLeft">
+                                        ${job.name}
+                                    </div>
+                                </div>
 
-                    $('#pagination').twbsPagination({
-                        totalPages: {{=pages}},
-                        visiblePages: 3,
-                        initiateStartPageClick: false,    
-                        startPage: {{=request.vars.page or 1}},
-                        onPageClick: function (event, next_page) {                            
-                            {{if request.vars.search:}}
-                                window.location.replace("{{=URL()}}" + "?page=" + next_page + "&search={{=request.vars.search}}");
-                            {{else:}}
-                                window.location.replace("{{=URL()}}" + "?page=" + next_page);
-                            {{pass}}
-                        }
-                    });
-                </script>
+                                <div class="jobDescription">
+                                    ${job.description}           
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                </div>
             </div>
+
+            <div class="container">
+
+                <div style="margin-bottom: 0px; margin-right: 18px; margin-top: 10px; text-align: right; position: relative;">
+                        
+                    <button v-on:click="setNewURL()">Set new URL</button>
+                    
+                </div>
+            </div>
+        {{pass}}
+      <!-- Here goes your main HTML code. -->
+      {{if auth.user is not None:}}
+
+
+      {{if not even_jobs and not odd_jobs:}}
+
+      {{pass}}
+
+      {{else:}}
+
+       <h1 class="main_title">Welcome!</h1>
+
+        <p class="explanation">This site will help you organize your life by storing your checklists.
+            Please log in to use it.</p>
+
+        <div class="login_button">
+            <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
         </div>
-    {{pass}}
-  <!-- Here goes your main HTML code. -->
-  {{if auth.user is not None:}}
 
-    
-  {{if not even_jobs and not odd_jobs:}}
-    
-  {{pass}}
+      {{pass}}
 
-  {{else:}}
-
-   <h1 class="main_title">Welcome!</h1>
-
-    <p class="explanation">This site will help you organize your life by storing your checklists.
-        Please log in to use it.</p>
-
-    <div class="login_button">
-        <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
     </div>
-
-  {{pass}}
-
 </div>
 
+<script src="{{=URL('static', 'js/default_index_main.js')}}"></script>
