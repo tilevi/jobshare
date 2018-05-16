@@ -9,7 +9,10 @@
     <link href="{{=URL('static','css/tagify.css')}}" rel="stylesheet" type="text/css"/>
     <link href="{{=URL('static','css/web2py.css')}}" rel="stylesheet" type="text/css"/>
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+      
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" type="text/css"/>
 
@@ -20,7 +23,7 @@
       
     <link rel="stylesheet" href="{{=URL('static', 'font-awesome-4.6.3/css/font-awesome.min.css')}}">
     {{include "web2py_ajax.html"}}
-  </head>
+</head>
 
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -35,14 +38,14 @@
         <a class="nav-link" id="homeLink" href="{{=URL('default', 'index')}}">Home <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="jobsLink" href="{{=URL('default', 'jobs')}}">Community</a>
+        <a class="nav-link" id="jobsLink" href="{{=URL('default', 'community')}}">Community</a>
       </li>
     </ul>
       <ul class="navbar-nav ml-auto">
         {{if auth.user is not None:}}
             <li class="nav-item dropdown ml-auto">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{=auth.user.first_name}}
+                {{=auth.user.username}}
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="{{=URL('default', 'user', args='profile')}}">Profile</a>

@@ -2,6 +2,12 @@ import datetime
 
 def get_jobs():
     jobs = []
+    
+    if request.vars.public:
+        getShared = True
+    else:
+        getShared = False
+    
     search = request.vars.search or ''
     
     # We make a try-catch block to prevent any internal errors.
@@ -10,15 +16,20 @@ def get_jobs():
     except:
         pn = 0
     
-    jobsPerPage = 2
+    jobsPerPage = 6
     count = 0
     
-    if auth.user is not None:
+    if (getShared):
+        result = db((db.job.is_public == True) & (db.job.name.contains(search)))
+        count = result.count()
+        jobs = result.select(
+                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+    elif auth.user is not None:
         result = db((db.job.user_id == auth.user_id) & (db.job.name.contains(search)))
         count = result.count()
         jobs = result.select(
                 limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
-        
+    
     rCount = (count // jobsPerPage)
     if ((count % jobsPerPage) > 0):
         rCount = rCount + 1

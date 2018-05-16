@@ -10,6 +10,25 @@ var app = function() {
 
     Vue.config.silent = false; // show all warnings
 
+    
+    var player_models = {
+        'models/player/alyx.mdl': 'alyx.png',
+        'models/player/police.mdl': 'police.png',
+        'models/player/combine_super_soldier.mdl': 'combine_super_soldier.png',
+        'models/player/Group01/female_01.mdl': 'female_01.png',
+        'models/player/breen.mdl': 'breen.png',
+        'models/player/monk.mdl': 'monk.png',
+        'models/player/kleiner.mdl': 'kleiner.png',
+        'models/player/phoenix.mdl': 'phoenix.png'
+    }
+    
+    self.getModelURL = function(mdl) {
+        if (player_models[mdl] == null) {
+            return "";
+        }
+        return image_url + "/" + player_models[mdl];
+    }
+    
     // Extends an array
     self.extend = function(a, b) {
         for (var i = 0; i < b.length; i++) {
@@ -40,6 +59,11 @@ var app = function() {
             search: search,
             page: page
         };
+        
+        if (isCommunityPage) {
+            pp.public = true;
+        }
+        
         return jobs_url + "?" + $.param(pp);
     }
     
@@ -129,7 +153,8 @@ var app = function() {
             search_jobs: self.search_jobs,
             set_page: self.set_page,
             prev_page: self.prev_page,
-            next_page: self.next_page
+            next_page: self.next_page,
+            getModelURL: self.getModelURL
         }
     });
     

@@ -9,40 +9,8 @@
 # -------------------------------------------------------------------------
 import json
 
-def jobs():
-    jobs = []
-    search = request.vars.search or ''
-    
-    # We make a try-catch block to prevent any internal errors.
-    try:
-        pn = int(request.vars.page) - 1
-    except:
-        pn = 0
-    
-    jobsPerPage = 8
-    count = 0
-    
-    if auth.user is not None:
-        result = db((db.job.is_public == True) & (db.job.name.contains(search)))
-        count = result.count()
-        jobs = result.select(
-                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
-        
-    rCount = (count // jobsPerPage)
-    if ((count % 8) > 0):
-        rCount = rCount + 1
-    
-    # This is just in-case someone visits a non-existent page.
-    # if (pn > rCount):
-        #redirect(URL('', vars={'page': rCount}))
-    #elif (pn < 0):
-        #redirect(URL('', vars={'page': 1}))
-    
-    return dict(odd_jobs=[y for x,y in enumerate(jobs) if x%2 != 0],
-                even_jobs=[y for x,y in enumerate(jobs) if x%2 == 0],
-                count = count,
-                pages = rCount,
-                page = pn)
+def community():
+    return dict()
 
 def index():
     return dict()
@@ -170,7 +138,7 @@ def user():
     """
     
     if request.args(0) == 'profile':
-        db.auth_user.email.readable = db.auth_user.email.writable = False
+        db.auth_user.username.readable = db.auth_user.username.writable = False
     
     if 'login' in request.args:
         db.auth_user.username.label = T("Username or Email")

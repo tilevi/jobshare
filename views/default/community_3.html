@@ -5,25 +5,26 @@
     <script src="https://unpkg.com/vue-router"></script>
     <script>
         var jobs_url = "{{=URL('api', 'get_jobs')}}";
-        var your_jobs_url = "{{=URL('default', 'index')}}";
-        var view_url = "{{=URL('default', 'view')}}";
         
-        var isCommunityPage = false;
+        var your_jobs_url = "{{=URL('default', 'community')}}";
+        var view_url = "{{=URL('default', 'view')}}";
+        var image_url = "{{=URL('static', 'images')}}";
+        
+        var isCommunityPage = true;
     </script>
 {{end}}
+
+
 
 <div class="main_content">
 
     <div id="vue-div-main" style="display: none;">
     
-        <!-- This is loaded when the user is not logged in. -->
-        {{if auth.user is not None:}}
-
             <div class="fill" style="padding: 10px 0px 15px 0px; background-color: rgba(32, 32, 32);">
-                <div class="container" style="padding: 0px; background-color: rgba(32, 32, 32);">
+                <div class="containerS" style="padding: 0px; background-color: rgba(32, 32, 32);">
                     <div class="header">
                         <div class="playerTwo">
-                            <h2 style="color: white; padding-left: 18px;">Your Jobs</h2>
+                            <h2 style="color: white; padding-left: 18px;">Community</h2>
                         </div>
                         <div class="playerOne">
 
@@ -48,27 +49,52 @@
                 </div>
             </div>
 
-            <div class="container">
-                <div style="margin-bottom: 0px; margin-right: 18px; margin-top: 10px; text-align: right;">
-                    <a href="{{=URL('default', 'create')}}"><button class="createJobButton"><i class="fa fa-plus" style="margin-right: 10px;"></i>Create new</button></a>
-                </div>
+            
+        
+            <div class="containerS" style="padding: 0px;">
+                <div class="header">
+                        <div class="playerTwo" style="margin-left: 23px;">
+                            <select name="sort" class="form-control" style="width: 230px; display: inline;">
+<option value="newest_jobs" selected>Sort by: Newest jobs</option>
+<option value="oldest_jobs">Sort by: Oldest jobs</option>
+<option value="recently_updated">Sort by: Recently updated</option>
+</select>
+                        </div>
+                        <div class="playerOne" style="margin-right: 32px;">
+
+                            <a href="{{=URL('default', 'create')}}"><button class="createJobButton"><i class="fa fa-plus" style="margin-right: 10px;"></i>Create new</button></a>
+
+                        </div>
+                    </div>
             </div>
 
-            <div class="container">
+            
+            
+            <div class="containerS">
                 
-                <div class="half compressible">
+                <div class="half">
                     
                     <div v-for="job in even_jobs">
                         <a v-bind:href="getJobViewURL(job.id)" style="text-decoration: none">
                             <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }">
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color + 'B3' }">
+                                    
+                                    <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
+                                    
                                     <div class="myTextBottomLeft">
                                         ${job.name}
                                     </div>
+                                    
                                 </div>
-
+                                
                                 <div class="jobDescription">
-                                    ${job.description}           
+                                    ${job.description}
+                                </div>
+                                
+                                <div class="postedBy">
+                                    <div class="postedByText">
+                                        Posted by: ${job.created_by}
+                                    </div>
                                 </div>
                             </div>
                         </a>
@@ -76,19 +102,32 @@
                     
                 </div>
                 
-                <div class="half compressible">
+                <div class="half">
                     
                     <div v-for="job in odd_jobs">
                         <a v-bind:href="getJobViewURL(job.id)" style="text-decoration: none">
                             <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }">
+                                
+                                <i class="fa fa-trash fa-sm" id="topRightTest2"></i>
+                                <i class="fa fa-edit fa-sm" id="topRightTest1"></i>
+                                
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color + 'B3' }">
+                                    
+                                    <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
+                                    
                                     <div class="myTextBottomLeft">
                                         ${job.name}
                                     </div>
                                 </div>
-
+                                
                                 <div class="jobDescription">
-                                    ${job.description}           
+                                    ${job.description}
+                                </div>
+                                
+                                <div class="postedBy">
+                                    <div class="postedByText">
+                                        Posted by: ${job.created_by}
+                                    </div>
                                 </div>
                             </div>
                         </a>
@@ -96,8 +135,8 @@
                     
                 </div>
             </div>
-
-            <div class="container">
+            
+            <div class="containerS">
                 
                 <!-- https://jsfiddle.net/os7hp1cy/48/ -->
                 <nav aria-label="Page navigation example">
@@ -118,33 +157,15 @@
                     </ul>
                 </nav>
             </div>
-        {{pass}}
-      <!-- Here goes your main HTML code. -->
-      {{if auth.user is not None:}}
 
-
-      {{if False:}}
-
-      {{pass}}
-
-      {{else:}}
-
-       <h1 class="main_title">Welcome!</h1>
-
-        <p class="explanation">This site will help you organize your life by storing your checklists.
-            Please log in to use it.</p>
-
-        <div class="login_button">
-            <a href="{{=URL('default', 'user')}}" class="btn">Login</a>
-        </div>
-
-      {{pass}}
 
     </div>
 </div>
 
+
+
 <script>
-    $('#homeLink').addClass('active');
+    $('#jobsLink').addClass('active');
 </script>
 
 <script src="{{=URL('static', 'js/default_index_main.js')}}"></script>

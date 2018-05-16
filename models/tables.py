@@ -15,6 +15,10 @@ def get_user_id():
 def get_username():
     return auth.user.username if auth.user is not None else None
 
+def get_the_username():
+    return auth.user.username if auth.user is not None else None
+
+
 def boot_form_widget(field, value):
     return INPUT(_name=field.name,
                  _id="%s_%s" % (field._tablename, field.name),
@@ -90,7 +94,8 @@ db.define_table('job',
                 Field('vote', 'boolean', default=False),
                 Field('weapons', 'string', widget=tag_widget),
                 Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
-                Field('is_public', 'boolean', default=False)
+                Field('is_public', 'boolean', default=False),
+                Field('created_by', default=get_the_username()),
                 )
 
 db.define_table('post',
@@ -103,6 +108,7 @@ db.define_table('post',
 
 db.job.user_id.writable = db.job.user_id.readable = False
 db.job.is_public.writable = db.job.is_public.readable = False
+db.job.created_by.writable = db.job.created_by.readable = False
 
 # after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)
