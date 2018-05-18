@@ -26,7 +26,7 @@ def get_jobs():
     except:
         max_players = 128
     
-    # Minimum and maximum number of players.
+    # Minimum and maximum salary.
     try:
         min_salary = int(request.vars.min_s)
     except:
