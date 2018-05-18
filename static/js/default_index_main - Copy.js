@@ -73,18 +73,17 @@ var app = function() {
         var pp = {
             search: vue.search_form,
             page: vue.current_page,
-            min_p: vue.min_players,
-            max_p: vue.max_players,
-            min_s: vue.min_salary,
-            max_s: vue.max_salary,
-            w: vue.checkedWeapons
+            min_p: vue.min_p,
+            max_p: vue.max_p,
+            min_s: vue.min_s,
+            max_s: vue.max_s,
+            weps: vue.checkedWeapons
         }
         
         if (isCommunityPage) {
             pp.public = true;
         }
         
-        // console.log(jobs_url + "?" + $.param(pp)); 
         return jobs_url + "?" + $.param(pp);
     }
     
@@ -163,9 +162,7 @@ var app = function() {
             pp.max_s = vue.max_salary;
         }
         
-        if (vue.checkedWeapons.length != 0) {
-            pp.w = vue.checkedWeapons;
-        }
+        pp.weps = (vue.checkedWeapons.length == 0) ? [] : vue.checkedWeapons;
         
         var url = your_jobs_url + "?" + $.param(pp);
         window.history.replaceState(null, null, url);
@@ -191,20 +188,8 @@ var app = function() {
         self.get_jobs();
     }
     
-    self.getTextClass = function(bgColor) {
-        var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
-            var r = parseInt(color.substring(0, 2), 16); // hexToR
-            var g = parseInt(color.substring(2, 4), 16); // hexToG
-            var b = parseInt(color.substring(4, 6), 16); // hexToB
-            var uicolors = [r / 255, g / 255, b / 255];
-            var c = uicolors.map((col) => {
-            if (col <= 0.03928) {
-                return col / 12.92;
-            }
-            return Math.pow((col + 0.055) / 1.055, 2.4);
-        });
-        var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
-        return (L > 0.179) ? "textColorBlack" : "textColorWhite";
+    self.getWeapons = function() {
+        self.get_jobs();
     }
     
     var router = new VueRouter({
@@ -236,11 +221,9 @@ var app = function() {
             min_players: null,
             max_players: null,
             
-            checkedWeapons: [],
-            checkedTags: []
+            checkedWeapons: []
         },
         methods: {
-            fetchNewResults: self.get_jobs,
             getJobViewURL: self.getJobViewURL,
             setNewURL: self.setNewURL,
             search_jobs: self.search_jobs,
@@ -250,7 +233,7 @@ var app = function() {
             getModelURL: self.getModelURL,
             searchByPlayers: self.searchByPlayers,
             searchBySalary: self.searchBySalary,
-            getTextClass: self.getTextClass
+            getWeapons: self.getWeapons
         }
     });
     

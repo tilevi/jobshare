@@ -16,11 +16,37 @@ def get_jobs():
     except:
         pn = 0
     
+    # Minimum and maximum number of players.
+    try:
+        min_players = int(request.vars.min_p)
+    except:
+        min_players = 1
+    try:
+        max_players = int(request.vars.max_p)
+    except:
+        max_players = 128
+    
+    # Minimum and maximum number of players.
+    try:
+        min_salary = int(request.vars.min_s)
+    except:
+        min_salary = 0
+    try:
+        max_salary = int(request.vars.max_s)
+    except:
+        max_salary = -1
+    
     jobsPerPage = 6
     count = 0
     
     if (getShared):
-        result = db((db.job.is_public == True) & (db.job.name.contains(search)))
+        q = (db.job.is_public == True) & (db.job.name.contains(search)) & (db.job.max_players >= min_players) & (db.job.max_players <= max_players) & (db.job.salary >= min_salary)
+        
+        if (max_salary >= 0):
+            q = q & (db.job.salary <= max_salary)
+        
+        result = db(q)
+        
         count = result.count()
         jobs = result.select(
                 limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))

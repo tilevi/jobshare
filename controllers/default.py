@@ -67,6 +67,8 @@ def validate(form):
     checkSalary(form)
     checkColor(form)
     checkPlayers(form)
+    
+    form.vars.weapons = json.loads(form.vars.weapons);
 
 @auth.requires_login()
 def create():
@@ -106,7 +108,6 @@ def edit():
             redirect(URL('default', 'view', args=[job]))
     return dict(form=form)
 
-
 def view():
     if request.args(0) is None:
         redirect(URL('default', 'jobs'))
@@ -117,8 +118,9 @@ def view():
         if (job is None) or ((not job.is_public) and (int(job.user_id)!= int(auth.user_id))):
             redirect(URL('default', 'jobs'))
     
-    return dict(id=request.args(0), job=job, weapons=json.loads(job.weapons))
-
+    logger.info("The weapons length is: %r" % len(job.weapons))
+    
+    return dict(id=request.args(0), job=job, weapons=job.weapons)
 
 def user():
     """

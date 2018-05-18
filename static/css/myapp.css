@@ -20,22 +20,16 @@ html, body {max-width: 100vw; overflow-x: hidden}
     position: relative;
 }
 
-#topRightTest1 {
+.noBottomMargin {
+    margin-bottom: 0px !important;
+}
+
+#topRightTest {
     position: absolute;
     top: 1px;
-    right: 0px;
-    color: white;
+    right: 2px;
     padding: 2px;
 }
-
-#topRightTest2 {
-    position: absolute;
-    top: 0px;
-    right: 22px;
-    color: white;
-    padding: 2px;
-}
-
 
 .topButtons {
     margin: 8px;
@@ -69,6 +63,29 @@ html, body {max-width: 100vw; overflow-x: hidden}
     margin-bottom: -2px;
     display: inline-block;
     color: white;
+}
+
+
+.cPanel {
+    padding: 15px;
+    background-color: white;
+}
+
+.filterByTags {
+    background-color: rgba(247, 247, 249, 1);
+    color: rgba(152, 151, 139, 1);
+    font-size: 12px;
+    padding: 10px 15px 10px 15px;
+    
+    cursor: pointer;
+}
+
+#filterText:hover {
+    text-decoration: underline;
+}
+
+#filterTags {
+    background-color: white;
 }
 
 .roundedCorners2 {
@@ -141,14 +158,19 @@ a.last::before {
     text-overflow: ellipsis;
 }
 
+.textColorWhite {
+    color: #FFF;
+}
+
+.textColorBlack {
+    color: #141414;
+}
+
 .myTextBottomLeft {
     padding-left: 8px;
     padding-right: 8px;
     font-size: 48px;
     font-weight: bold;
-    color: white;
-    -webkit-text-stroke: 2px black;
-    
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

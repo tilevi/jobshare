@@ -1,7 +1,6 @@
 {{extend 'layout.html'}}
 
 {{block head}}
-    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script> -->
     <script src="{{=URL('static', 'js/vue.js')}}"></script>
     <script src="{{=URL('static', 'js/vue-router.min.js')}}"></script>
     
@@ -17,27 +16,10 @@
     
     <script src="{{=URL('static','js/tagify.js')}}"></script>
     <script src="{{=URL('static','js/jQuery.tagify.js')}}"></script>
-
-
-    <script>
-        function pickTextColorBasedOnBgColorAdvanced(bgColor, lightColor, darkColor) {
-            var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
-            var r = parseInt(color.substring(0, 2), 16); // hexToR
-            var g = parseInt(color.substring(2, 4), 16); // hexToG
-            var b = parseInt(color.substring(4, 6), 16); // hexToB
-            var uicolors = [r / 255, g / 255, b / 255];
-            var c = uicolors.map((col) => {
-                if (col <= 0.03928) {
-                    return col / 12.92;
-                }
-                return Math.pow((col + 0.055) / 1.055, 2.4);
-            });
-            var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
-                return (L > 0.179) ? darkColor : lightColor;
-        }
-    </script>
 {{end}}
 
+
+    
 
 <div id="vue-div-main" style="display: none;">
 
@@ -52,7 +34,7 @@
     <div class="input-group">
     <input v-on:keyup.enter="search_jobs()" v-model="search_form" type="text" class="form-control" name="search" placeholder="Search jobs..">
     <span class="input-group-btn">
-    <button v-on:click="fetchNewResults();" class="btn btn-info" type="submit" style="background-color: black;/"><i class="fa fa-search"></i>&#8203;</button>
+    <button v-on:click="search_jobs()" class="btn btn-info" type="submit" style="background-color: black;/"><i class="fa fa-search"></i>&#8203;</button>
     </span>
     </div>
 </div>
@@ -84,41 +66,10 @@
                         
                         <div class="cPanel">
                             
-                            
-                            <!-- 'Citizen', 'Commercial', 'Criminal', 'Fun', 'Government', 'OP', 'Misc.' -->
-                            
-                            
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Citizen" value="Citizen" v-model="checkedTags">
-                                <label for="Citizen" class="noBottomMargin">Citizen</label>
+                            <div class="form-check"  v-for="tag in tags">
+                                <input type="checkbox" class="form-check-input" v-bind:id="tag + '_check'">
+                                <label class="form-check-label" v-bind:for="tag + '_check'">${tag}</label>
                             </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Commercial" value="Commercial" v-model="checkedTags">
-                                <label for="Commercial" class="noBottomMargin">Commercial</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Criminal" value="Criminal" v-model="checkedTags">
-                                <label for="Criminal" class="noBottomMargin">Criminal</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Fun" value="Fun" v-model="checkedTags">
-                                <label for="Fun" class="noBottomMargin">Fun</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Government" value="Government" v-model="checkedTags">
-                                <label for="Government" class="noBottomMargin">Government</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="OP" value="OP" v-model="checkedTags">
-                                <label for="OP" class="noBottomMargin">OP</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Misc" value="Misc" v-model="checkedTags">
-                                <label for="Misc" class="noBottomMargin">Misc.</label>
-                            </div>
-                            
-                            
-                            
                         </div>
                         
                     </div>
@@ -135,24 +86,10 @@
                     <div id="filterWeapons" class="collapse noSelect">
                         
                         <div class="cPanel">
-                            
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="ak47" value="AK-47" v-model="checkedWeapons">
-                                <label for="ak47" class="noBottomMargin">AK-47</label>
+                            <div class="form-check"  v-for="wep in weapons">
+                                <input type="checkbox" class="form-check-input" v-bind:id="wep + '_check'">
+                                <label class="form-check-label" v-bind:for="wep + '_check'">${wep}</label>
                             </div>
-                            
-                            
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="ar2" value="AR2" v-model="checkedWeapons">
-                                <label for="ar2" class="noBottomMargin">AR2</label>
-                            </div>
-                            
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="custom" value="custom_swep" v-model="checkedWeapons">
-                                <label for="custom" class="noBottomMargin">Custom SWEP</label>
-                            </div>
-                            
-                            <!-- <tag-it id='lolFine' name='tags' placeholder='Add jobs' value='' v-once></tag-it> -->
                         </div>
                         
                     </div>
@@ -187,7 +124,7 @@
                             </div>             
 
                             <div style="margin-top:8px;">
-                                <button class="btn btn-default btn-block" v-on:click="fetchNewResults();">
+                                <button class="btn btn-default btn-block" type="submit">
                                     <i class="fa fa-search"></i> Filter
                                 </button>
                             </div>
@@ -203,22 +140,22 @@
                     <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterMaxPlayers">
                         
                         <i class="fa fa-chevron-down" id="filterMaxPlayersIcon" style="margin-right: 4px;"></i>
-                        <span id="filterText">BY MAX PLAYERS</span>
+                        <span id="filterText">FILTER BY PLAYERS</span>
                     </div>
                     
                     <div id="filterMaxPlayers" class="collapse noSelect">
                         
                         <div class="cPanel">
-                            <label for="price_min">From:</label>
+                            <label for="price_min">Max. From:</label>
                             <div class="input-group mb-3" style="margin-bottom: 5px !important;">
                                 <input v-model="min_players" name="players_min" type="text" class="form-control" placeholder="0">
                             </div>                          
-                            <label for="price_max">To:</label>
+                            <label for="price_max">Max. To:</label>
                             <div class="input-group mb-3" style="margin-bottom: 5px !important;">
                                 <input v-model="max_players" name="players_max" type="text" class="form-control" placeholder="4">
                             </div>
                             <div style="margin-top: 8px;">
-                                <button class="btn btn-default btn-block" v-on:click="fetchNewResults();">
+                                <button class="btn btn-default btn-block" v-on:click="searchByPlayers();">
                                     <i class="fa fa-search"></i> Filter
                                 </button>
                             </div>
@@ -259,17 +196,14 @@
                     <div v-for="job in even_jobs" style="padding: 4px;">
                         <a v-bind:href="getJobViewURL(job.id)" style="text-decoration: none">
                             <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }">
-                                
-                                <!-- <i class="fa fa-edit fa-sm" id="topRightTest1" v-bind:class="getTextClass(job.color)"></i> -->
-                                <i class="fa fa-trash fa-sm" id="topRightTest" v-bind:class="getTextClass(job.color)"></i>
-                                
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color + 'B3' }">
                                     
                                     <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
                                     
-                                    <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
+                                    <div class="myTextBottomLeft">
                                         ${job.name}
                                     </div>
+                                    
                                 </div>
                                 
                                 <div class="jobDescription">
@@ -299,14 +233,14 @@
                         <a v-bind:href="getJobViewURL(job.id)" style="text-decoration: none">
                             <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }">
                                 
-                                <!-- <i class="fa fa-edit fa-sm" id="topRightTest1"></i> -->
-                                <i class="fa fa-trash fa-sm" id="topRightTest" v-bind:class="getTextClass(job.color)"></i>
+                                <i class="fa fa-trash fa-sm" id="topRightTest2"></i>
+                                <i class="fa fa-edit fa-sm" id="topRightTest1"></i>
                                 
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color + 'B3' }">
                                     
                                     <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
                                     
-                                    <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
+                                    <div class="myTextBottomLeft">
                                         ${job.name}
                                     </div>
                                 </div>
@@ -366,12 +300,12 @@
 </div>
 
 
-<script src="{{=URL('static', 'js/default_index_main.js')}}"></script>
 
 <script>
     $('#jobsLink').addClass('active');
     
     function toggleTagIcon() {
+        console.log("WORK");
         $('#filterIcon').toggleClass('fa-rotate-180');
     }
     
@@ -405,3 +339,6 @@
         $('#filterMaxPlayers').on('hide.bs.collapse', toggleMaxPlayersIcon);
     });
 </script>
+
+
+<script src="{{=URL('static', 'js/default_index_main.js')}}"></script>

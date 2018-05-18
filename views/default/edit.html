@@ -77,7 +77,7 @@
                 <label for="job_weapons">Weapons</label>
                 <br/>
                 {{import json
-                wepVal = (', '.join(item for item in json.loads(form.record.weapons)))
+                wepVal = (', '.join(item for item in (form.record.weapons)))
                 pass}}
                 <input id='weapon_tags' name='tags' placeholder='Add weapon classes' value="{{=wepVal}}">
                 {{=form.custom.widget.weapons}}
@@ -124,7 +124,7 @@
                     setCode();
                 }
                 
-                {{for item in json.loads(form.record.weapons):}}
+                {{for item in (form.record.weapons):}}
                     wepTags.push("{{=item}}");
                 {{pass}}
                 
