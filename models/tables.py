@@ -9,6 +9,9 @@
 
 import datetime
 
+def get_utc_time():
+    return datetime.datetime.utcnow()
+
 def get_user_id():
     return auth.user_id if auth.user is not None else None
 
@@ -93,16 +96,17 @@ db.define_table('job',
                 Field('admin_only', 'boolean', default=False),
                 Field('vote', 'boolean', default=False),
                 Field('weapons', 'list:string', widget=tag_widget),
-                Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
                 Field('is_public', 'boolean', default=False),
                 Field('created_by', default=get_the_username()),
+                Field('created_on', 'datetime'),
+                Field('updated_on', 'datetime', update=datetime.datetime.utcnow()),
                 )
 
 db.define_table('post',
                 Field('post_id', 'reference job'),
                 Field('username', default=get_username()),
                 Field('user_id', default=get_user_id()),
-                Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
+                Field('created_on', 'datetime', default=get_utc_time()),
                 Field('body', 'text')
                 )
 

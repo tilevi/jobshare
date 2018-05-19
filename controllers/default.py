@@ -8,6 +8,7 @@
 # - download is for downloading files uploaded in the db (does streaming)
 # -------------------------------------------------------------------------
 import json
+import datetime
 
 def community():
     return dict()
@@ -67,8 +68,8 @@ def validate(form):
     checkSalary(form)
     checkColor(form)
     checkPlayers(form)
-    
     form.vars.weapons = json.loads(form.vars.weapons);
+    form.vars.created_on = datetime.datetime.utcnow()
 
 @auth.requires_login()
 def create():

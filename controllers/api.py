@@ -1,6 +1,20 @@
 import datetime
+from dateutil.relativedelta import *
 
 def get_jobs():
+    # Time range
+    time_range = request.vars.time_range
+    
+    # Sort (for orderby)
+    sort = request.vars.sort
+    
+    # Get the filtered weapons
+    # Source: https://groups.google.com/forum/#!topic/web2py/Awb9qrdl1nM
+    weps = request.vars.get('weps[]', [])
+    if isinstance(weps, basestring):
+        weps = [weps]
+    
+    # The jobs that we will retrieve.
     jobs = []
     
     if request.vars.public:
@@ -8,6 +22,7 @@ def get_jobs():
     else:
         getShared = False
     
+    # Search by job title
     search = request.vars.search or ''
     
     # We make a try-catch block to prevent any internal errors.
@@ -42,14 +57,48 @@ def get_jobs():
     if (getShared):
         q = (db.job.is_public == True) & (db.job.name.contains(search)) & (db.job.max_players >= min_players) & (db.job.max_players <= max_players) & (db.job.salary >= min_salary)
         
+        # Filter the weapons.
+        for wep in weps:
+            q = q & (db.job.weapons.contains(wep))
+        
+        # Sources:
+        #   https://groups.google.com/forum/#!topic/web2py/PrIo2I-fgCc
+        #   https://stackoverflow.com/questions/35066588/is-there-a-simple-way-to-increment-a-datetime-object-one-month-in-python
+        if (time_range != 'any'):
+            if (time_range == 'day'):
+                q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(days=+1) ) )
+            elif (time_range == 'week'):
+                q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(weeks=+1) ) )
+            elif (time_range == 'month'):
+                q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(months=+1) ) )
+            elif (time_range == 'year'):
+                q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(years=+1) ) ) 
+        
         if (max_salary >= 0):
             q = q & (db.job.salary <= max_salary)
         
         result = db(q)
         
         count = result.count()
-        jobs = result.select(
-                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+        
+        if (sort == 'newest'):
+            jobs = result.select(
+                    orderby=~db.job.created_on,
+                    limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+        elif (sort == 'recent'):
+            jobs = result.select(
+                    orderby=~db.job.updated_on,
+                    limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+        else:
+            jobs = result.select(
+                    orderby=~db.job.created_on,
+                    limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+        
+        
+        
+        
+        
+        
     elif auth.user is not None:
         result = db((db.job.user_id == auth.user_id) & (db.job.name.contains(search)))
         count = result.count()

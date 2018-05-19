@@ -84,10 +84,6 @@
                         
                         <div class="cPanel">
                             
-                            
-                            <!-- 'Citizen', 'Commercial', 'Criminal', 'Fun', 'Government', 'OP', 'Misc.' -->
-                            
-                            
                             <div class="form-check">
                                 <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Citizen" value="Citizen" v-model="checkedTags">
                                 <label for="Citizen" class="noBottomMargin">Citizen</label>
@@ -135,20 +131,18 @@
                     <div id="filterWeapons" class="collapse noSelect">
                         
                         <div class="cPanel">
-                            
                             <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="ak47" value="AK-47" v-model="checkedWeapons">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input" id="ak47" value="weapon_ak47" v-model="checkedWeapons">
                                 <label for="ak47" class="noBottomMargin">AK-47</label>
                             </div>
                             
-                            
                             <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="ar2" value="AR2" v-model="checkedWeapons">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input" id="ar2" value="weapon_ar2" v-model="checkedWeapons">
                                 <label for="ar2" class="noBottomMargin">AR2</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="custom" value="custom_swep" v-model="checkedWeapons">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input" id="custom" value="custom_swep" v-model="checkedWeapons">
                                 <label for="custom" class="noBottomMargin">Custom SWEP</label>
                             </div>
                             
@@ -232,25 +226,27 @@
         </div>
             
         <div class="col-sm-8 col-md-9 col-lg-10">
-
             <div>
-                <select name="sort" class="form-control" style="width:200px; display:inline" onchange="this.form.submit()">
-                    <option value="newest_items" selected>Sort by: Newest jobs</option>
-                    <option value="recently_updated">Recently updated</option>
-                    <option value="best_sellers">Upvotes</option>
+                <select v-model="selectedSort" class="form-control" style="width: 200px; display: inline;"
+                        v-on:change="fetchNewResults();" v-bind:disabled="isLoadingResults">
+                    <option value="newest">Sort by: Newest jobs</option>
+                    <option value="recent">Recently updated</option>
+                    <option value="upvotes">Upvotes</option>
                 </select>
-                    <select name="added" class="form-control" style="width:200px;display:inline" onchange="this.form.submit()">
-                    <option value="any" selected>Added: Any date</option>
-                    <option value="month">In the last month</option>
-                    <option value="week">In the last week</option>
-                    <option value="day">In the last day</option>
+                
+                <select v-model="selectedTimeRange" class="form-control" style="width: 200px; display: inline;"
+                        v-on:change="fetchNewResults();" v-bind:disabled="isLoadingResults">
+                    <option value="any">Added: Any date</option>
+                    <option value="day">In the past day</option>
+                    <option value="week">In the past week</option>
+                    <option value="month">In the past month</option>
+                    <option value="year">In the past year</option>
                 </select>
-
+                
                 <span class="pull-right hidden-sm">
                     <a href="{{=URL('default', 'create')}}"><button class="createJobButton"><i class="fa fa-plus"></i>&#8203;</button></a>
                 </span>
             </div>
-            
             
             <div class="row no-gutters" style="margin-top: 8px">
                 <div class="col-md-6 col-sm-6">

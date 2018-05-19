@@ -10,7 +10,6 @@ var app = function() {
     Vue.config.silent = false; // show all warnings
     Vue.config.ignoredElements = ['tags'];
     
-    
     Vue.component('tag-it', {
         template: '<input/>',
         mounted: function() {
@@ -77,14 +76,15 @@ var app = function() {
             max_p: vue.max_players,
             min_s: vue.min_salary,
             max_s: vue.max_salary,
-            w: vue.checkedWeapons
+            weps: vue.checkedWeapons,
+            time_range: vue.selectedTimeRange,
+            sort: vue.selectedSort
         }
         
         if (isCommunityPage) {
             pp.public = true;
         }
         
-        // console.log(jobs_url + "?" + $.param(pp)); 
         return jobs_url + "?" + $.param(pp);
     }
     
@@ -101,28 +101,33 @@ var app = function() {
     }
     
     self.get_jobs = function() {
+        var vue = self.vue;
+        vue.isLoadingResults = true;
+        
         $.getJSON(get_jobs_url(), function (data) {
-            self.vue.jobs = data.jobs;
+            vue.jobs = data.jobs;
             
-            self.vue.even_jobs = [];
-            self.vue.odd_jobs = [];
+            vue.even_jobs = [];
+            vue.odd_jobs = [];
             
             for (var i = 0; i < self.vue.jobs.length; i++) {
                 if (i % 2 == 0) {
-                    self.vue.even_jobs.push(self.vue.jobs[i]);
+                    vue.even_jobs.push(self.vue.jobs[i]);
                 } else {
-                    self.vue.odd_jobs.push(self.vue.jobs[i]);
+                    vue.odd_jobs.push(self.vue.jobs[i]);
                 }
             }
             
-            self.vue.count = data.count;
-            self.vue.pages = data.pages;
+            vue.count = data.count;
+            vue.pages = data.pages;
             
             // Set the current page.
-            self.vue.current_page = data.page;
+            vue.current_page = data.page;
             
             // Set the new URL.
             self.setNewURL();
+            
+            vue.isLoadingResults = false;
         })
     };
     
@@ -138,6 +143,9 @@ var app = function() {
         
         var min_s = vue.min_salary;
         var max_s = vue.max_salary;
+        
+        var time_range = vue.selectedTimeRange;
+        var selected_sort = vue.selectedSort;
         
         if (search != null && search != '') {
             pp.search = vue.search_form;
@@ -164,7 +172,15 @@ var app = function() {
         }
         
         if (vue.checkedWeapons.length != 0) {
-            pp.w = vue.checkedWeapons;
+            pp.wep = vue.checkedWeapons;
+        }
+        
+        if (time_range != null) {
+            pp.time_range = time_range;
+        }
+        
+        if (selected_sort != null) {
+            pp.sort = selected_sort
         }
         
         var url = your_jobs_url + "?" + $.param(pp);
@@ -191,6 +207,8 @@ var app = function() {
         self.get_jobs();
     }
     
+    // Source:
+    // https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
     self.getTextClass = function(bgColor) {
         var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
             var r = parseInt(color.substring(0, 2), 16); // hexToR
@@ -237,7 +255,12 @@ var app = function() {
             max_players: null,
             
             checkedWeapons: [],
-            checkedTags: []
+            checkedTags: [],
+            
+            isLoadingResults: false,
+            
+            selectedTimeRange: 'any',
+            selectedSort: 'newest'
         },
         methods: {
             fetchNewResults: self.get_jobs,
@@ -264,6 +287,15 @@ var app = function() {
     self.vue.min_salary = self.vue.$route.query.min_s;
     self.vue.max_salary = self.vue.$route.query.max_s;
     
+    // Get the weapons
+    var wepArr = self.vue.$route.query["wep[]"];
+    self.vue.checkedWeapons = (wepArr!= null) ? wepArr : [];
+    
+    // Convert it to an array, if necessary.
+    if ((typeof wepArr) == "string") {
+        self.vue.checkedWeapons = [ wepArr ];
+    }
+    
     // Get the corresponding jobs.
     self.get_jobs();
     
@@ -272,7 +304,6 @@ var app = function() {
     
     return self;
 };
-
 
 // This will make everything accessible from the js console;
 // for instance, self.x above would be accessible as APP.x
