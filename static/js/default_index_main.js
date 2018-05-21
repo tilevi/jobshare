@@ -209,7 +209,7 @@ var app = function() {
     
     // Source:
     // https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
-    self.getTextClass = function(bgColor) {
+    self.getTextClass = function(bgColor, faded) {
         var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
             var r = parseInt(color.substring(0, 2), 16); // hexToR
             var g = parseInt(color.substring(2, 4), 16); // hexToG
@@ -222,7 +222,33 @@ var app = function() {
             return Math.pow((col + 0.055) / 1.055, 2.4);
         });
         var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
+        
+        if (faded) {
+           return (L > 0.179) ? "textColorBlackFaded" : "textColorWhiteFaded"; 
+        }
+        
         return (L > 0.179) ? "textColorBlack" : "textColorWhite";
+    }
+    
+    self.show_job_details = function(job) {
+        var vue = self.vue;
+        
+        vue.job_name = job.name;
+        vue.job_desc = job.description;
+        vue.job_model = job.model;
+        vue.job_color = job.color;
+        vue.job_salary = "$" + job.salary;
+        vue.job_max_players = job.max_players;
+        
+        vue.showing_job_details = true;
+        
+        /*
+            job_model: null,
+            job_salary: null,
+            job_max_players: null,
+            job_color: null,
+            job_weapons: null
+        */
     }
     
     var router = new VueRouter({
@@ -260,7 +286,18 @@ var app = function() {
             isLoadingResults: false,
             
             selectedTimeRange: 'any',
-            selectedSort: 'newest'
+            selectedSort: 'newest',
+            
+            showing_job_details: false,
+            
+            // This is for the job details view.
+            job_name: null,
+            job_desc: null,
+            job_model: null,
+            job_salary: null,
+            job_max_players: null,
+            job_color: null,
+            job_weapons: null
         },
         methods: {
             fetchNewResults: self.get_jobs,
@@ -273,7 +310,8 @@ var app = function() {
             getModelURL: self.getModelURL,
             searchByPlayers: self.searchByPlayers,
             searchBySalary: self.searchBySalary,
-            getTextClass: self.getTextClass
+            getTextClass: self.getTextClass,
+            show_job_details: self.show_job_details
         }
     });
     

@@ -102,7 +102,16 @@ input[type=checkbox]:checked:after {
 }
 
 
+.closeJobDetails {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    cursor: pointer;
+}
 
+.pointer {
+    cursor: pointer;
+}
 
 
 
@@ -132,6 +141,13 @@ input[type=checkbox]:checked:after {
 .roundedCorners2 {
     border-radius: 4px;
     border: 2px solid #000;
+    background: rgba(0, 0, 0, 0.4);
+    margin: 8px;
+    margin-top: 0px;
+    width: 100%;
+}
+
+.roundedCorners3 {
     background: rgba(0, 0, 0, 0.4);
     margin: 8px;
     margin-top: 0px;
@@ -200,12 +216,30 @@ a.last::before {
     color: #141414;
 }
 
+.textColorWhiteFaded {
+    color: rgb(255, 255, 255, 0.95);
+}
+
+.textColorBlackFaded {
+    color: rgb(20, 20, 20, 0.95);
+}
+
+
 .myTextBottomLeft {
     padding-left: 8px;
     padding-right: 8px;
     font-size: 48px;
     font-weight: bold;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.myTextBottomLeft2 {
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 48px;
+    font-weight: bold;
     overflow: hidden;
     text-overflow: ellipsis;
 }

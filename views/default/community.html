@@ -248,27 +248,63 @@
                 </span>
             </div>
             
-            <div class="row no-gutters" style="margin-top: 8px">
+            
+            <div v-if="showing_job_details" class="row no-gutters" v-bind:style="{ background: '#' + job_color + '59' }" style="margin-top: 8px; position: relative;">
+                <i v-on:click="showing_job_details = !showing_job_details" class="fa fa-close closeJobDetails" v-bind:class="getTextClass(job_color, true)" style="font-size: 36px;"></i>
+                
+                <div style="padding-top: 36px; width: 100%;" v-bind:style="{ background: '#' + job_color }">
+                    
+                    <div class="whiteGloss">
+                        <img v-bind:src="getModelURL(job_model)" style="float: left; padding-left: 12px;"/>
+                        
+                        <div class="myTextBottomLeft2" v-bind:class="getTextClass(job_color)">
+                            ${ job_name }
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div style="font-size: 18px; font-weight: bold; color: rgba(0, 0, 0, 0.75); padding: 12px;">
+                    ${ job_desc }
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row" style="width: 20%">Max players:</th>
+                                <td style="word-break: break-all; max-width: 80%; vertical-align: bottom;">${ job_max_players }</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" style="width: 20%">Salary:</th>
+                                <td style="word-break: break-all; max-width: 80%; vertical-align: bottom;">${ job_salary }</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div v-if="!showing_job_details" class="row no-gutters" style="margin-top: 8px;">
+                
+                
+                
                 <div class="col-md-6 col-sm-6">
                     
                     
-                    <div v-for="job in even_jobs" style="padding: 4px;">
-                        <a v-bind:href="getJobViewURL(job.id)" style="text-decoration: none">
-                            <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }">
+                    <div v-for="job in even_jobs" class="pointer noSelect" style="padding: 4px;">
+                        <a v-on:click="show_job_details(job)" style="text-decoration: none;">
+                            <div class="roundedCorners" style="background: rgba(0, 0, 0, 0);">
                                 
-                                <!-- <i class="fa fa-edit fa-sm" id="topRightTest1" v-bind:class="getTextClass(job.color)"></i> -->
-                                <i class="fa fa-trash fa-sm" id="topRightTest" v-bind:class="getTextClass(job.color)"></i>
-                                
-                                <div class="whiteGloss" v-bind:style="{ background: '#' + job.color + 'B3' }">
+                                <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
                                     
-                                    <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
+                                    <img v-bind:src="getModelURL(job.model)" style="float: left; margin-left: 8px;"/>
                                     
                                     <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
                                         ${job.name}
                                     </div>
                                 </div>
                                 
-                                <div class="jobDescription">
+                                <div class="jobDescription" v-bind:style="{ background: '#' + job.color + '59' }">
                                     ${job.description}
                                 </div>
                                 
@@ -291,14 +327,11 @@
                 
                 <div class="col-md-6 col-sm-6">
                     
-                    <div v-for="job in odd_jobs" style="padding: 4px;">
-                        <a v-bind:href="getJobViewURL(job.id)" style="text-decoration: none">
-                            <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }">
+                    <div v-for="job in odd_jobs" class="pointer noSelect" style="padding: 4px;">
+                        <a v-on:click="show_job_details(job)" style="text-decoration: none;">
+                            <div class="roundedCorners" style="background: rgba(0, 0, 0, 0);">
                                 
-                                <!-- <i class="fa fa-edit fa-sm" id="topRightTest1"></i> -->
-                                <i class="fa fa-trash fa-sm" id="topRightTest" v-bind:class="getTextClass(job.color)"></i>
-                                
-                                <div class="whiteGloss" v-bind:style="{ background: '#' + job.color + 'B3' }">
+                                <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
                                     
                                     <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
                                     
@@ -307,7 +340,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="jobDescription">
+                                <div class="jobDescription" v-bind:style="{ background: '#' + job.color + '59' }">
                                     ${job.description}
                                 </div>
                                 
@@ -328,7 +361,7 @@
             </div>
             
             
-            <div class="row" style="margin-top: 8px;">
+            <div v-if="!showing_job_details" class="row" style="margin-top: 8px;">
                 
                 <div class="col-md-12">
                     
