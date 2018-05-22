@@ -128,6 +128,9 @@ var app = function() {
             self.setNewURL();
             
             vue.isLoadingResults = false;
+            
+            
+            self.show_job_details(self.vue.odd_jobs[0]);
         })
     };
     
@@ -135,52 +138,58 @@ var app = function() {
         var vue = self.vue;
         var pp = {};
         
-        var search = vue.search_form;
-        var page = vue.current_page;
+        var view_id = vue.view_id;
         
-        var min_p = vue.min_players;
-        var max_p = vue.max_players;
-        
-        var min_s = vue.min_salary;
-        var max_s = vue.max_salary;
-        
-        var time_range = vue.selectedTimeRange;
-        var selected_sort = vue.selectedSort;
-        
-        if (search != null && search != '') {
-            pp.search = vue.search_form;
-        }
-        
-        if (page != null) {
-            pp.page = vue.current_page;
-        }
-        
-        if (min_p != null && min_p != '') {
-            pp.min_p = vue.min_players;
-        }
-        
-        if (max_p != null && max_p != '') {
-            pp.max_p = vue.max_players;
-        }
-        
-        if (min_s != null && min_s != '') {
-            pp.min_s = vue.min_salary;
-        }
-        
-        if (max_s != null && max_s != '') {
-            pp.max_s = vue.max_salary;
-        }
-        
-        if (vue.checkedWeapons.length != 0) {
-            pp.wep = vue.checkedWeapons;
-        }
-        
-        if (time_range != null) {
-            pp.time_range = time_range;
-        }
-        
-        if (selected_sort != null) {
-            pp.sort = selected_sort
+        if (view_id != null) {
+            pp.view_id = view_id;
+        } else {
+            var search = vue.search_form;
+            var page = vue.current_page;
+
+            var min_p = vue.min_players;
+            var max_p = vue.max_players;
+
+            var min_s = vue.min_salary;
+            var max_s = vue.max_salary;
+
+            var time_range = vue.selectedTimeRange;
+            var selected_sort = vue.selectedSort;
+
+            if (search != null && search != '') {
+                pp.search = vue.search_form;
+            }
+
+            if (page != null) {
+                pp.page = vue.current_page;
+            }
+
+            if (min_p != null && min_p != '') {
+                pp.min_p = vue.min_players;
+            }
+
+            if (max_p != null && max_p != '') {
+                pp.max_p = vue.max_players;
+            }
+
+            if (min_s != null && min_s != '') {
+                pp.min_s = vue.min_salary;
+            }
+
+            if (max_s != null && max_s != '') {
+                pp.max_s = vue.max_salary;
+            }
+
+            if (vue.checkedWeapons.length != 0) {
+                pp.wep = vue.checkedWeapons;
+            }
+
+            if (time_range != null) {
+                pp.time_range = time_range;
+            }
+
+            if (selected_sort != null) {
+                pp.sort = selected_sort
+            }
         }
         
         var url = your_jobs_url + "?" + $.param(pp);
@@ -207,6 +216,14 @@ var app = function() {
         self.get_jobs();
     }
     
+    self.hexToRGB = function(hex) {
+        var bigint = parseInt(hex, 16);
+        var r = (bigint >> 16) & 255;
+        var g = (bigint >> 8) & 255;
+        var b = bigint & 255;
+        return [r, g, b];
+    }
+    
     // Source:
     // https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
     self.getTextClass = function(bgColor, faded) {
@@ -230,25 +247,56 @@ var app = function() {
         return (L > 0.179) ? "textColorBlack" : "textColorWhite";
     }
     
+    // https://stackoverflow.com/questions/6623231/remove-all-white-spaces-from-text
     self.show_job_details = function(job) {
         var vue = self.vue;
         
+        vue.job_job_id = job.job_id;
+        vue.job_command = (job.job_id.toLowerCase()).replace(/ /g,'');
         vue.job_name = job.name;
         vue.job_desc = job.description;
         vue.job_model = job.model;
         vue.job_color = job.color;
-        vue.job_salary = "$" + job.salary;
+        vue.job_color_rgb = self.hexToRGB(job.color);
+        vue.job_salary = job.salary;
         vue.job_max_players = job.max_players;
         
+        vue.job_weapons = job.weapons.join(", ");
+        
+        vue.job_vote = job.vote;
+        vue.job_admin_only = job.admin_only;
+        
+        vue.job_created_by = job.created_by;
+        
+        vue.view_id = job.id;    
         vue.showing_job_details = true;
         
-        /*
-            job_model: null,
-            job_salary: null,
-            job_max_players: null,
-            job_color: null,
-            job_weapons: null
-        */
+        self.setNewURL();
+    }
+    
+    self.close_job_details = function() {
+        var vue = self.vue;
+        vue.showing_job_details = false;
+        vue.view_id = null;
+        self.setNewURL();
+    }
+    
+    self.openTab = function(idx) {
+        self.vue.job_current_tab = idx;
+    }
+    
+    self.copy_code = function() {
+            $("#copyButton").text("Copied!");
+            setTimeout(function() {
+                $("#copyButton").text("Copy");
+                copied = false;
+            }, 1000);
+            
+            var $temp = $("<textarea>");
+            $("body").append($temp);
+            $temp.val($("#genCode").text()).select();
+            document.execCommand("copy");
+            $temp.remove();
     }
     
     var router = new VueRouter({
@@ -291,13 +339,26 @@ var app = function() {
             showing_job_details: false,
             
             // This is for the job details view.
+            job_job_id: null,
+            job_command: null,
             job_name: null,
             job_desc: null,
             job_model: null,
             job_salary: null,
             job_max_players: null,
             job_color: null,
-            job_weapons: null
+            job_color_rgb: null,
+            job_weapons: null,
+            
+            job_vote: null,
+            job_admin_only: null,
+            
+            job_created_by: null,
+            
+            view_id: null,
+            
+            // 0 = 'Details', 1 = 'Code', 2 = 'Comments'
+            job_current_tab: 0
         },
         methods: {
             fetchNewResults: self.get_jobs,
@@ -311,7 +372,11 @@ var app = function() {
             searchByPlayers: self.searchByPlayers,
             searchBySalary: self.searchBySalary,
             getTextClass: self.getTextClass,
-            show_job_details: self.show_job_details
+            show_job_details: self.show_job_details,
+            close_job_details: self.close_job_details,
+            openTab: self.openTab,
+            hexToRGB: self.hexToRGB,
+            copy_code: self.copy_code
         }
     });
     

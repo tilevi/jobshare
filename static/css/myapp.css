@@ -5,7 +5,7 @@ html {box-sizing:border-box;}
 html, body {max-width: 100vw; overflow-x: hidden}
 
 .colorful {
-  color: #bb8833;
+    color: #bb8833;
 }
 
 .roundedCorners {
@@ -70,11 +70,10 @@ html, body {max-width: 100vw; overflow-x: hidden}
     https://stackoverflow.com/questions/1120879/css-checkbox-input-styling
 */
 
-input[type=checkbox] {
+input[type=checkbox].checkBox {
     cursor: pointer;
 }
-
-input[type=checkbox]:before {
+input[type=checkbox].checkBox:before {
      content: "";
      display: block;
      position: absolute;
@@ -86,7 +85,7 @@ input[type=checkbox]:before {
      border-radius: 3px;
      background-color: white;
 }
-input[type=checkbox]:checked:after {
+input[type=checkbox].checkBox:checked:after {
     content: "";
     display: block;
     width: 4px;
@@ -113,8 +112,13 @@ input[type=checkbox]:checked:after {
     cursor: pointer;
 }
 
+.red {
+    color: rgba(136, 0, 0, 1);
+}
 
-
+.blue {
+    color: rgba(70, 130, 180, 1);
+}
 
 .cPanel {
     padding: 15px;
@@ -348,7 +352,33 @@ a.last::before {
 }
 
 
+.roundedTop {
+    border-top-right-radius: 2px;
+    border-top-left-radius: 2px;
+}
 
+.rounded {
+    border-radius: 2px;
+    border: 2px solid #000;
+}
+
+table {
+    
+}
+
+tr {
+    
+}
+
+td {
+    width: auto;
+}
+
+td.min {
+    width: 1%;
+    white-space: nowrap;
+    font-weight: bold;
+}
 
 
 /** Tabs **/
