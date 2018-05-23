@@ -66,7 +66,7 @@ var app = function() {
         return -1;
     }
     
-    function get_jobs_url() {
+    /*function get_jobs_url() {
         var vue = self.vue;
         
         var pp = {
@@ -87,17 +87,19 @@ var app = function() {
         }
         
         return jobs_url + "?" + $.param(pp);
-    }
+    }*/
     
     self.getJobViewURL = function(id) {
         return view_url + "/" + id;
     }
     
-    self.search_jobs = function() {
-        self.get_jobs();
+    self.fetch_new_results = function() {
+        self.vue.current_page = 1;
+        self.get_jobs();        
     }
     
     self.set_page = function(page) {
+        self.vue.current_page = page;
         self.get_jobs();
     }
     
@@ -105,7 +107,19 @@ var app = function() {
         var vue = self.vue;
         vue.isLoadingResults = true;
         
-        $.getJSON(get_jobs_url(), function (data) {
+        $.post(jobs_url, {
+            search: vue.search_form,
+            page: vue.current_page,
+            min_p: vue.min_players,
+            max_p: vue.max_players,
+            min_s: vue.min_salary,
+            max_s: vue.max_salary,
+            weps: vue.checkedWeapons,
+            tags: vue.checkedTags,
+            time_range: vue.selectedTimeRange,
+            sort: vue.selectedSort,
+            public: (isCommunityPage)
+        }, function (data) {
             vue.jobs = data.jobs;
             
             vue.even_jobs = [];
@@ -128,10 +142,7 @@ var app = function() {
             // Set the new URL.
             self.setNewURL();
             
-            vue.isLoadingResults = false;
-            
-            
-            // self.show_job_details(self.vue.odd_jobs[0]);
+            vue.isLoadingResults = false;            
         })
     };
     
@@ -278,6 +289,9 @@ var app = function() {
         
         vue.view_id = job.id;    
         vue.showing_job_details = true;
+        
+        // Reset the tab to the first.
+        vue.job_current_tab = 0;
         
         // Get the job's comments.
         self.get_comments();
@@ -449,10 +463,10 @@ var app = function() {
             comment_error: false
         },
         methods: {
-            fetchNewResults: self.get_jobs,
+            fetchNewResults: self.fetch_new_results,
             getJobViewURL: self.getJobViewURL,
             setNewURL: self.setNewURL,
-            search_jobs: self.search_jobs,
+            search_jobs: self.fetch_new_results,
             set_page: self.set_page,
             prev_page: self.prev_page,
             next_page: self.next_page,

@@ -67,8 +67,17 @@ def get_jobs():
             q = q & (db.job.weapons.contains(wep))
             
         # Filter the tags.
+        # For this context, OR logic makes the most sense.
+        tagQ = None
+        
         for tag in tags:
-            q = q & (db.job.tag.contains(tag))
+            if (tagQ is not None):
+                tagQ = tagQ | (db.job.tag.contains(tag))
+            else:
+                tagQ = (db.job.tag.contains(tag))
+        
+        if (tagQ is not None):
+            q = q & tagQ
         
         # Sources:
         #   https://groups.google.com/forum/#!topic/web2py/PrIo2I-fgCc
@@ -96,7 +105,7 @@ def get_jobs():
                     limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
         elif (sort == 'recent'):
             jobs = result.select(
-                    orderby=~db.job.updated_on,
+                    orderby=~db.job.created_on,
                     limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
         else:
             jobs = result.select(

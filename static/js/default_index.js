@@ -50,12 +50,7 @@ var app = function() {
                 'models/player/phoenix.mdl'
             ];
             $("#job_model").autocomplete({
-                source: availableTags,
-                select: function() {
-                    setTimeout(function() {
-                        setCode();
-                    }, 0);
-                }
+                source: availableTags
             });
         },
         beforeDestroy: function() {
@@ -63,9 +58,17 @@ var app = function() {
         }
     });
     
-    self.submit = function() {
-        
-        console.log($("#job_tag").val());
+    self.submit_share = function() {
+        $("#submit_share_button").prop("disabled", true);
+        self.submit(true);
+    }
+    
+    self.submit = function(makePublic) {
+        if (makePublic) {
+            $("#submit_share_button").prop("disabled", true);
+        } else {
+            $("#submit_button").prop("disabled", true);
+        }
         
         $.post(create_job_url,
             {
@@ -77,9 +80,11 @@ var app = function() {
                 job_max_players: self.vue.job_max_players,
                 job_color: self.vue.job_color,
                 weps: self.vue.job_weapons_arr,
-                job_tag: $("#job_tag").val(),
-                job_vote: self.vue.job_vote,
-                job_admin_only: self.vue.job_admin_only
+                job_tag: $("#tag_form").val(),
+                job_vote: self.vue.job_vote ? 1 : 0,
+                job_admin_only: self.vue.job_admin_only ? 1 : 0,
+                
+                make_public: makePublic ? 1 : 0
             },
             function (data) {
                 if (data.errors) {
@@ -100,9 +105,16 @@ var app = function() {
                     vue.job_admin_only_error = data.form.errors.job_admin_only;
 
                     vue.job_tag_error = data.form.errors.job_tag;
+                    
+                    // Re-enable the button
+                    if (makePublic) {
+                        $("#submit_share_button").prop("disabled", false);
+                    } else {
+                        $("#submit_button").prop("disabled", false);
+                    }
                 } else {
                     // The form doesn't have errors, so redirect.
-                    window.location.replace(community_url);
+                    window.location.replace(home_url);
                 }
             }
         );
@@ -210,7 +222,8 @@ var app = function() {
             isJobName: self.isJobName,
             isJobDescription: self.isJobDescription,
             copy_code: self.copy_code,
-            submit: self.submit
+            submit: self.submit,
+            submit_share: self.submit_share
         }
     });
     

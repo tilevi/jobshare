@@ -40,6 +40,10 @@ def checkTeamID(form, job_id):
     if not (all(x.isalnum() or x == "_" for x in job_id)):
         form["errors"]["job_job_id"] = "Job ID must have only alphanumeric characters or underscores."
 
+def checkModel(form, job_model):
+    if not (all(x.isalnum() or x == "/" or x == "." or x == "_" for x in job_model)):
+        form["errors"]["job_model"] = "Player model contains invalid characters."
+
 # https://stackoverflow.com/questions/20890618/isalpha-python-function-wont-consider-spaces
 def checkJob(form, job_name):
     if not (all(x.isalnum() or x.isspace() or x == "'" for x in job_name)):
@@ -68,6 +72,16 @@ tags = [
 def checkTag(form, job_tag):
     if not (job_tag in tags):
         form["errors"]["tag"] = "Please select a valid job tag.";
+
+def checkWeapons(form, weps):
+    okay = True
+    for wep in weps:
+        if not (all(x.isalnum() or x == "_" for x in wep)):
+            okay = False
+            break
+    if (not okay):
+        form["errors"]["job_weapons"] = "One of the weapons contains one or more invalid characters."
+    
 
 def validate(form):
     checkTeamID(form)
@@ -100,7 +114,7 @@ def create_job():
     
     job_weapons = request.vars.get('weps[]', [])
     if isinstance(job_weapons, basestring):
-        job_weapons = [weps]
+        job_weapons = [job_weapons]
     
     
     # Check job ID
@@ -123,8 +137,13 @@ def create_job():
     
     if (isNoneOrEmpty(job_model)):
         form['errors']['job_model'] = "Job model is missing."
+    else:
+        checkModel(form, job_model)
+    
     if (isNoneOrEmpty(job_tag)):
         form['errors']['job_tag'] = "Job tag is missing."
+    else:
+        checkTag(form, job_tag)
     
     # Check job color
     if (isNoneOrEmpty(job_color)):
@@ -146,16 +165,14 @@ def create_job():
         job_max_players = int(request.vars.job_max_players)
         checkPlayers(form, job_max_players)
     
-    # Check misc. options (vote and admin only checkboxes)
-    if (request.vars.job_vote is None):
-        form['errors']['job_vote'] = "Vote option is missing."
+    # Determine whether or not this job should be made public.
+    if (int(request.vars.make_public) == 0):
+        make_public = False
     else:
-        job_vote = bool(request.vars.job_vote)
+        make_public = True
     
-    if (request.vars.job_admin_only is None):
-        form['errors']['job_admin_only'] = "Admin only option is missing."
-    else:
-        job_admin_only = bool(request.vars.job_admin_only)
+    # Verify that all of the weapons contain valid characters.
+    checkWeapons(form, job_weapons)
     
     # Check now for errors.
     error = False
@@ -171,6 +188,24 @@ def create_job():
     else:
         logger.info("The form is ready to go.");
         
+        # Check misc. options (vote and admin only checkboxes)
+        if (request.vars.job_vote is None):
+            form['errors']['job_vote'] = "Vote option is missing."
+        else:
+            if (int(request.vars.job_vote) == 0):
+                job_vote = False
+            else:
+                job_vote = True
+        
+        
+        if (request.vars.job_admin_only is None):
+            form['errors']['job_admin_only'] = "Admin only option is missing."
+        else:
+            if (int(request.vars.job_admin_only) == 0):
+                job_admin_only = False
+            else:
+                job_admin_only = True
+        
         j_id = db.job.insert(
             job_id = job_job_id,
             name = job_name,
@@ -182,7 +217,8 @@ def create_job():
             admin_only = job_admin_only,
             tag = job_tag,
             vote = job_vote,
-            weapons = job_weapons
+            weapons = job_weapons,
+            is_public = make_public
         )
         
         return response.json(dict(form=form, errors=False))
