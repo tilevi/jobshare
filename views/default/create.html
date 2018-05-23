@@ -7,15 +7,26 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
+<script src="{{=URL('static', 'js/vue.js')}}"></script>
 
-<link rel="stylesheet"
-      href="{{=URL('static','css/styles/default.css')}}">
-<script src="{{=URL('static','js/highlight.pack.js')}}"></script>
+<script>
+    var create_job_url = "{{=URL('default', 'create_job', user_signature=True)}}";
+    var community_url = "{{=URL('default', 'community')}}";
+    
+    function isJobModel(event) {
+        var charCode = event.which;
 
-<script>hljs.initHighlightingOnLoad();</script>
+        if(charCode === 32 || !(charCode == 46 || charCode == 47 || charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+</script>
+
+<div id="vue-div" style="display: none;">
 
 <div class="mycontent" style="background-color: #e2e2e2;">
-    
     
     <div class="container-fluid" style="background-color: rgba(32, 32, 32);">
         <div class="container" style="padding-left: 0px !important;">
@@ -39,27 +50,39 @@
         
         <div class="row">
                 <div class="col-md-6 col-sm-6" style="margin-top: 10px; margin-bottom: 10px;">
-                    {{=form.custom.begin}}
 
                     <div class="form-group">
                         <label for="job_job_id">ID</label>
-                        {{=form.custom.widget.job_id}}
+                        <input v-model="job_job_id" v-on:keypress="isJobID" id="job_job_id" class="form-control" placeholder="DOCTOR" maxlength=50/>
+                        <div v-if="job_job_id_error" class="formError">${ job_job_id_error }</div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="job_name">Name</label>
-                        {{=form.custom.widget.name}}
+                        <input v-model="job_name" v-on:keypress="isJobName" id="job_name" class="form-control" placeholder="Doctor" maxlength=50/>
+                        <div v-if="job_name_error" class="formError">${ job_name_error }</div>
                     </div>
 
                     <div class="form-group">
                         <label for="job_description">Description</label>
-                        {{=form.custom.widget.description}}
+                        <input v-model="job_desc" v-on:keypress="isJobDescription" id="job_description" class="form-control" placeholder="Heal the community." maxlength=50/>
+                        <div v-if="job_desc_error" class="formError">${ job_desc_error }</div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="job_model">Player model</label>
                         <br/>
-                        {{=form.custom.widget.model}}
+                        <job-model id="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=100 onchange="APP.vue.job_model = $('#job_model').val();" onkeyup="APP.vue.job_model = $('#job_model').val();" onkeypress="return isJobModel(event);"></job-model>
+                        <div v-if="job_model_error" class="formError">${ job_model_error }</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="job_weapons">Weapons</label>
+                        <br/>
+                        <tag-it id='weaponTags' name='tags' placeholder='Add weapon classes' value=''></tag-it>
+                        <!-- Hidden input -->
+                        <input v-model="job_weapons" id="job_weapons" placeholder="Add weapon classes" value="" type="hidden"/>
+                        <div v-if="job_weapons_error" class="formError">${ job_weapons_error }</div>
                     </div>
                 </div>
                 
@@ -67,46 +90,57 @@
                     <div class="form-group">
                         <label for="job_color">Color</label>
                         <br/>
-                        {{=form.custom.widget.color}}
+                        <input v-model="job_color" v-on:change="setRGB()" id="job_color" class="jscolor" style="padding: 5px; max-width: 100%; height: 38px;" placeholder=""/>
+                        <div v-if="job_color_error" class="formError">${ job_color_error }</div>
                     </div>
 
                     <div class="form-group">
                         <label for="job_salary">Salary</label>
                         <br/>
-                        {{=form.custom.widget.salary}}
+                        <input v-model="job_salary" id="job_salary" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
+                        <div v-if="job_salary_error" class="formError">${ job_salary_error }</div>
                     </div>
 
                     <div class="form-group">
                         <label for="job_salary">Max players</label>
                         <br/>
-                        {{=form.custom.widget.max_players}}
+                        <input v-model="job_max_players" id="job_max_players" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
+                        <div v-if="job_max_players_error" class="formError">${ job_max_players_error }</div>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="job_weapons">Weapons</label>
+                        <label>Type</label>
+                        <select class="form-control" id="tag_form">
+                            <option value="Citizen" selected>Citizen</option>
+                            <option value="Commercial">Commercial</option>
+                            <option value="Criminal">Criminal</option>
+                            <option value="Fun">Fun</option>
+                            <option value="Government">Government</option>
+                            <option value="OP">Overpowered (OP)</option>
+                            <option value="Misc.">Misc.</option>
+                        </select>
+                        
+                        <!-- Hidden input -->
+                        <input id="job_tag" placeholder="" value="Citizen" type="hidden"/>
+                        <div v-if="job_tag_error" class="formError">${ job_tag_error }</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Miscellaneous</label>
                         <br/>
-                        <input id='weapon_tags' name='tags' placeholder='Add weapon classes' value=''>
-                        {{=form.custom.widget.weapons}}
+                       
+                        <div class="form-check">
+                            <div v-if="job_vote_error" class="formError">${ job_vote_error }</div>
+                            <input v-model="job_vote" type="checkbox" class="form-check-input" id="job_vote">
+                            <label for="job_vote" class="noBottomMargin noSelect">Vote?</label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <div v-if="job_admin_only_error" class="formError">${ job_admin_only_error }</div>
+                            <input v-model="job_admin_only" type="checkbox" class="form-check-input" id="job_admin_only">
+                            <label for="job_admin_only" class="noBottomMargin noSelect">Admin Only?</label>
+                        </div>
                     </div>
-
-                    
-
-
-                    <div class="form-check" style="padding-left: 0px;">
-                        {{=form.custom.widget.vote}}
-                        <label class="form-check-label" for="job_vote">
-                            Vote
-                        </label>
-                    </div>
-
-                    <div class="form-check" style="padding-left: 0px;">
-                        {{=form.custom.widget.admin_only}}
-                        <label class="form-check-label" for="job_admin_only">
-                            Admin only
-                        </label>
-                    </div>
-                    
-                    
                     
                 </div>
         </div>
@@ -116,26 +150,43 @@
         <div>
             <div style="margin-bottom: 0px; text-align: right;">
                 <input class="submitButton" type="button" value="Share" style="display: inline-block;"/>
-                <input class="submitButton" type="submit" value="Create" style="display: inline-block;"/>
-                {{=form.custom.end}}
+                <input v-on:click="submit" class="submitButton" type="button" value="Create" style="display: inline-block;"/>
             </div>
         </div>
     </div>
 
-    <div class="container" style="margin-top: 15px;">
-        <div class="full" style="padding-left: 15%; padding-right: 15%;">
+    <div class="container" style="">
+        <div style="margin-left: 15%; margin-right: 15%; background: white;">
             
             <div style="background-color: rgba(32, 32, 32);">
                 <h5 style="color: white; margin-bottom: 0px; padding: 20px;"><b>Generated</b> code</h5>
             </div>
-            
-            <pre style="border: solid; border-width: 1px 1px 1px 1px; padding-top: 0px; padding-right: 25px; background-color: white; position: relative;">
-            <button id="copyButton" onclick="myFunction()" type="button" style="position: absolute; top: -1px; right: 0px; background-color: steelblue; color: white; border-radius: 2px !important;">Copy</button><code class="lua" style="background-color: white; padding: 20px;"><div id='genCode'></div></code></pre>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="padding: 0 !important;">
+            <div class="pull-right noSelect pointer" id="copyButton" v-on:click="copy_code" style="background-color: steelblue; color: white; padding: 5px 10px 5px 10px; border-bottom-left-radius: 4px;">Copy</div>
+        </div>
+    </div>    
+</div>
+
+<pre style="padding: 0px 32px 32px 32px; margin-bottom: 0px;"><code><div id="genCode">TEAM_${job_job_id} = DarkRP.createJob(<span class="red">"${ job_name }"</span>, {
+    color = Color(<span class="red">${ job_color_arr[0] }</span>, <span class="red">${ job_color_arr[1] }</span>, <span class="red">${ job_color_arr[2] }</span>),
+    model = <span class="red">"${ job_model }"</span>,
+    weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
+    command = <span class="red">"${ (job_job_id.toLowerCase()).replace(/ /g,'') }"</span>
+    max = <span class="red">${ job_max_players }</span>,
+    salary = <span class="red">${ job_salary }</span>,
+    vote = <span class="blue">${ job_vote }</span>,
+    admin = <span class="blue">${ job_admin_only }</span>
+})</div></code></pre>
             
      </div>
 </div>
 
+    </div>
 </div>
 
-<script src="{{=URL('static','js/form_control.js')}}"></script>
-<script src="{{=URL('static','js/create.js')}}"></script>
+
+<!-- Vue JS -->
+<script src="{{=URL('static','js/default_index.js')}}"></script>

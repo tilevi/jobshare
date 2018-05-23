@@ -5,10 +5,14 @@
 
 
 $('form').submit(function() {
+    // Weapons
     $("#job_weapons").val(JSON.stringify(wepTags));
+    // Job tag
+    $("#job_tag").val($("#tag_form").val());
 });
 
 $('#job_job_id').keypress(function(e) {
+    console.log("Test");
     if(e.which === 32 || !(e.which == 95 || (e.which >= 65 && e.which <= 90) || (e.which >= 48 && e.which <= 57) || (e.which >= 97 && e.which <= 122))) {
         return false;
     }
@@ -26,6 +30,7 @@ $('#job_description').keypress(function(e) {
     }
 });
 
+/*
 var input = document.querySelector('input[name=tags]'),
 tagify = new Tagify(input, {
     whitelist : ["weapon_ak47", "weapon_ar2"]
@@ -47,3 +52,4 @@ function onAddTag(e) {
     wepTags.push(e.detail.value);
     setCode();
 }
+*/

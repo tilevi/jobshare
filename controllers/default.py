@@ -16,50 +16,58 @@ def community():
 def index():
     return dict()
 
+# Check color
 allowed = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
            'A', 'B', 'C', 'D', 'E', 'F']
-def checkColor(form):
-    if len(form.vars.color) != 6:
-        form.errors.color = 'Color must be a hexadecimal value.'
+
+def checkColor(form, job_color):
+    if len(job_color) != 6:
+        form["errors"]["job_color"] = 'Color must be a hexadecimal value.'
     else:
         good = True
-        for letter in form.vars.color:
+        for letter in job_color:
             if (not (letter in allowed)):
                 good = False
                 break
         if (not good):
-            form.errors.color = 'Color is not valid.'
+            form["errors"]["job_color"] = 'Color is not valid.'
 
-def checkPlayers(form):
-    if form.vars.max_players == "":
-        form.errors.max_players = "Max players cannot be empty."
-    elif form.vars.max_players < 0:
-        form.errors.max_players = 'Max players must be at least 1.'
+def checkPlayers(form, job_max_players):
+    if job_max_players < 0:
+        form["errors"]["job_max_players"] = 'Max players must be at least 1.'
 
-def checkTeamID(form):
-    if form.vars.job_id == '':
-        form.errors.job_id = "Job ID cannot be empty."
-    elif not (all(x.isalnum() or x == "_" for x in form.vars.job_id)):
-        form.errors.job_id = "Job ID must have only alphanumeric characters or underscores."
+def checkTeamID(form, job_id):
+    if not (all(x.isalnum() or x == "_" for x in job_id)):
+        form["errors"]["job_job_id"] = "Job ID must have only alphanumeric characters or underscores."
 
 # https://stackoverflow.com/questions/20890618/isalpha-python-function-wont-consider-spaces
-def checkJob(form):
-    if form.vars.name == '':
-        form.errors.name = "Job name cannot be empty."
-    elif not (all(x.isalnum() or x.isspace() or x == "'" for x in form.vars.name)):
-        form.errors.name = "Job name must be alphanumeric."
+def checkJob(form, job_name):
+    if not (all(x.isalnum() or x.isspace() or x == "'" for x in job_name)):
+        form["errors"]["job_name"] = "Job name must be alphanumeric."
 
-def checkDescription(form):
-    if form.vars.description == '':
-        form.errors.description = "Job description cannot be empty."
-    elif len(form.vars.description) > 50:
-        form.errors.description = "Job description is too long."
-    elif not (all(x.isalpha() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in form.vars.description)):
-        form.errors.description = "Job description must be alphanumeric."
-        
-def checkSalary(form):
-    if form.vars.salary < 0:
-        form.errors.salary = "Salary must be greater than 0."
+def checkDescription(form, job_desc):
+    if len(job_desc) > 50:
+        form["errors"]["job_desc"] = "Job description is too long."
+    elif not (all(x.isalpha() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_desc)):
+        form["errors"]["job_desc"] = "Job description must be alphanumeric."
+
+def checkSalary(form, job_salary):
+    if job_salary < 0:
+        form["errors"]["salary"] = "Salary must be greater than 0."
+
+tags = [
+    "Citizen",
+    "Commercial",
+    "Criminal",
+    "Fun",
+    "Government",
+    "OP",
+    "Misc."
+]
+
+def checkTag(form, job_tag):
+    if not (job_tag in tags):
+        form["errors"]["tag"] = "Please select a valid job tag.";
 
 def validate(form):
     checkTeamID(form)
@@ -73,10 +81,111 @@ def validate(form):
 
 @auth.requires_login()
 def create():
-    form = SQLFORM(db.job, formstyle='bootstrap')
-    if form.process(onvalidation=validate).accepted:
-        redirect(URL('default', 'index'))
-    return dict(form=form)
+    return dict()
+
+def isNoneOrEmpty(var):
+    return var is None or var == ""
+
+@auth.requires_login()
+@auth.requires_signature()
+def create_job():
+    form = { 'errors': { 'job_job_id': '', 'job_name': '', 'job_desc': '', 'job_model': '', 'job_tag': '', 'job_color': '', 'job_weapons': '', 'job_salary': '', 'job_max_players': '', 'job_vote': '', 'job_admin_only': '' } }
+    
+    job_job_id = request.vars.job_job_id
+    job_name = request.vars.job_name
+    job_desc = request.vars.job_desc
+    job_model = request.vars.job_model
+    job_tag = request.vars.job_tag
+    job_color = request.vars.job_color
+    
+    job_weapons = request.vars.get('weps[]', [])
+    if isinstance(job_weapons, basestring):
+        job_weapons = [weps]
+    
+    
+    # Check job ID
+    if (isNoneOrEmpty(job_job_id)):
+        form['errors']['job_job_id'] = "Job ID is missing."
+    else:
+        checkTeamID(form, job_job_id)
+    
+    # Check job name
+    if (isNoneOrEmpty(job_name)):
+        form['errors']['job_name'] = "Job name is missing."
+    else:
+        checkJob(form, job_name)
+        
+    if (isNoneOrEmpty(job_desc)):
+        form['errors']['job_desc'] = "Job description is missing."
+    else:
+        # Check Job Description
+        checkDescription(form, job_desc)
+    
+    if (isNoneOrEmpty(job_model)):
+        form['errors']['job_model'] = "Job model is missing."
+    if (isNoneOrEmpty(job_tag)):
+        form['errors']['job_tag'] = "Job tag is missing."
+    
+    # Check job color
+    if (isNoneOrEmpty(job_color)):
+        form['errors']['job_color'] = "Job color is missing."
+    else:
+        checkColor(form, job_color)
+    
+    # Check job salary
+    if (isNoneOrEmpty(request.vars.job_salary)):
+        form['errors']['job_salary'] = "Job salary is missing."
+    else:
+        job_salary = int(request.vars.job_salary)
+        checkSalary(form, job_salary)
+
+    # Check max players
+    if (isNoneOrEmpty(request.vars.job_max_players)):
+        form['errors']['job_max_players'] = "Max players is missing."
+    else:
+        job_max_players = int(request.vars.job_max_players)
+        checkPlayers(form, job_max_players)
+    
+    # Check misc. options (vote and admin only checkboxes)
+    if (request.vars.job_vote is None):
+        form['errors']['job_vote'] = "Vote option is missing."
+    else:
+        job_vote = bool(request.vars.job_vote)
+    
+    if (request.vars.job_admin_only is None):
+        form['errors']['job_admin_only'] = "Admin only option is missing."
+    else:
+        job_admin_only = bool(request.vars.job_admin_only)
+    
+    # Check now for errors.
+    error = False
+    
+    for k, v in form["errors"].items():
+        if (v != ""):
+            error = True
+            break
+    
+    if (error):
+        logger.info("We have an error in the form.");
+        return response.json(dict(form=form, errors=True))
+    else:
+        logger.info("The form is ready to go.");
+        
+        j_id = db.job.insert(
+            job_id = job_job_id,
+            name = job_name,
+            description = job_desc,
+            color = job_color,
+            model = job_model,
+            salary = job_salary,
+            max_players = job_max_players,
+            admin_only = job_admin_only,
+            tag = job_tag,
+            vote = job_vote,
+            weapons = job_weapons
+        )
+        
+        return response.json(dict(form=form, errors=False))
 
 @auth.requires_login()
 @auth.requires_signature()

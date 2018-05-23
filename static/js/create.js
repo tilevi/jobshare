@@ -35,6 +35,7 @@ function hexToRgb(hex) {
 
 function getWeaponsList() {
     var str = "";
+    /*
     var lastIndex = wepTags.length - 1;
     wepTags.forEach(function(wep, index) {
         // This is more readable (than using a ternary operator).
@@ -43,21 +44,21 @@ function getWeaponsList() {
         } else {
             str += '"<span class="hljs-string">' + wep + '</span>"';
         }
-    });
+    });*/
     return str;
 }
 
 function setCode() {
     $('#genCode').html( "TEAM_" + $('#job_job_id').val() + ` = DarkRP.createJob(<span class="hljs-string">"` + $('#job_name').val() +`"</span>, {
-color = Color(` + hexToRgb($('#job_color').val()) + `),
-model = <span class="hljs-string">"` + $('#job_model').val() + `"</span>,
-description = <span class="hljs-string">"` + $('#job_description').val() + `"</span>,
-weapons = {` + getWeaponsList() + `},
-command = <span class="hljs-string">"` + $('#job_job_id').val().toLowerCase() + `"</span>,
-<span class="hljs-built_in">max</span> = ` + $('#job_max_players').val() + `,
-salary = ` + $('#job_salary').val() + `,
-vote = <span class='hljs-literal'>` + ($('#job_vote').is(':checked') ? 'true' : 'false') + `</span>,
-admin = <span class='hljs-literal'>` + ($('#job_admin_only').is(':checked') ? 'true' : 'false') + `</span>,
+    color = Color(` + hexToRgb($('#job_color').val()) + `),
+    model = <span class="hljs-string">"` + $('#job_model').val() + `"</span>,
+    description = <span class="hljs-string">"` + $('#job_description').val() + `"</span>,
+    weapons = {` + getWeaponsList() + `},
+    command = <span class="hljs-string">"` + $('#job_job_id').val().toLowerCase() + `"</span>,
+    <span class="hljs-built_in">max</span> = ` + $('#job_max_players').val() + `,
+    salary = ` + $('#job_salary').val() + `,
+    vote = <span class='hljs-literal'>` + ($('#job_vote').is(':checked') ? 'true' : 'false') + `</span>,
+    admin = <span class='hljs-literal'>` + ($('#job_admin_only').is(':checked') ? 'true' : 'false') + `</span>,
 })`);
 }
 
@@ -65,36 +66,29 @@ $('#job_job_id').on('input', setCode);
 $('#job_name').on('input', setCode);
 $('#job_salary').on('input', setCode);
 $('#job_description').on('input', setCode);
-$('#job_model').on('input', setCode);
+
+
+$('#job_model').on('change', function() {
+    console.log("TEST");
+    
+    //APP.vue.job_model = $(this).val();
+});
+
 $('#job_model').keypress(function (e) {
     if (e.which == 13) {
-        setCode();
+        //console.log("Enter " + $(this).val());
+        
+        //APP.vue.job_model = $(this).val();
         return false;
     }
 });
 
-$('#job_max_players').on('input', setCode);
 
-var availableTags = [
-    'models/player/alyx.mdl',
-    'models/player/police.mdl',
-    'models/player/combine_super_soldier.mdl',
-    'models/player/Group01/female_01.mdl',
-    'models/player/breen.mdl',
-    'models/player/monk.mdl',
-    'models/player/kleiner.mdl',
-    'models/player/phoenix.mdl'
-];
-$("#job_model").autocomplete({
-    source: availableTags,
-    select: function() {
-        setTimeout(function() {
-            setCode();
-        }, 0);
-    }
-});
+$('#job_max_players').on('input', setCode);
 
 $("#job_vote").on('change', setCode);
 $("#job_admin_only").on('change', setCode);
 
 setCode();
+
+

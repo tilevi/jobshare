@@ -1,151 +1,229 @@
+
 // This is the js for the default/index.html view.
 
 var app = function() {
-
     var self = {};
-
-    Vue.config.silent = false; // show all warnings
-
-    // Extends an array
-    self.extend = function(a, b) {
-        for (var i = 0; i < b.length; i++) {
-            a.push(b[i]);
-        }
-    };
-
-    // Enumerates an array.
-    var enumerate = function(v) {
-        var k = 0;
-        return v.map(function(e) {
-            e._idx = k++;
-        });
-    };
+    Vue.config.silent = false;
+    Vue.config.ignoredElements = ['tags'];
     
-    // Fetches the index of a memo, given a memo id.
-    var getCommentIndex = function(id) {
-        for (var i = 0; i < self.vue.memos.length; i++) {
-            if (self.vue.memos[i].id == id) {
-                return i;
+    Vue.component('tag-it', {
+        template: '<input/>',
+        mounted: function() {
+            var input = document.querySelector("#weaponTags");
+            var tagify = new Tagify(input, {
+                whitelist : ["weapon_ak47", "weapon_ar2"]
+            });
+            
+            // Weapons
+            var wepTags = [];
+            
+            function onRemoveTag(e){
+                wepTags.splice(wepTags.indexOf(e.detail.value), 1);
+                self.vue.job_weapons_arr = wepTags;
+                self.vue.job_weapons = JSON.stringify(wepTags);
             }
+            tagify.on('remove', onRemoveTag);
+            
+            function onAddTag(e) {
+                wepTags.push(e.detail.value);
+                self.vue.job_weapons_arr = wepTags;
+                self.vue.job_weapons = JSON.stringify(wepTags);
+            }
+            tagify.on('add', onAddTag);
+        },
+        beforeDestroy: function() {
+            $(this.$el).destroy();
         }
-        return -1;
-    }
+    });
     
-    function get_comments_url(start_idx, end_idx, id) {
-        var pp = {
-            start_idx: start_idx,
-            end_idx: end_idx,
-            id: id
-        };
-        return comments_url + "?" + $.param(pp);
-    }
-    
-    self.get_comments = function () {
-        $.getJSON(get_comments_url(0, 10, self.vue.job_id), function (data) {
-            self.vue.comments = data.comments;
-            self.vue.has_more = data.has_more;
-            self.vue.logged_in = data.logged_in;
-            enumerate(self.vue.comments);
-        })
-    };
-    
-    self.add_comment = function () {
-        // The submit button to add a track has been added.
-        $.post(add_comment_url,
-            {
-                id: parseInt(self.vue.job_id),
-                body: self.vue.comment_form
-            },
-            function (data) {
-                if (data.error) {
-                    self.vue.comment_error = true;
-                } else {
-                    self.vue.comment_error = false;
-                    self.vue.comments.unshift(data.comment);
-                    enumerate(self.vue.comments);
+    Vue.component('job-model', {
+        template: '<input/>',
+        mounted: function() {
+            var availableTags = [
+                'models/player/alyx.mdl',
+                'models/player/police.mdl',
+                'models/player/combine_super_soldier.mdl',
+                'models/player/Group01/female_01.mdl',
+                'models/player/breen.mdl',
+                'models/player/monk.mdl',
+                'models/player/kleiner.mdl',
+                'models/player/phoenix.mdl'
+            ];
+            $("#job_model").autocomplete({
+                source: availableTags,
+                select: function() {
+                    setTimeout(function() {
+                        setCode();
+                    }, 0);
                 }
             });
-    };
+        },
+        beforeDestroy: function() {
+            $(this.$el).destroy();
+        }
+    });
     
-    self.add_comment_button = function() {
-        self.vue.is_adding_comment = !self.vue.is_adding_comment;
-    };
+    self.submit = function() {
+        
+        console.log($("#job_tag").val());
+        
+        $.post(create_job_url,
+            {
+                job_job_id: self.vue.job_job_id,
+                job_name: self.vue.job_name,
+                job_desc: self.vue.job_desc,
+                job_model: self.vue.job_model,
+                job_salary: self.vue.job_salary,
+                job_max_players: self.vue.job_max_players,
+                job_color: self.vue.job_color,
+                weps: self.vue.job_weapons_arr,
+                job_tag: $("#job_tag").val(),
+                job_vote: self.vue.job_vote,
+                job_admin_only: self.vue.job_admin_only
+            },
+            function (data) {
+                if (data.errors) {
+                    var vue = self.vue;
+                    var errors = data.form.errors;
+
+                    vue.job_job_id_error = data.form.errors.job_job_id;
+                    vue.job_name_error = data.form.errors.job_name;
+                    vue.job_desc_error = data.form.errors.job_desc;
+                    vue.job_model_error = data.form.errors.job_model;
+
+                    vue.job_salary_error = data.form.errors.job_salary;
+                    vue.job_max_players_error = data.form.errors.job_max_players;
+                    vue.job_color_error = data.form.errors.job_color;
+
+                    vue.job_weapons_error = data.form.errors.job_weapons;
+                    vue.job_vote_error = data.form.errors.job_vote;
+                    vue.job_admin_only_error = data.form.errors.job_admin_only;
+
+                    vue.job_tag_error = data.form.errors.job_tag;
+                } else {
+                    // The form doesn't have errors, so redirect.
+                    window.location.replace(community_url);
+                }
+            }
+        );
+    }
     
-    self.get_more = function() {
-        var num_comments = self.vue.comments.length;
-        $.getJSON(get_comments_url(num_comments, num_comments + 10, self.vue.job_id), function (data) {
-            self.vue.has_more = data.has_more;
-            self.extend(self.vue.comments, data.comments);
-            enumerate(self.vue.comments);
-        });
-    };
+    self.setRGB = function() {
+        var bigint = parseInt($("#job_color").val(), 16);
+        
+        var r = ((bigint >> 16) & 255);
+        var g =  ((bigint >> 8) & 255);
+        var b = (bigint & 255);
+        
+        self.vue.job_color = $("#job_color").val();
+        self.vue.job_color_arr = [r, g, b];
+    }
+    
+    /* Sources:
+        http://jsfiddle.net/gargdeendayal/4qqza69k/
+        https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
+    */
+    self.isJobID = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+        
+        if(charCode === 32 || !(charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
+    }
+    
+    self.isJobName = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+           
+        if(!(charCode == 32 || (charCode >= 48 && charCode <= 57) || (charCode == 39) || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
+    }
+    
+    self.isJobDescription = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+           
+        if(!(charCode === 32 || charCode == 33 || charCode == 46 || charCode == 39 || charCode == 44 || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
+    }
+    
+    self.copy_code = function() {
+        $("#copyButton").text("Copied!");
+        setTimeout(function() {
+            $("#copyButton").text("Copy");
+            copied = false;
+        }, 1000);
+
+        var $temp = $("<textarea>");
+        $("body").append($temp);
+        $temp.val($("#genCode").text()).select();
+        document.execCommand("copy");
+        $temp.remove();
+    }
     
     self.vue = new Vue({
         el: "#vue-div",
         delimiters: ['${', '}'],
         unsafeDelimiters: ['!{', '}'],
         data: {
-            comments: [],
-            logged_in: false,
-            has_more: false,
-            job_id: job_id,
-            comment_form: null,
-            comment_error: false
+            job_command: null,
+            job_job_id: "",
+            job_name: null,
+            job_desc: null,
+            job_model: null,
+            job_salary: null,
+            job_max_players: null,
+            job_color: "23B5EB",
+            
+            job_color_arr: [35, 181, 235],
+            
+            job_weapons: null,
+            job_weapons_arr: [],
+            job_vote: null,
+            job_admin_only: null,
+            job_tag: null,
+            
+            job_job_id_error: null,
+            job_name_error: null,
+            job_desc_error: null,
+            job_model_error: null,
+            job_salary_error: null,
+            job_max_players_error: null,
+            job_color_error: null,
+            job_weapons_error: null,
+            job_vote_error: null,
+            job_admin_only_error: null,
+            job_tag_error: null
         },
         methods: {
-            add_comment_button: self.add_comment_button,
-            add_comment: self.add_comment,
-            get_more: self.get_more
+            setRGB: self.setRGB,
+            isJobID: self.isJobID,
+            isJobName: self.isJobName,
+            isJobDescription: self.isJobDescription,
+            copy_code: self.copy_code,
+            submit: self.submit
         }
     });
     
-    self.get_comments();
     $("#vue-div").show();
-
-    return self;
-};
-
-// This is the js for the default/index.html view.
-
-var app2 = function() {
-    var self = {};
-    Vue.config.silent = false;
     
-    self.toggle_job = function() {
-        $.post(toggle_job_url,
-            {
-                job_id: job_id
-            },
-            function (data) {
-                self.vue.is_public = data.is_public;
-            }
-        )
-    }
-    
-    self.vue = new Vue({
-        el: "#vue-div2",
-        delimiters: ['${', '}'],
-        unsafeDelimiters: ['!{', '}'],
-        data: {
-            is_public: null
-        },
-        methods: {
-            toggle_job: self.toggle_job
-        }
-    });
-    
-    $("#vue-div2").show();
-
     return self;
 };
 
 
 var APP = null;
-var APP2 = null;
 
 // This will make everything accessible from the js console;
 // for instance, self.x above would be accessible as APP.x
 jQuery(function(){
     APP = app();
-    APP2 = app2();
 });

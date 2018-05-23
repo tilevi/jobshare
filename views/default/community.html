@@ -12,6 +12,9 @@
         var view_url = "{{=URL('default', 'view')}}";
         var image_url = "{{=URL('static', 'images')}}";
         
+        var add_comment_url = "{{=URL('api', 'add_comment', user_signature=True)}}";
+        var comments_url = "{{=URL('api', 'get_comments', user_signature=True)}}";
+        
         var isCommunityPage = true;
     </script>
     
@@ -83,44 +86,47 @@
                     <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterTags">
                         
                         <i class="fa fa-chevron-down" id="filterIcon" style="margin-right: 4px;"></i>
-                        <span id="filterText">FILTER BY TAGS</span>
+                        <span id="filterText">FILTER BY TYPE</span>
                     </div>
                     
                     <div id="filterTags" class="collapse noSelect">
                         
                         <div class="cPanel">
                             
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Citizen" value="Citizen" v-model="checkedTags">
-                                <label for="Citizen" class="noBottomMargin">Citizen</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Commercial" value="Commercial" v-model="checkedTags">
-                                <label for="Commercial" class="noBottomMargin">Commercial</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Criminal" value="Criminal" v-model="checkedTags">
-                                <label for="Criminal" class="noBottomMargin">Criminal</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Fun" value="Fun" v-model="checkedTags">
-                                <label for="Fun" class="noBottomMargin">Fun</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Government" value="Government" v-model="checkedTags">
-                                <label for="Government" class="noBottomMargin">Government</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="OP" value="OP" v-model="checkedTags">
-                                <label for="OP" class="noBottomMargin">OP</label>
-                            </div>
-                            <div class="form-check">
-                                <input v-on:click="fetchNewResults();" type="checkbox" class="form-check-input" id="Misc" value="Misc" v-model="checkedTags">
-                                <label for="Misc" class="noBottomMargin">Misc.</label>
+                             <div class="form-check">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_citizen" value="Citizen" v-model="checkedTags">
+                                <label for="tag_citizen" class="noBottomMargin">Citizen</label>
                             </div>
                             
+                            <div class="form-check">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_commercial" value="Commercial" v-model="checkedTags">
+                                <label for="tag_commercial" class="noBottomMargin">Commercial</label>
+                            </div>
                             
+                            <div class="form-check">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_criminal" value="Criminal" v-model="checkedTags">
+                                <label for="tag_criminal" class="noBottomMargin">Criminal</label>
+                            </div>
                             
+                            <div class="form-check">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_fun" value="Fun" v-model="checkedTags">
+                                <label for="tag_fun" class="noBottomMargin">Fun</label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_government" value="Government" v-model="checkedTags">
+                                <label for="tag_government" class="noBottomMargin">Government</label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_op" value="OP" v-model="checkedTags">
+                                <label for="tag_op" class="noBottomMargin">OP</label>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_misc" value="Misc." v-model="checkedTags">
+                                <label for="tag_misc" class="noBottomMargin">Misc.</label>
+                            </div>             
                         </div>
                         
                     </div>
@@ -237,7 +243,6 @@
                         v-on:change="fetchNewResults();" v-bind:disabled="isLoadingResults">
                     <option value="newest">Sort by: Newest jobs</option>
                     <option value="recent">Recently updated</option>
-                    <option value="upvotes">Upvotes</option>
                 </select>
                 
                 <select v-model="selectedTimeRange" class="form-control" style="width: 200px; display: inline;"
@@ -263,7 +268,7 @@
                 <div class="roundedTop" style="padding-top: 36px; width: 100%;" v-bind:style="{ background: '#' + job_color }">
                     
                     <div class="whiteGloss">
-                        <img v-bind:src="getModelURL(job_model)" style="float: left; padding-left: 12px;"/>
+                        <img v-bind:src="getModelURL(job_model)" style="float: left; padding-left: 20px;"/>
                         
                         <div class="myTextBottomLeft2" v-bind:class="getTextClass(job_color)">
                             ${ job_name }
@@ -279,21 +284,65 @@
                     </div>
                 </div>
                 
+                
+                <div id="Comments" style="width: 100%;" v-bind:style="{ display: (job_current_tab == 2) ? 'block' : 'none' }">
+                    {{if auth.user is not None:}}
+
+                        <div class="container" style="padding: 20px; padding-top: 34px; background-color: white;">
+
+                            <div class="commentError" v-if="comment_error">
+                                Comment can't be empty.
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0px;">
+                                <textarea class="form-control" style="width: 100%;" placeholder="Leave a comment" v-model="comment_form"></textarea>
+                            </div>
+
+                            <div style="margin-bottom: 0px; margin-top: 0px; text-align: right;">
+                                <input class="submitButton" type="button" value="Comment" v-on:click="add_comment()" style="display: inline-block;"/>
+                            </div>
+                        </div>
+                    {{pass}}
+                    
+                    <div v-for="comment in comments"> 
+                        <div class="comment">
+                            <div class="comment_top">
+                                <b>${comment.username} <span v-if="comment.username == job_created_by" style="font-size: 9px; color: white; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
+                            </div>
+                            
+                            <div class="comment_text">
+                                ${comment.body}
+                            </div>
+                        </div>
+                    </div>
+                
+                
+                    <div v-if="has_more" class="show_more">
+                        
+                        <div style="width: 100%; background: white; padding: 10px; padding-left: 20px; padding-right: 20px;">
+                            <button class="btn btn-default loadMore" v-on:click="get_more()">
+                                Load more
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                
                 <div id="Code" v-bind:style="{ display: (job_current_tab == 1) ? 'block' : 'none' }" style="width: 100%; background: rgba(240, 240, 240, 1);">
                 
                 
 <div class="container">
     <div class="row">
         <div class="col-md-12" style="padding: 0 !important;">
-            <div class="pull-right noSelect pointer" id="copyButton" v-on:click="copy_code" style="background-color: steelblue; color: white; padding: 10px 15px 10px 15px; border-top-left-radius: 4px;">Copy</div>
+            <div class="pull-right noSelect pointer" id="copyButton" v-on:click="copy_code" style="background-color: steelblue; color: white; padding: 5px 10px 5px 10px; border-bottom-left-radius: 4px;">Copy</div>
         </div>
     </div>    
 </div>
                     
 <pre style="padding: 0px 32px 32px 32px; margin-bottom: 0px;"><code><div id="genCode">TEAM_${job_job_id} = DarkRP.createJob(<span class="red">"${ job_name }"</span>, {
     color = Color(<span class="red">${ (job_color_rgb[0]) }</span>, <span class="red">${ (job_color_rgb[1]) }</span>, <span class="red">${ (job_color_rgb[2]) }</span>),
-    model = "<span class="red">${ job_model }"</span>,
-    weapons = {${ job_weapons }},
+    model = <span class="red">"${ job_model }"</span>,
+    weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
     command = <span class="red">"${job_command}"</span>
     max = <span class="red">${ job_max_players }</span>,
     salary = <span class="red">${ job_salary }</span>,
@@ -305,7 +354,7 @@
 </div>
 
                 <!-- https://stackoverflow.com/questions/26983301/how-to-make-a-table-column-be-a-minimum-width -->
-                <div id="Details" class="table-responsive" style="padding: 20px;" v-bind:style="{ display: (job_current_tab == 0) ? 'block' : 'none' }">
+                <div id="Details" class="table-responsive" style="padding: 20px; padding-top: 22px;" v-bind:style="{ display: (job_current_tab == 0) ? 'block' : 'none' }">
                     <table class="table table-striped">
                         <tbody>
                             <tr>
@@ -314,8 +363,13 @@
                             </tr>
                             
                             <tr>
+                                <td class="min">Type:</td>
+                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_tag }</td>
+                            </tr>
+                            
+                            <tr>
                                 <td class="min">Salary:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_salary }</td>
+                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);"><span>$</span>${ job_salary }</td>
                             </tr>
                             
                             <tr>
@@ -325,12 +379,12 @@
                             
                             <tr>
                                 <td class="min">Vote:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_vote }</td>
+                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_vote ? "Yes" : "No" }</td>
                             </tr>
                             
                             <tr>
                                 <td class="min">Admin Only:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_admin_only }</td>
+                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_admin_only ? "Yes" : "No" }</td>
                             </tr>
                             
                             <tr v-if="job_weapons.length > 0">

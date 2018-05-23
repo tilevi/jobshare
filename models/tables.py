@@ -22,7 +22,7 @@ def get_the_username():
     return auth.user.username if auth.user is not None else None
 
 
-def boot_form_widget(field, value):
+def boot_form_widget(field, value):    
     return INPUT(_name=field.name,
                  _id="%s_%s" % (field._tablename, field.name),
                  _class = 'form-control',
@@ -30,6 +30,12 @@ def boot_form_widget(field, value):
                  _value=value,
                  _maxlength=50,
                  requires=field.requires)
+
+def select_widget(field, value):
+    return INPUT(_name=field.name,
+                 _id="%s_%s" % (field._tablename, field.name),
+                 _value='',
+                 _type='hidden')
 
 def number_widget(field, value):
     return INPUT(_name=field.name,
@@ -57,7 +63,7 @@ def textarea_widget(field, value):
     return TEXTAREA(_name=field.name,
                  _id="%s_%s" % (field._tablename, field.name),
                  _class = 'form-control',
-                 _style='max-height: 100px',
+                 _style='max-height: 100px;',
                  _placeholder=field.placeholder,
                  _value=value,
                  requires=field.requires)
@@ -75,7 +81,7 @@ def tag_widget(field, value):
     return INPUT(_name=field.name,
                  _id="%s_%s" % (field._tablename, field.name),
                  _placeholder='Add weapon classes',
-                 _value='css',
+                 _value='',
                  _type='hidden')
 
 def check_widget(field, value):
@@ -86,20 +92,21 @@ def check_widget(field, value):
 
 db.define_table('job',
                 Field('user_id', default=get_user_id()),
-                Field('job_id', 'string', placeholder='MUGGER', widget=boot_form_widget),
-                Field('name', 'string', placeholder='Mugger', widget=boot_form_widget),
-                Field('description', 'text', placeholder="Mug the streets, become rich and spend your 'hard-earned' cash.", widget=boot_form_widget),
-                Field('color', 'string', default='3d3d3d', widget=color_widget),
-                Field('model', 'string', placeholder='models/player/phoenix.mdl', widget=boot_form_widget),
-                Field('salary', 'integer', placeholder=0, widget=number_widget),
-                Field('max_players', 'integer', placeholder=2, widget=number_widget2),
+                Field('job_id', 'string', placeholder='DOCTOR'),
+                Field('name', 'string', placeholder='Doctor'),
+                Field('description', 'text', placeholder="Heal the community."),
+                Field('color', 'string', default='23B5EB'),
+                Field('model', 'string', placeholder='models/player/kleiner.mdl'),
+                Field('salary', 'integer', placeholder=0),
+                Field('max_players', 'integer', placeholder=2),
                 Field('admin_only', 'boolean', default=False),
+                Field('tag', 'string'),
                 Field('vote', 'boolean', default=False),
-                Field('weapons', 'list:string', widget=tag_widget),
-                Field('is_public', 'boolean', default=False),
+                Field('weapons', 'list:string', default=[]),
+                Field('is_public', 'boolean', default=True),
                 Field('created_by', default=get_the_username()),
-                Field('created_on', 'datetime'),
-                Field('updated_on', 'datetime', update=datetime.datetime.utcnow()),
+                Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
+                Field('updated_on', 'datetime', update=datetime.datetime.utcnow())
                 )
 
 db.define_table('post',

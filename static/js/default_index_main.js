@@ -13,7 +13,7 @@ var app = function() {
     Vue.component('tag-it', {
         template: '<input/>',
         mounted: function() {
-            var input = document.querySelector("#lolFine");
+            var input = document.querySelector("#weaponTags");
             var tagify = new Tagify(input, {
                 whitelist : ["weapon_ak47", "weapon_ar2"]
             });
@@ -77,6 +77,7 @@ var app = function() {
             min_s: vue.min_salary,
             max_s: vue.max_salary,
             weps: vue.checkedWeapons,
+            tags: vue.checkedTags,
             time_range: vue.selectedTimeRange,
             sort: vue.selectedSort
         }
@@ -130,7 +131,7 @@ var app = function() {
             vue.isLoadingResults = false;
             
             
-            self.show_job_details(self.vue.odd_jobs[0]);
+            // self.show_job_details(self.vue.odd_jobs[0]);
         })
     };
     
@@ -180,7 +181,11 @@ var app = function() {
             }
 
             if (vue.checkedWeapons.length != 0) {
-                pp.wep = vue.checkedWeapons;
+                pp.weps = vue.checkedWeapons;
+            }
+            
+            if (vue.checkedTags.length != 0) {
+                pp.tags = vue.checkedTags;
             }
 
             if (time_range != null) {
@@ -262,14 +267,20 @@ var app = function() {
         vue.job_max_players = job.max_players;
         
         vue.job_weapons = job.weapons.join(", ");
+        vue.job_weapons_arr = job.weapons;
         
         vue.job_vote = job.vote;
         vue.job_admin_only = job.admin_only;
         
         vue.job_created_by = job.created_by;
         
+        vue.job_tag = job.tag;
+        
         vue.view_id = job.id;    
         vue.showing_job_details = true;
+        
+        // Get the job's comments.
+        self.get_comments();
         
         self.setNewURL();
     }
@@ -298,6 +309,74 @@ var app = function() {
             document.execCommand("copy");
             $temp.remove();
     }
+    
+    
+    // Comments
+    function get_comments_url(start_idx, end_idx, id) {
+        var pp = {
+            start_idx: start_idx,
+            end_idx: end_idx,
+            id: id
+        };
+        return comments_url + "?" + $.param(pp);
+    }
+    
+    self.get_comments = function () {
+        $.post(comments_url,
+            {
+                start: 0,
+                end: 5,
+                id: self.vue.view_id
+            },
+            function (data) {
+                self.vue.comments = data.comments;
+                self.vue.has_more = data.has_more;
+                self.vue.logged_in = data.logged_in;
+                enumerate(self.vue.comments);
+            });
+    };
+    
+    self.add_comment = function () {
+        // The submit button to add a track has been added.
+        $.post(add_comment_url,
+            {
+                id: parseInt(self.vue.view_id),
+                body: self.vue.comment_form
+            },
+            function (data) {
+                if (data.error) {
+                    self.vue.comment_error = true;
+                } else {
+                    self.vue.comment_form = null;
+                    self.vue.comment_error = false;
+                    self.vue.comments.unshift(data.comment);
+                    enumerate(self.vue.comments);
+                }
+            });
+    };
+    
+    self.add_comment_button = function() {
+        self.vue.is_adding_comment = !self.vue.is_adding_comment;
+    };
+    
+    self.get_more = function() {
+        var num_comments = self.vue.comments.length;
+        
+        $.post(comments_url,
+            {
+                start: num_comments,
+                end: num_comments + 5,
+                id: self.vue.view_id
+            },
+            function (data) {
+                self.vue.has_more = data.has_more;
+                self.extend(self.vue.comments, data.comments);
+                enumerate(self.vue.comments);
+            }
+        );
+    };
+    
+    
     
     var router = new VueRouter({
         mode: 'history',
@@ -349,16 +428,25 @@ var app = function() {
             job_color: null,
             job_color_rgb: null,
             job_weapons: null,
+            job_weapons_arr: null,
             
             job_vote: null,
             job_admin_only: null,
             
             job_created_by: null,
             
+            job_tag: null,
+            
             view_id: null,
             
             // 0 = 'Details', 1 = 'Code', 2 = 'Comments'
-            job_current_tab: 0
+            job_current_tab: 0,
+            
+            // Comments
+            has_more: false,
+            comments: [],
+            comment_form: null,
+            comment_error: false
         },
         methods: {
             fetchNewResults: self.get_jobs,
@@ -376,7 +464,11 @@ var app = function() {
             close_job_details: self.close_job_details,
             openTab: self.openTab,
             hexToRGB: self.hexToRGB,
-            copy_code: self.copy_code
+            copy_code: self.copy_code,
+            
+            add_comment_button: self.add_comment_button,
+            add_comment: self.add_comment,
+            get_more: self.get_more
         }
     });
     
@@ -391,12 +483,21 @@ var app = function() {
     self.vue.max_salary = self.vue.$route.query.max_s;
     
     // Get the weapons
-    var wepArr = self.vue.$route.query["wep[]"];
-    self.vue.checkedWeapons = (wepArr!= null) ? wepArr : [];
+    var wepArr = self.vue.$route.query["weps[]"];
+    self.vue.checkedWeapons = (wepArr != null) ? wepArr : [];
     
     // Convert it to an array, if necessary.
     if ((typeof wepArr) == "string") {
         self.vue.checkedWeapons = [ wepArr ];
+    }
+    
+    // Get the tags
+    var tagArr = self.vue.$route.query["tags[]"];
+    self.vue.checkedTags = (tagArr != null) ? tagArr : [];
+    
+    // Convert it to an array, if necessary.
+    if ((typeof tagArr) == "string") {
+        self.vue.checkedTags = [ tagArr ];
     }
     
     // Get the corresponding jobs.

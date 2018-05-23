@@ -14,6 +14,11 @@ def get_jobs():
     if isinstance(weps, basestring):
         weps = [weps]
     
+    # Get the tags
+    tags = request.vars.get('tags[]', [])
+    if isinstance(tags, basestring):
+        tags = [tags]
+    
     # The jobs that we will retrieve.
     jobs = []
     
@@ -60,6 +65,10 @@ def get_jobs():
         # Filter the weapons.
         for wep in weps:
             q = q & (db.job.weapons.contains(wep))
+            
+        # Filter the tags.
+        for tag in tags:
+            q = q & (db.job.tag.contains(tag))
         
         # Sources:
         #   https://groups.google.com/forum/#!topic/web2py/PrIo2I-fgCc
@@ -125,8 +134,12 @@ def get_jobs():
     )
 
 def get_comments():
-    start_idx = int(request.vars.start_idx) if request.vars.start_idx is not None else 0
-    end_idx = int(request.vars.end_idx) if request.vars.end_idx is not None else 0
+    start_idx = int(request.vars.start) if request.vars.start is not None else 0
+    end_idx = int(request.vars.end) if request.vars.end is not None else 0
+    
+    logger.info('Start index: %r' % start_idx)
+    logger.info('End index: %r' % end_idx)
+    
     id = int(request.vars.id)
     
     get_comments = []

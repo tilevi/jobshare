@@ -273,20 +273,26 @@ a.last::before {
     line-height: 2em;
 }
 
+.formError {
+    color: red;
+    margin-top: 10px;
+}
 
 .comment {
-    margin: 10px 0px 10px 0px;
+    margin: 0px 0px 0px 0px;
+    padding: 5px 20px 5px 20px;
     background-color: white;
 }
 
 .comment_top {
-    background-color: rgba(33, 33, 33, 0.05);
+    background-color: rgba(33, 33, 33, 0.1);
     padding: 10px;
     font-size: 12px;
 }
 
 .comment_text {
     padding: 10px;
+    word-wrap: break-word;
 }
 
 .commentError {
@@ -296,8 +302,9 @@ a.last::before {
 
 .loadMore {
     color: white;
-    background-color: #388E8E;
+    background-color: #383838;
     width: 100%;
+    padding: 10px;
 }
 
 /*** grid ***/
@@ -389,6 +396,7 @@ td.min {
 .tab {
     overflow: hidden;
     background-color: #202020;
+    margin-left: 4px;
 }
 
 /* Style the buttons inside the tab */
