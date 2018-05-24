@@ -32,7 +32,7 @@ def get_jobs():
     
     # We make a try-catch block to prevent any internal errors.
     try:
-        pn = int(request.vars.page) - 1
+        pn = max(0, int(request.vars.page) - 1)
     except:
         pn = 0
     
@@ -105,7 +105,7 @@ def get_jobs():
                     limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
         elif (sort == 'recent'):
             jobs = result.select(
-                    orderby=~db.job.created_on,
+                    orderby=~db.job.updated_on,
                     limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
         else:
             jobs = result.select(
@@ -126,12 +126,6 @@ def get_jobs():
     rCount = (count // jobsPerPage)
     if ((count % jobsPerPage) > 0):
         rCount = rCount + 1
-    
-    # This is just in-case someone visits a non-existent page.
-    if (pn > rCount):
-        redirect(URL('', vars={'page': rCount}))
-    elif (pn < 0):
-        redirect(URL('', vars={'page': 1}))
     
     return response.json(
         dict(

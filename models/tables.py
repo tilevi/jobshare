@@ -106,7 +106,7 @@ db.define_table('job',
                 Field('is_public', 'boolean', default=False),
                 Field('created_by', default=get_the_username()),
                 Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
-                Field('updated_on', 'datetime', update=datetime.datetime.utcnow())
+                Field('updated_on', 'datetime', default=datetime.datetime.utcnow())
                 )
 
 db.define_table('post',

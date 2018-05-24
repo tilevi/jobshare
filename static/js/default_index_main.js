@@ -124,29 +124,6 @@ var app = function() {
         return -1;
     }
     
-    /*function get_jobs_url() {
-        var vue = self.vue;
-        
-        var pp = {
-            search: vue.search_form,
-            page: vue.current_page,
-            min_p: vue.min_players,
-            max_p: vue.max_players,
-            min_s: vue.min_salary,
-            max_s: vue.max_salary,
-            weps: vue.checkedWeapons,
-            tags: vue.checkedTags,
-            time_range: vue.selectedTimeRange,
-            sort: vue.selectedSort
-        }
-        
-        if (isCommunityPage) {
-            pp.public = true;
-        }
-        
-        return jobs_url + "?" + $.param(pp);
-    }*/
-    
     self.getJobViewURL = function(id) {
         return view_url + "/" + id;
     }
@@ -163,6 +140,7 @@ var app = function() {
     
     self.get_jobs = function() {
         var vue = self.vue;
+        
         vue.isLoadingResults = true;
         isLoadingResults = true;
         
@@ -180,6 +158,13 @@ var app = function() {
             public: (isCommunityPage)
         }, function (data) {
             vue.jobs = data.jobs;
+            
+            // If we retrieved 0 jobs, and we're not on page 1, retry.
+            if (vue.jobs.length == 0 && vue.current_page != 1 && data.pages > 0)  {
+                vue.current_page = data.pages;
+                self.get_jobs();
+                return;
+            }
             
             vue.even_jobs = [];
             vue.odd_jobs = [];
@@ -203,10 +188,6 @@ var app = function() {
             
             vue.isLoadingResults = false;
             isLoadingResults = false;
-            
-            /*if (self.vue.odd_jobs[0] != null) {
-                self.show_job_details(self.vue.odd_jobs[0]);
-            }*/
         })
     };
     
@@ -355,12 +336,15 @@ var app = function() {
         
         // Set the new URL.
         self.setNewURL();
-        
-        // self.toggle_edit_job();
     }
     
     self.close_job_details = function() {
         var vue = self.vue;
+        // We are no longer editing a job/or waiting for it to process.
+        vue.edit_waiting = false;
+        vue.editing_job = false;
+        
+        // We are no longer showing job details.
         vue.showing_job_details = false;
         vue.view_id = null;
         self.setNewURL();
@@ -453,11 +437,18 @@ var app = function() {
     
     self.toggle_edit_job = function() {
         var vue = self.vue;
+        // Prevent toggling editing for this job until we hear 
+        // back from the server.
+        if (vue.edit_waiting) {
+            return false;
+        }
+        
         vue.edit_errors = {};
         
         // Usernames are unique, so this is fine.
         if (vue.job_mine) {
             vue.editing_job = !vue.editing_job;
+            vue.edit_waiting = false;
             
             if (vue.editing_job) {
                 vue.edit_errors = {};
@@ -478,18 +469,33 @@ var app = function() {
                 job_id: vue.view_id
             },
             function(data) {
-            
-                if (data.error) {
-                    console.log("[JobShare] Unable to delete job.");
-                } else {
-                    console.log("[Jobshare] Deleted the job.")
+                if (!data.error) {
+                    // Close the job details
+                    self.close_job_details();
+                    
+                    // Fetch jobs.
+                    self.get_jobs();
                 }
             }
         );
     }
     
+    self.toggle_public = function() {
+        var vue = self.vue;
+        
+        $.post(toggle_job_url,
+            {
+                job_id: vue.view_id
+            },
+            function (data) {
+                self.vue.selected_job.is_public = data.is_public;
+            }
+        ); 
+    }
+    
     self.submit = function() {
         var vue = self.vue;
+        vue.edit_waiting = true;
         
         // Disable the button
         $("#submit_button").prop("disabled", true);
@@ -535,9 +541,13 @@ var app = function() {
                             }
                         }
                         
-                        // Only show the new details if we're viewing the same job.
-                        if (self.vue.view_id == job.id && !self.vue.editing_job) {
-                            self.toggle_edit_job();
+                        // Only show the new details if we're viewing the same job
+                        if (self.vue.view_id == job.id) {
+                            // We must have been waiting for the edit to complete.
+                            if (self.vue.edit_waiting) {
+                                self.vue.edit_waiting = false;
+                                self.toggle_edit_job();
+                            }
                             self.show_job_details(job);
                         }
                     }
@@ -688,6 +698,7 @@ var app = function() {
             
             // Job editing
             editing_job: false,
+            edit_waiting: false,
             
             edit_job: null,
             
@@ -722,6 +733,7 @@ var app = function() {
             getTextClass: self.getTextClass,
             show_job_details: self.show_job_details,
             close_job_details: self.close_job_details,
+            toggle_public: self.toggle_public,
             openTab: self.openTab,
             hexToRGB: self.hexToRGB,
             copy_code: self.copy_code,
@@ -748,7 +760,7 @@ var app = function() {
     
     // Set the search form value.
     self.vue.search_form = self.vue.$route.query.search;
-    self.vue.current_page = self.vue.$route.query.search;
+    self.vue.current_page = Math.max(1, self.vue.$route.query.page);
     
     self.vue.min_players = self.vue.$route.query.min_p;
     self.vue.max_players = self.vue.$route.query.max_p;

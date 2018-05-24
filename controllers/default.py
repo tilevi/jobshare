@@ -342,7 +342,8 @@ def update_job():
             admin_only = job_admin_only,
             tag = job_tag,
             vote = job_vote,
-            weapons = job_weapons
+            weapons = job_weapons,
+            updated_on = datetime.datetime.utcnow()
         )
         
         # Return the updated job.
@@ -352,8 +353,21 @@ def update_job():
 @auth.requires_login()
 @auth.requires_signature()
 def delete_job():
-    logger.info("Delete job called!");
-    return response.json(dict(error=False))
+    job_id = request.vars.job_id
+    db((db.job.id == job_id) & (db.job.user_id == auth.user_id)).delete()
+    return response.json(dict(error=False, job_id=job_id))
+
+@auth.requires_login()
+@auth.requires_signature()
+def toggle_job():
+    q = ((db.job.id == request.vars.job_id) & (db.job.user_id == auth.user_id))
+    row = db(q).select().first()
+    
+    is_public = row.is_public
+    row.update_record(is_public=(not is_public))
+    
+    return response.json(dict(is_public=row.is_public))
+
 
 @auth.requires_login()
 @auth.requires_signature()

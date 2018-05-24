@@ -21,6 +21,7 @@
         
         var update_job_url = "{{=URL('default', 'update_job', user_signature=True)}}";
         var delete_job_url = "{{=URL('default', 'delete_job', user_signature=True)}}";
+        var toggle_job_url = "{{=URL('default', 'toggle_job', user_signature=True)}}";
         
         var isCommunityPage = true;
         var isLoadingResults = false;
@@ -311,15 +312,20 @@
                 <i v-on:click="close_job_details()" class="fa fa-close pointer" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 36px;"></i>
             </div>
             
-            <div class="editJobDetails pointer pull-right" v-if="job_mine">
-                <i v-on:click="toggle_edit_job()" class="fa fa-pencil" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 30px;"></i>
+            <div v-if="job_mine">
+                <div class="editJobDetails pointer pull-right">
+                    <i class="fa fa-pencil" v-on:click="toggle_edit_job()" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 30px;"></i>
+                </div>
+
+                <div class="deleteJobDetails pointer pull-right">
+                    <i class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;" href="#" data-toggle="modal" data-target="#deleteModal"></i>  
+                </div>
+
+                <div class="deleteJobDetails pointer pull-right">
+                    <i v-bind:class="{ 'fa fa-eye': selected_job.is_public, 'fa fa-eye-slash': !selected_job.is_public }" v-on:click="toggle_public()" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;"></i>  
+                </div>
             </div>
             
-            <div class="deleteJobDetails pointer pull-right" v-if="job_mine">
-                
-                    <i class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;" href="#" data-toggle="modal" data-target="#deleteModal"></i>
-                
-            </div>
         </div>
     </div>    
 </div>
@@ -413,12 +419,12 @@
         </div>
     </div>
 </div>
-                    
+       
 <pre style="padding: 0px 32px 32px 32px; margin-bottom: 0px;"><code><div id="genCode">TEAM_${selected_job.job_id} = DarkRP.createJob(<span class="red">"${ selected_job.name }"</span>, {
     color = Color(<span class="red">${ (job_color_rgb[0]) }</span>, <span class="red">${ (job_color_rgb[1]) }</span>, <span class="red">${ (job_color_rgb[2]) }</span>),
     model = <span class="red">"${ selected_job.model }"</span>,
     weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
-    descriptipn = <span class="red">"${ selected_job.description }"</span>
+    description = <span class="red">"${ selected_job.description }"</span>
     command = <span class="red">"${ job_command }"</span>
     max = <span class="red">${ selected_job.max_players }</span>,
     salary = <span class="red">${ selected_job.salary }</span>,
