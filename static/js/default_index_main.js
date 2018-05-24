@@ -19,29 +19,27 @@ var app = function() {
             });
             
             // Add any pre-existing tags.
+            var tags = [];
             var wepTags = [];
             
-            if (self.vue.edit_job != null && self.vue.edit_job.job_weapons_arr != null) {
-                for (var i = 0; i < self.vue.edit_job.job_weapons_arr.length; i++) {
-                    wepTags.push({ "value": self.vue.edit_job.job_weapons_arr[i] });
-                }
+            for (var i = 0; i < self.vue.edit_job.job_weapons_arr.length; i++) {
+                tags.push({ "value": self.vue.edit_job.job_weapons_arr[i] });
+                wepTags.push(self.vue.edit_job.job_weapons_arr[i]);
             }
             
-            if (wepTags.length > 0) {
-                tagify.addTags(wepTags);
+            if (tags.length > 0) {
+                tagify.addTags(tags);
             }
             
             function onRemoveTag(e){
                 wepTags.splice(wepTags.indexOf(e.detail.value), 1);
                 self.vue.edit_job.job_weapons_arr = wepTags;
-                self.vue.edit_job_weapons = JSON.stringify(wepTags);
             }
             tagify.on('remove', onRemoveTag);
             
             function onAddTag(e) {
                 wepTags.push(e.detail.value);
                 self.vue.edit_job.job_weapons_arr = wepTags;
-                self.vue.edit_job_weapons = JSON.stringify(wepTags);
             }
             tagify.on('add', onAddTag);
         }
@@ -166,6 +164,7 @@ var app = function() {
     self.get_jobs = function() {
         var vue = self.vue;
         vue.isLoadingResults = true;
+        isLoadingResults = true;
         
         $.post(jobs_url, {
             search: vue.search_form,
@@ -203,6 +202,7 @@ var app = function() {
             self.setNewURL();
             
             vue.isLoadingResults = false;
+            isLoadingResults = false;
             
             /*if (self.vue.odd_jobs[0] != null) {
                 self.show_job_details(self.vue.odd_jobs[0]);
@@ -453,6 +453,8 @@ var app = function() {
     
     self.toggle_edit_job = function() {
         var vue = self.vue;
+        vue.edit_errors = {};
+        
         // Usernames are unique, so this is fine.
         if (vue.job_mine) {
             vue.editing_job = !vue.editing_job;
@@ -517,12 +519,65 @@ var app = function() {
                     // Re-enable the button
                     $("#submit_button").prop("disabled", false);
                 } else {
-                    // The form doesn't have errors, so redirect.
-                    // window.location.replace(community_url);
-                    console.log("LOOKS FINE.");
+                    var job = data.job;
+                    
+                    if (job != null && job) {
+                        // The form doesn't have errors, so update the job.
+                        for (var i = 0; i < self.vue.jobs.length; i++) {
+                            if (job.id == self.vue.jobs[i].id) {
+                                self.vue.jobs[i] = job;
+                                if (i % 2 == 0) {
+                                    self.vue.even_jobs[Math.floor(i/2)] = job;
+                                } else {
+                                    self.vue.odd_jobs[Math.floor(i/2)] = job;
+                                }
+                                break;
+                            }
+                        }
+
+                        self.toggle_edit_job();
+                        self.show_job_details(job);
+                    }
                 }
             }
         );
+    }
+    
+    /* Sources:
+        http://jsfiddle.net/gargdeendayal/4qqza69k/
+        https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
+    */
+    self.isJobID = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+        
+        if(charCode === 32 || !(charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
+    }
+    
+    self.isJobName = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+           
+        if(!(charCode == 32 || (charCode >= 48 && charCode <= 57) || (charCode == 39) || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
+    }
+    
+    self.isJobDescription = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+        
+        if(!((charCode >= 48 && charCode <= 57) || charCode === 32 || charCode == 33 || charCode == 46 || charCode == 39 || charCode == 44 || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
     }
     
     self.setRGB = function() {
@@ -643,7 +698,6 @@ var app = function() {
             edit_job_color: "",
             edit_job_color_arr: [],
             
-            edit_job_weapons: null,
             edit_job_weapons_arr: [],
             edit_job_vote: null,
             edit_job_admin_only: null,
@@ -677,6 +731,10 @@ var app = function() {
             comma: self.comma,
             
             // Job editing
+            setRGB: self.setRGB,
+            isJobID: self.isJobID,
+            isJobName: self.isJobName,
+            isJobDescription: self.isJobDescription,
             toggle_edit_job: self.toggle_edit_job,
             submit: self.submit
         }

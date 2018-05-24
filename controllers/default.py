@@ -52,7 +52,7 @@ def checkJob(form, job_name):
 def checkDescription(form, job_desc):
     if len(job_desc) > 50:
         form["errors"]["job_desc"] = "Job description is too long."
-    elif not (all(x.isalpha() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_desc)):
+    elif not (all(x.isalnum() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_desc)):
         form["errors"]["job_desc"] = "Job description must be alphanumeric."
 
 def checkSalary(form, job_salary):
@@ -306,7 +306,7 @@ def update_job():
     
     if (error):
         logger.info("We have an error in the form.");
-        return response.json(dict(form=form, errors=True))
+        return response.json(dict(form=form, errors=True, job=False))
     else:
         logger.info("The form is ready to go.");
         
@@ -345,8 +345,10 @@ def update_job():
             weapons = job_weapons
         )
         
-        return response.json(dict(form=form, errors=False))
-    
+        # Return the updated job.
+        job = db((db.job.id == job_id)).select().first()
+        return response.json(dict(form=form, errors=False, job=job))
+
 @auth.requires_login()
 @auth.requires_signature()
 def delete():

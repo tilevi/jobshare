@@ -116,7 +116,7 @@ def get_jobs():
         
         
         
-        
+    
     elif auth.user is not None:
         result = db((db.job.user_id == auth.user_id) & (db.job.name.contains(search)))
         count = result.count()

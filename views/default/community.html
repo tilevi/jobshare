@@ -25,6 +25,7 @@
         var update_job_url = "{{=URL('default', 'update_job', user_signature=True)}}";
         
         var isCommunityPage = true;
+        var isLoadingResults = false;
         var my_username = "";
         
         {{if auth.user is not None:}}
@@ -112,37 +113,37 @@
                         <div class="cPanel">
                             
                              <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_citizen" value="Citizen" v-model="checkedTags">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_citizen" value="Citizen" v-model="checkedTags" onclick="return !isLoadingResults;">
                                 <label for="tag_citizen" class="noBottomMargin">Citizen</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_commercial" value="Commercial" v-model="checkedTags">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_commercial" value="Commercial" v-model="checkedTags" onclick="return !isLoadingResults;">
                                 <label for="tag_commercial" class="noBottomMargin">Commercial</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_criminal" value="Criminal" v-model="checkedTags">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_criminal" value="Criminal" v-model="checkedTags" onclick="return !isLoadingResults;">
                                 <label for="tag_criminal" class="noBottomMargin">Criminal</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_fun" value="Fun" v-model="checkedTags">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_fun" value="Fun" v-model="checkedTags" onclick="return !isLoadingResults;">
                                 <label for="tag_fun" class="noBottomMargin">Fun</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_government" value="Government" v-model="checkedTags">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_government" value="Government" v-model="checkedTags" onclick="return !isLoadingResults;">
                                 <label for="tag_government" class="noBottomMargin">Government</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_op" value="OP" v-model="checkedTags">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_op" value="OP" v-model="checkedTags" onclick="return !isLoadingResults;">
                                 <label for="tag_op" class="noBottomMargin">OP</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="tag_misc" value="Misc." v-model="checkedTags">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_misc" value="Misc." v-model="checkedTags" onclick="return !isLoadingResults;">
                                 <label for="tag_misc" class="noBottomMargin">Misc.</label>
                             </div>             
                         </div>
@@ -162,17 +163,17 @@
                         
                         <div class="cPanel">
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="ak47" value="weapon_ak47" v-model="checkedWeapons">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="ak47" value="weapon_ak47" v-model="checkedWeapons" onclick="return !isLoadingResults;">
                                 <label for="ak47" class="noBottomMargin">AK-47</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="ar2" value="weapon_ar2" v-model="checkedWeapons">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="ar2" value="weapon_ar2" v-model="checkedWeapons" onclick="return !isLoadingResults;">
                                 <label for="ar2" class="noBottomMargin">AR2</label>
                             </div>
                             
                             <div class="form-check">
-                                <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="custom" value="custom_swep" v-model="checkedWeapons">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="custom" value="custom_swep" v-model="checkedWeapons" onclick="return !isLoadingResults;">
                                 <label for="custom" class="noBottomMargin">Custom SWEP</label>
                             </div>
                         </div>
@@ -256,13 +257,13 @@
         <div class="col-sm-8 col-md-9 col-lg-10">
             <div>
                 <select v-model="selectedSort" class="form-control" style="width: 200px; display: inline;"
-                        v-on:change="fetchNewResults();" v-bind:disabled="isLoadingResults">
+                        v-on:change="fetchNewResults()" onclick="return !isLoadingResults;">
                     <option value="newest">Sort by: Newest jobs</option>
                     <option value="recent">Recently updated</option>
                 </select>
                 
                 <select v-model="selectedTimeRange" class="form-control" style="width: 200px; display: inline;"
-                        v-on:change="fetchNewResults();" v-bind:disabled="isLoadingResults">
+                        v-on:change="fetchNewResults()" onclick="return !isLoadingResults;">
                     <option value="any">Added: Any date</option>
                     <option value="day">In the past day</option>
                     <option value="week">In the past week</option>
@@ -299,7 +300,7 @@
 </div>
                 
                                 
-                <div class="roundedTop" style="width: 100%;" v-bind:style="{ background: '#' + selected_job.color }">
+                <div style="width: 100%;" v-bind:style="{ background: '#' + selected_job.color }">
                                         
                     <div class="table-responsive" style="padding-left: 8px; padding-right: 8px;">
                         <table class="table" style="margin-bottom: 0px !important;">
@@ -313,7 +314,7 @@
                                             
                                             <span v-if="!editing_job" style="vertical-align: bottom;">${ selected_job.name }</span>
                                             
-                                            <textarea v-model="edit_job.name" v-if="editing_job" v-on:blur="" id="job_description" class="form-control" style="font-size: 48px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
+                                            <textarea v-model="edit_job.name" v-if="editing_job" v-on:keypress="isJobName" id="job_name" class="form-control" style="font-size: 48px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
                                             
                                             <div v-if="edit_errors.job_name != null" v-bind:class="getTextClass(selected_job.color)" style="font-size: 18px; margin-top: 10px;">${ edit_errors.job_name }</div>
                                         </div>
@@ -392,6 +393,7 @@
     color = Color(<span class="red">${ (job_color_rgb[0]) }</span>, <span class="red">${ (job_color_rgb[1]) }</span>, <span class="red">${ (job_color_rgb[2]) }</span>),
     model = <span class="red">"${ selected_job.model }"</span>,
     weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
+    descriptipn = <span class="red">"${ selected_job.description }"</span>
     command = <span class="red">"${ job_command }"</span>
     max = <span class="red">${ selected_job.max_players }</span>,
     salary = <span class="red">${ selected_job.salary }</span>,
@@ -412,7 +414,7 @@
                                 <td class="min">Job ID:</td>
                                 <td>
                                     <input v-model="edit_job.job_id" class="form-control" maxlength=50/>
-                                    <div v-if="edit_errors.job_job_id != null" class="formError">${ edit_errors.job_job_id }</div>
+                                    <div v-on:keypress="isJobID" v-if="edit_errors.job_job_id != null" class="formError">${ edit_errors.job_job_id }</div>
                                 </td>
                             </tr>
                             
@@ -423,7 +425,7 @@
                                     
                                     <span id="desc_form" v-if="!editing_job">${ selected_job.description }</span>
                                     
-                                    <textarea v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_description" class="tableData form-control" style="font-size: 18px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
+                                    <textarea v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_description" class="tableData form-control" style="font-size: 18px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
                                     
                                     <div v-if="edit_errors.job_desc != null" class="formError">${ edit_errors.job_desc }</div>
                                 </td>
@@ -506,18 +508,18 @@
                             </tr>
                             
                             <tr v-if="editing_job">
-                                <td class="min">Player model:</td>
-                                <td>
-                                    <job-model v-bind:value="edit_job.model" id="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=100 maxlength=100 onchange="APP.vue.edit_job.model = $('#job_model').val();" onkeyup="APP.vue.edit_job.model = $('#job_model').val();" onkeypress="return isJobModel(event);"></job-model>
-                                    <div v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
-                                </td>
-                            </tr>
-                            
-                            <tr v-if="editing_job">
                                 <td class="min">Color:</td>
                                 <td>
                                     <color-it id='colorpicker'></color-it>
                                     <div v-if="edit_errors.job_color != null" class="formError">${ edit_errors.job_color }</div>
+                                </td>
+                            </tr>
+                            
+                            <tr v-if="editing_job">
+                                <td class="min">Player model:</td>
+                                <td>
+                                    <job-model v-bind:value="edit_job.model" id="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=100 maxlength=100 onchange="APP.vue.edit_job.model = $('#job_model').val();" onkeyup="APP.vue.edit_job.model = $('#job_model').val();" onkeypress="return isJobModel(event);"></job-model>
+                                    <div v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
                                 </td>
                             </tr>
                             

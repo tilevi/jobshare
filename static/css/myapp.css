@@ -291,7 +291,7 @@ a.last::before {
 }
 
 .formError {
-    color: red;
+    color: #b70000;
     margin-top: 10px;
     font-size: 18px;
     font-weight: bold;
