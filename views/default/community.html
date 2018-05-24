@@ -11,18 +11,16 @@
     <script src="{{=URL('static', 'js/vue-router.min.js')}}"></script>
     
     <script>
-        var jobs_url = "{{=URL('api', 'get_jobs')}}";
-        
-        var your_jobs_url = "{{=URL('default', 'community')}}";
-        var community_url = "{{=URL('default', 'community')}}";
-        
-        var view_url = "{{=URL('default', 'view')}}";
+                
         var image_url = "{{=URL('static', 'images')}}";
         
+        var jobs_url = "{{=URL('api', 'get_jobs')}}";
+        var community_url = "{{=URL('default', 'community')}}";
         var add_comment_url = "{{=URL('api', 'add_comment', user_signature=True)}}";
         var comments_url = "{{=URL('api', 'get_comments', user_signature=True)}}";
         
         var update_job_url = "{{=URL('default', 'update_job', user_signature=True)}}";
+        var delete_job_url = "{{=URL('default', 'delete_job', user_signature=True)}}";
         
         var isCommunityPage = true;
         var isLoadingResults = false;
@@ -70,6 +68,31 @@
 
 <div id="vue-div-main" style="display: none;">
 
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Job</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this job?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" v-on:click="delete_job()" data-dismiss="modal">
+            <span style="color: white;">Yes</span>
+        </button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            No
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
 <div class="container-fluid" style="background-color: rgba(32, 32, 32);">
     <div class="container">
         <div class="row" style="padding-top: 15px; padding-bottom: 15px;">
@@ -293,7 +316,9 @@
             </div>
             
             <div class="deleteJobDetails pointer pull-right" v-if="job_mine">
-                <i v-on:click="delete_job()" class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;"></i>
+                
+                    <i class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;" href="#" data-toggle="modal" data-target="#deleteModal"></i>
+                
             </div>
         </div>
     </div>    
@@ -386,7 +411,7 @@
         <div class="col-md-12" style="padding: 0 !important;">
             <div class="pull-right noSelect pointer" id="copyButton" v-on:click="copy_code" style="background-color: steelblue; color: white; padding: 5px 10px 5px 10px; border-bottom-left-radius: 4px;">Copy</div>
         </div>
-    </div>    
+    </div>
 </div>
                     
 <pre style="padding: 0px 32px 32px 32px; margin-bottom: 0px;"><code><div id="genCode">TEAM_${selected_job.job_id} = DarkRP.createJob(<span class="red">"${ selected_job.name }"</span>, {

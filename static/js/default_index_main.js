@@ -272,7 +272,7 @@ var app = function() {
             }
         }
         
-        var url = your_jobs_url + "?" + $.param(pp);
+        var url = community_url + "?" + $.param(pp);
         window.history.replaceState(null, null, url);
     }
     
@@ -469,7 +469,25 @@ var app = function() {
             }
         }
     }
-
+    
+    self.delete_job = function() {
+        var vue = self.vue;
+        
+        $.post(delete_job_url, 
+            {
+                job_id: vue.view_id
+            },
+            function(data) {
+            
+                if (data.error) {
+                    console.log("[JobShare] Unable to delete job.");
+                } else {
+                    console.log("[Jobshare] Deleted the job.")
+                }
+            }
+        );
+    }
+    
     self.submit = function() {
         var vue = self.vue;
         
@@ -498,24 +516,6 @@ var app = function() {
                     var errors = data.form.errors;
                     vue.edit_errors = errors;
                     
-                    
-                    /*
-                    vue.job_job_id_error = data.form.errors.job_job_id;
-                    vue.job_name_error = data.form.errors.job_name;
-                    vue.job_desc_error = data.form.errors.job_desc;
-                    vue.job_model_error = data.form.errors.job_model;
-                    
-                    vue.job_salary_error = data.form.errors.job_salary;
-                    vue.job_max_players_error = data.form.errors.job_max_players;
-                    vue.job_color_error = data.form.errors.job_color;
-                    
-                    vue.job_weapons_error = data.form.errors.job_weapons;
-                    vue.job_vote_error = data.form.errors.job_vote;
-                    vue.job_admin_only_error = data.form.errors.job_admin_only;
-                    
-                    vue.job_tag_error = data.form.errors.job_tag;
-                    */
-                    
                     // Re-enable the button
                     $("#submit_button").prop("disabled", false);
                 } else {
@@ -534,9 +534,12 @@ var app = function() {
                                 break;
                             }
                         }
-
-                        self.toggle_edit_job();
-                        self.show_job_details(job);
+                        
+                        // Only show the new details if we're viewing the same job.
+                        if (self.vue.view_id == job.id && !self.vue.editing_job) {
+                            self.toggle_edit_job();
+                            self.show_job_details(job);
+                        }
                     }
                 }
             }
@@ -736,7 +739,10 @@ var app = function() {
             isJobName: self.isJobName,
             isJobDescription: self.isJobDescription,
             toggle_edit_job: self.toggle_edit_job,
-            submit: self.submit
+            submit: self.submit,
+            
+            // Job deletion
+            delete_job: self.delete_job
         }
     });
     

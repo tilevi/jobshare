@@ -351,6 +351,12 @@ def update_job():
 
 @auth.requires_login()
 @auth.requires_signature()
+def delete_job():
+    logger.info("Delete job called!");
+    return response.json(dict(error=False))
+
+@auth.requires_login()
+@auth.requires_signature()
 def delete():
     if request.args(0) is not None:
         q = ((db.job.user_id == auth.user_id) &
