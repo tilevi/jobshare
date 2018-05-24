@@ -58,6 +58,20 @@ var app = function() {
         }
     });
     
+    Vue.component('color-it', {
+        template: '<input/>',
+        mounted: function() {
+            $("#colorpicker").spectrum({
+                preferredFormat: "hex",
+                showInput: true,
+                color: "#23B5EB",
+                change: function() {
+                    self.vue.setRGB();
+                }
+            });
+        }
+    });
+    
     self.submit_share = function() {
         $("#submit_share_button").prop("disabled", true);
         self.submit(true);
@@ -103,7 +117,7 @@ var app = function() {
                     vue.job_weapons_error = data.form.errors.job_weapons;
                     vue.job_vote_error = data.form.errors.job_vote;
                     vue.job_admin_only_error = data.form.errors.job_admin_only;
-
+                    
                     vue.job_tag_error = data.form.errors.job_tag;
                     
                     // Re-enable the button
@@ -121,13 +135,14 @@ var app = function() {
     }
     
     self.setRGB = function() {
-        var bigint = parseInt($("#job_color").val(), 16);
+        var hex = $("#colorpicker").spectrum("get").toHex();
+        var bigint = parseInt(hex, 16);
         
         var r = ((bigint >> 16) & 255);
         var g =  ((bigint >> 8) & 255);
         var b = (bigint & 255);
         
-        self.vue.job_color = $("#job_color").val();
+        self.vue.job_color = hex;
         self.vue.job_color_arr = [r, g, b];
     }
     

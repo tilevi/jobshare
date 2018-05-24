@@ -18,7 +18,7 @@ def index():
 
 # Check color
 allowed = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-           'A', 'B', 'C', 'D', 'E', 'F']
+           'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F']
 
 def checkColor(form, job_color):
     if len(job_color) != 6:
@@ -57,7 +57,9 @@ def checkDescription(form, job_desc):
 
 def checkSalary(form, job_salary):
     if job_salary < 0:
-        form["errors"]["salary"] = "Salary must be greater than 0."
+        form["errors"]["salary"] = "Salary must be greater than zero."
+    elif job_salary >= 1000000000000:
+        form["errors"]["salary"] = "Salary must be less than 1 trillion."
 
 tags = [
     "Citizen",
@@ -79,6 +81,8 @@ def checkWeapons(form, weps):
         if not (all(x.isalnum() or x == "_" for x in wep)):
             okay = False
             break
+        
+    
     if (not okay):
         form["errors"]["job_weapons"] = "One of the weapons contains one or more invalid characters."
     
@@ -223,6 +227,126 @@ def create_job():
         
         return response.json(dict(form=form, errors=False))
 
+@auth.requires_login()
+@auth.requires_signature()
+def update_job():
+    form = { 'errors': { 'job_job_id': '', 'job_name': '', 'job_desc': '', 'job_model': '', 'job_tag': '', 'job_color': '', 'job_weapons': '', 'job_salary': '', 'job_max_players': '', 'job_vote': '', 'job_admin_only': '' } }
+    
+    job_id = request.vars.job_id
+    job_job_id = request.vars.job_job_id
+    job_name = request.vars.job_name
+    job_desc = request.vars.job_desc
+    job_model = request.vars.job_model
+    job_tag = request.vars.job_tag
+    job_color = request.vars.job_color
+    
+    job_weapons = request.vars.get('weps[]', [])
+    if isinstance(job_weapons, basestring):
+        job_weapons = [job_weapons]
+    
+    
+    # Check job ID
+    if (isNoneOrEmpty(job_job_id)):
+        form['errors']['job_job_id'] = "Job ID is missing."
+    else:
+        checkTeamID(form, job_job_id)
+    
+    # Check job name
+    if (isNoneOrEmpty(job_name)):
+        form['errors']['job_name'] = "Job name is missing."
+    else:
+        checkJob(form, job_name)
+        
+    if (isNoneOrEmpty(job_desc)):
+        form['errors']['job_desc'] = "Job description is missing."
+    else:
+        # Check Job Description
+        checkDescription(form, job_desc)
+    
+    if (isNoneOrEmpty(job_model)):
+        form['errors']['job_model'] = "Job model is missing."
+    else:
+        checkModel(form, job_model)
+    
+    if (isNoneOrEmpty(job_tag)):
+        form['errors']['job_tag'] = "Job tag is missing."
+    else:
+        checkTag(form, job_tag)
+    
+    # Check job color
+    if (isNoneOrEmpty(job_color)):
+        form['errors']['job_color'] = "Job color is missing."
+    else:
+        checkColor(form, job_color)
+    
+    # Check job salary
+    if (isNoneOrEmpty(request.vars.job_salary)):
+        form['errors']['job_salary'] = "Job salary is missing."
+    else:
+        job_salary = int(request.vars.job_salary)
+        checkSalary(form, job_salary)
+
+    # Check max players
+    if (isNoneOrEmpty(request.vars.job_max_players)):
+        form['errors']['job_max_players'] = "Max players is missing."
+    else:
+        job_max_players = int(request.vars.job_max_players)
+        checkPlayers(form, job_max_players)
+    
+    # Verify that all of the weapons contain valid characters.
+    checkWeapons(form, job_weapons)
+    
+    # Check now for errors.
+    error = False
+    
+    for k, v in form["errors"].items():
+        if (v != ""):
+            error = True
+            break
+    
+    if (error):
+        logger.info("We have an error in the form.");
+        return response.json(dict(form=form, errors=True))
+    else:
+        logger.info("The form is ready to go.");
+        
+        # Check misc. options (vote and admin only checkboxes)
+        if (request.vars.job_vote is None):
+            form['errors']['job_vote'] = "Vote option is missing."
+        else:
+            if (int(request.vars.job_vote) == 0):
+                job_vote = False
+            else:
+                job_vote = True
+                
+        if (request.vars.job_admin_only is None):
+            form['errors']['job_admin_only'] = "Admin only option is missing."
+        else:
+            if (int(request.vars.job_admin_only) == 0):
+                job_admin_only = False
+            else:
+                job_admin_only = True
+        
+        
+        q = ((db.job.id == job_id) & (db.job.user_id == auth.user_id))
+        row = db(q).select().first()
+        
+        row.update_record(
+            job_id = job_job_id,
+            name = job_name,
+            description = job_desc,
+            color = job_color,
+            model = job_model,
+            salary = job_salary,
+            max_players = job_max_players,
+            admin_only = job_admin_only,
+            tag = job_tag,
+            vote = job_vote,
+            weapons = job_weapons
+        )
+        
+        return response.json(dict(form=form, errors=False))
+    
 @auth.requires_login()
 @auth.requires_signature()
 def delete():

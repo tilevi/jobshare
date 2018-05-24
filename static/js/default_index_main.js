@@ -17,11 +17,71 @@ var app = function() {
             var tagify = new Tagify(input, {
                 whitelist : ["weapon_ak47", "weapon_ar2"]
             });
-        },
-        beforeDestroy: function() {
-            $(this.$el).destroy();
+            
+            // Add any pre-existing tags.
+            var wepTags = [];
+            
+            if (self.vue.edit_job != null && self.vue.edit_job.job_weapons_arr != null) {
+                for (var i = 0; i < self.vue.edit_job.job_weapons_arr.length; i++) {
+                    wepTags.push({ "value": self.vue.edit_job.job_weapons_arr[i] });
+                }
+            }
+            
+            if (wepTags.length > 0) {
+                tagify.addTags(wepTags);
+            }
+            
+            function onRemoveTag(e){
+                wepTags.splice(wepTags.indexOf(e.detail.value), 1);
+                self.vue.edit_job.job_weapons_arr = wepTags;
+                self.vue.edit_job_weapons = JSON.stringify(wepTags);
+            }
+            tagify.on('remove', onRemoveTag);
+            
+            function onAddTag(e) {
+                wepTags.push(e.detail.value);
+                self.vue.edit_job.job_weapons_arr = wepTags;
+                self.vue.edit_job_weapons = JSON.stringify(wepTags);
+            }
+            tagify.on('add', onAddTag);
         }
     });
+    
+    
+    // Spectrum: https://github.com/bgrins/spectrum
+    Vue.component('color-it', {
+        template: '<input/>',
+        mounted: function() {
+            $("#colorpicker").spectrum({
+                preferredFormat: "hex",
+                showInput: true,
+                color: "#" + self.vue.selected_job.color,
+                change: function() {
+                    self.vue.setRGB();
+                }
+            });
+        }
+    });
+    
+    Vue.component('job-model', {
+        template: '<input/>',
+        mounted: function() {
+            var availableTags = [
+                'models/player/alyx.mdl',
+                'models/player/police.mdl',
+                'models/player/combine_super_soldier.mdl',
+                'models/player/Group01/female_01.mdl',
+                'models/player/breen.mdl',
+                'models/player/monk.mdl',
+                'models/player/kleiner.mdl',
+                'models/player/phoenix.mdl'
+            ];
+            $("#job_model").autocomplete({
+                source: availableTags
+            });
+        }
+    });
+    
     
     var player_models = {
         'models/player/alyx.mdl': 'alyx.png',
@@ -142,7 +202,11 @@ var app = function() {
             // Set the new URL.
             self.setNewURL();
             
-            vue.isLoadingResults = false;            
+            vue.isLoadingResults = false;
+            
+            /*if (self.vue.odd_jobs[0] != null) {
+                self.show_job_details(self.vue.odd_jobs[0]);
+            }*/
         })
     };
     
@@ -265,29 +329,22 @@ var app = function() {
     
     // https://stackoverflow.com/questions/6623231/remove-all-white-spaces-from-text
     self.show_job_details = function(job) {
+        
         var vue = self.vue;
+        // Make a deep copy of the object.
         
-        vue.job_job_id = job.job_id;
-        vue.job_command = (job.job_id.toLowerCase()).replace(/ /g,'');
-        vue.job_name = job.name;
-        vue.job_desc = job.description;
-        vue.job_model = job.model;
-        vue.job_color = job.color;
-        vue.job_color_rgb = self.hexToRGB(job.color);
-        vue.job_salary = job.salary;
-        vue.job_max_players = job.max_players;
+        vue.selected_job = jQuery.extend(true, {}, job);
         
-        vue.job_weapons = job.weapons.join(", ");
-        vue.job_weapons_arr = job.weapons;
+        // More details.
+        vue.job_command = (vue.selected_job.job_id.toLowerCase()).replace(/ /g,'');
+        vue.job_color_rgb = self.hexToRGB(vue.selected_job.color);
+        vue.job_weapons = vue.selected_job.weapons.join(", ");
+        vue.job_weapons_arr = vue.selected_job.weapons;
+        vue.job_created_by = vue.selected_job.created_by;
+        vue.job_mine = (vue.selected_job.created_by == my_username);
         
-        vue.job_vote = job.vote;
-        vue.job_admin_only = job.admin_only;
+        vue.view_id = vue.selected_job.id;    
         
-        vue.job_created_by = job.created_by;
-        
-        vue.job_tag = job.tag;
-        
-        vue.view_id = job.id;    
         vue.showing_job_details = true;
         
         // Reset the tab to the first.
@@ -296,7 +353,10 @@ var app = function() {
         // Get the job's comments.
         self.get_comments();
         
+        // Set the new URL.
         self.setNewURL();
+        
+        // self.toggle_edit_job();
     }
     
     self.close_job_details = function() {
@@ -391,6 +451,109 @@ var app = function() {
     };
     
     
+    self.toggle_edit_job = function() {
+        var vue = self.vue;
+        // Usernames are unique, so this is fine.
+        if (vue.job_mine) {
+            vue.editing_job = !vue.editing_job;
+            
+            if (vue.editing_job) {
+                vue.edit_errors = {};
+                vue.edit_job = jQuery.extend(true, {}, vue.selected_job);       
+                
+                vue.edit_job.job_command = (vue.selected_job.job_id.toLowerCase()).replace(/ /g,'');
+                vue.edit_job.job_weapons = vue.selected_job.weapons.join(", ");
+                vue.edit_job.job_weapons_arr = vue.selected_job.weapons;
+            }
+        }
+    }
+
+    self.submit = function() {
+        var vue = self.vue;
+        
+        // Disable the button
+        $("#submit_button").prop("disabled", true);
+        
+        $.post(update_job_url,
+            {
+                job_id: vue.edit_job.id,
+                job_job_id: vue.edit_job.job_id,
+                job_name: vue.edit_job.name,
+                job_desc: vue.edit_job.description,
+                job_model: vue.edit_job.model,
+                job_salary: vue.edit_job.salary,
+                job_max_players: vue.edit_job.max_players,
+                job_color: vue.edit_job.color,
+                weps: vue.edit_job.job_weapons_arr,
+                job_tag: vue.edit_job.tag,
+                job_vote: vue.edit_job.vote ? 1 : 0,
+                job_admin_only: vue.edit_job.admin_only ? 1 : 0
+            },
+            function (data) {
+                if (data.errors) {
+                    var vue = self.vue;
+                    
+                    var errors = data.form.errors;
+                    vue.edit_errors = errors;
+                    
+                    
+                    /*
+                    vue.job_job_id_error = data.form.errors.job_job_id;
+                    vue.job_name_error = data.form.errors.job_name;
+                    vue.job_desc_error = data.form.errors.job_desc;
+                    vue.job_model_error = data.form.errors.job_model;
+                    
+                    vue.job_salary_error = data.form.errors.job_salary;
+                    vue.job_max_players_error = data.form.errors.job_max_players;
+                    vue.job_color_error = data.form.errors.job_color;
+                    
+                    vue.job_weapons_error = data.form.errors.job_weapons;
+                    vue.job_vote_error = data.form.errors.job_vote;
+                    vue.job_admin_only_error = data.form.errors.job_admin_only;
+                    
+                    vue.job_tag_error = data.form.errors.job_tag;
+                    */
+                    
+                    // Re-enable the button
+                    $("#submit_button").prop("disabled", false);
+                } else {
+                    // The form doesn't have errors, so redirect.
+                    // window.location.replace(community_url);
+                    console.log("LOOKS FINE.");
+                }
+            }
+        );
+    }
+    
+    self.setRGB = function() {
+        var hex = $("#colorpicker").spectrum("get").toHex();
+        var bigint = parseInt(hex, 16);
+        
+        var r = ((bigint >> 16) & 255);
+        var g =  ((bigint >> 8) & 255);
+        var b = (bigint & 255);
+        
+        self.vue.edit_job.color = hex;
+    }
+    
+    self.comma = function(str) {
+        str = String(str)
+        
+        if (str.length < 4) {
+            return str;
+        } else {
+            var i = str.length - 3;
+            var newStr = "";
+            
+            while (i >= 0) {
+                newStr = "," + str.substring(i, i+3) + newStr;
+                i = i - 3;
+            }
+            
+            newStr = str.substring(0, i+3) + newStr;
+            return newStr;
+        }
+    }
     
     var router = new VueRouter({
         mode: 'history',
@@ -432,6 +595,8 @@ var app = function() {
             showing_job_details: false,
             
             // This is for the job details view.
+            selected_job: null,
+            
             job_job_id: null,
             job_command: null,
             job_name: null,
@@ -447,6 +612,7 @@ var app = function() {
             job_vote: null,
             job_admin_only: null,
             
+            job_mine: false,
             job_created_by: null,
             
             job_tag: null,
@@ -460,7 +626,30 @@ var app = function() {
             has_more: false,
             comments: [],
             comment_form: null,
-            comment_error: false
+            comment_error: false,
+            
+            // Job editing
+            editing_job: false,
+            
+            edit_job: null,
+            
+            edit_job_job_id: "",
+            edit_job_name: null,
+            edit_job_desc: null,
+            edit_job_model: null,
+            edit_job_salary: null,
+            edit_job_max_players: null,
+            
+            edit_job_color: "",
+            edit_job_color_arr: [],
+            
+            edit_job_weapons: null,
+            edit_job_weapons_arr: [],
+            edit_job_vote: null,
+            edit_job_admin_only: null,
+            edit_job_tag: null,
+            
+            edit_errors: {}
         },
         methods: {
             fetchNewResults: self.fetch_new_results,
@@ -482,7 +671,14 @@ var app = function() {
             
             add_comment_button: self.add_comment_button,
             add_comment: self.add_comment,
-            get_more: self.get_more
+            get_more: self.get_more,
+            
+            // String method
+            comma: self.comma,
+            
+            // Job editing
+            toggle_edit_job: self.toggle_edit_job,
+            submit: self.submit
         }
     });
     

@@ -1,6 +1,8 @@
 {{extend 'layout.html'}}
 
-<script src="{{=URL('static','js/jscolor.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+
 <script src="{{=URL('static','js/tagify.js')}}"></script>
 <script src="{{=URL('static','js/jQuery.tagify.js')}}"></script>
 
@@ -12,7 +14,7 @@
 <script>
     var create_job_url = "{{=URL('default', 'create_job', user_signature=True)}}";
     var community_url = "{{=URL('default', 'community')}}";
-    var home_url = "{{=URL('default', 'home')}}";
+    var home_url = "{{=URL('default', 'community')}}";
     
     function isJobModel(event) {
         var charCode = event.which;
@@ -91,7 +93,11 @@
                     <div class="form-group">
                         <label for="job_color">Color</label>
                         <br/>
-                        <input v-model="job_color" v-on:change="setRGB()" id="job_color" class="jscolor" style="padding: 5px; max-width: 100%; height: 38px;" placeholder=""/>
+                        
+                        <div style="min-height: 38px;">
+                            <color-it id="colorpicker" v-on:change="setRGB()" id="job_color" placeholder="" v-once></color-it>
+                        </div>
+                        
                         <div v-if="job_color_error" class="formError">${ job_color_error }</div>
                     </div>
 

@@ -1,7 +1,12 @@
 {{extend 'layout.html'}}
 
 {{block head}}
-    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+    
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
     <script src="{{=URL('static', 'js/vue.js')}}"></script>
     <script src="{{=URL('static', 'js/vue-router.min.js')}}"></script>
     
@@ -9,25 +14,37 @@
         var jobs_url = "{{=URL('api', 'get_jobs')}}";
         
         var your_jobs_url = "{{=URL('default', 'community')}}";
+        var community_url = "{{=URL('default', 'community')}}";
+        
         var view_url = "{{=URL('default', 'view')}}";
         var image_url = "{{=URL('static', 'images')}}";
         
         var add_comment_url = "{{=URL('api', 'add_comment', user_signature=True)}}";
         var comments_url = "{{=URL('api', 'get_comments', user_signature=True)}}";
         
+        var update_job_url = "{{=URL('default', 'update_job', user_signature=True)}}";
+        
         var isCommunityPage = true;
+        var my_username = "";
+        
+        {{if auth.user is not None:}}
+            my_username = "{{=auth.user.username}}"
+         {{pass}}
+         
+        function isJobModel(event) {
+            var charCode = event.which;
+
+            if(charCode === 32 || !(charCode == 46 || charCode == 47 || charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
+                return false;
+            } else {
+                return true;
+            }
+        }
     </script>
     
     <script src="{{=URL('static','js/tagify.js')}}"></script>
     <script src="{{=URL('static','js/jQuery.tagify.js')}}"></script>
-
-    <link rel="stylesheet"
-        href="{{=URL('static','css/styles/default.css')}}">
-    <script src="{{=URL('static','js/highlight.pack.js')}}"></script>
-
-    <script>hljs.initHighlightingOnLoad();</script>
-
-
+    
     <script>
         function pickTextColorBasedOnBgColorAdvanced(bgColor, lightColor, darkColor) {
             var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
@@ -48,9 +65,10 @@
 {{end}}
 
 
+
+
 <div id="vue-div-main" style="display: none;">
 
-    
 <div class="container-fluid" style="background-color: rgba(32, 32, 32);">
     <div class="container">
         <div class="row" style="padding-top: 15px; padding-bottom: 15px;">
@@ -157,8 +175,6 @@
                                 <input v-bind:disabled="isLoadingResults" v-on:change="fetchNewResults();" type="checkbox" class="form-check-input checkBox" id="custom" value="custom_swep" v-model="checkedWeapons">
                                 <label for="custom" class="noBottomMargin">Custom SWEP</label>
                             </div>
-                            
-                            <!-- <tag-it id='lolFine' name='tags' placeholder='Add jobs' value='' v-once></tag-it> -->
                         </div>
                         
                     </div>
@@ -262,17 +278,49 @@
             </div>
             
             
-            <div v-if="showing_job_details" class="row no-gutters rounded" v-bind:style="{ background: '#' + job_color + '59' }" style="margin-top: 8px; position: relative;">
-                <i v-on:click="close_job_details()" class="fa fa-close closeJobDetails" v-bind:class="getTextClass(job_color, true)" style="font-size: 36px;"></i>
+            <div v-if="showing_job_details" class="row no-gutters rounded" v-bind:style="{ background: '#' + selected_job.color + '59' }" style="margin-top: 8px;">
                 
-                <div class="roundedTop" style="padding-top: 36px; width: 100%;" v-bind:style="{ background: '#' + job_color }">
-                    
-                    <div class="whiteGloss">
-                        <img v-bind:src="getModelURL(job_model)" style="float: left; padding-left: 20px;"/>
-                        
-                        <div class="myTextBottomLeft2" v-bind:class="getTextClass(job_color)">
-                            ${ job_name }
-                        </div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="padding: 0 !important; margin-bottom: 0px !important;" v-bind:style="{ background: '#' + selected_job.color }" >
+            <div class="closeJobDetails pointer pull-right">
+                <i v-on:click="close_job_details()" class="fa fa-close pointer" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 36px;"></i>
+            </div>
+            
+            <div class="editJobDetails pointer pull-right" v-if="job_mine">
+                <i v-on:click="toggle_edit_job()" class="fa fa-pencil" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 30px;"></i>
+            </div>
+            
+            <div class="deleteJobDetails pointer pull-right" v-if="job_mine">
+                <i v-on:click="delete_job()" class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;"></i>
+            </div>
+        </div>
+    </div>    
+</div>
+                
+                                
+                <div class="roundedTop" style="width: 100%;" v-bind:style="{ background: '#' + selected_job.color }">
+                                        
+                    <div class="table-responsive" style="padding-left: 8px; padding-right: 8px;">
+                        <table class="table" style="margin-bottom: 0px !important;">
+                            <tbody>
+                                <tr style="border-top: hidden;">
+                                    <td class="min"><img v-bind:src="getModelURL(selected_job.model)"/></td>
+                                    
+                                    <td class="tableData">
+                                        
+                                        <div class="jobDetailsTextBottomLeft" v-bind:class="getTextClass(selected_job.color)">
+                                            
+                                            <span v-if="!editing_job" style="vertical-align: bottom;">${ selected_job.name }</span>
+                                            
+                                            <textarea v-model="edit_job.name" v-if="editing_job" v-on:blur="" id="job_description" class="form-control" style="font-size: 48px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
+                                            
+                                            <div v-if="edit_errors.job_name != null" v-bind:class="getTextClass(selected_job.color)" style="font-size: 18px; margin-top: 10px;">${ edit_errors.job_name }</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 
@@ -330,7 +378,8 @@
                 
                 <div id="Code" v-bind:style="{ display: (job_current_tab == 1) ? 'block' : 'none' }" style="width: 100%; background: rgba(240, 240, 240, 1);">
                 
-                
+                    
+                    
 <div class="container">
     <div class="row">
         <div class="col-md-12" style="padding: 0 !important;">
@@ -339,57 +388,147 @@
     </div>    
 </div>
                     
-<pre style="padding: 0px 32px 32px 32px; margin-bottom: 0px;"><code><div id="genCode">TEAM_${job_job_id} = DarkRP.createJob(<span class="red">"${ job_name }"</span>, {
+<pre style="padding: 0px 32px 32px 32px; margin-bottom: 0px;"><code><div id="genCode">TEAM_${selected_job.job_id} = DarkRP.createJob(<span class="red">"${ selected_job.name }"</span>, {
     color = Color(<span class="red">${ (job_color_rgb[0]) }</span>, <span class="red">${ (job_color_rgb[1]) }</span>, <span class="red">${ (job_color_rgb[2]) }</span>),
-    model = <span class="red">"${ job_model }"</span>,
+    model = <span class="red">"${ selected_job.model }"</span>,
     weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
-    command = <span class="red">"${job_command}"</span>
-    max = <span class="red">${ job_max_players }</span>,
-    salary = <span class="red">${ job_salary }</span>,
-    vote = <span class="blue">${ job_vote }</span>,
-    admin = <span class="blue">${ job_admin_only }</span>
+    command = <span class="red">"${ job_command }"</span>
+    max = <span class="red">${ selected_job.max_players }</span>,
+    salary = <span class="red">${ selected_job.salary }</span>,
+    vote = <span class="blue">${ selected_job.vote }</span>,
+    admin = <span class="blue">${ selected_job.admin_only }</span>
 })</div></code></pre>
                 
                 
 </div>
 
+                
                 <!-- https://stackoverflow.com/questions/26983301/how-to-make-a-table-column-be-a-minimum-width -->
                 <div id="Details" class="table-responsive" style="padding: 20px; padding-top: 22px;" v-bind:style="{ display: (job_current_tab == 0) ? 'block' : 'none' }">
                     <table class="table table-striped">
                         <tbody>
+                            
+                            <tr v-if="editing_job">
+                                <td class="min">Job ID:</td>
+                                <td>
+                                    <input v-model="edit_job.job_id" class="form-control" maxlength=50/>
+                                    <div v-if="edit_errors.job_job_id != null" class="formError">${ edit_errors.job_job_id }</div>
+                                </td>
+                            </tr>
+                            
+                            
                             <tr>
                                 <td class="min" style="">Description:</td>
-                                <td style="vertical-align: bottom; font-size: 18px; font-weight: bold; color: rgba(0, 0, 0, 0.75);">${ job_desc }</td>
+                                <td class="tableData" style="font-size: 18px; font-weight: bold; word-break: break-all;">
+                                    
+                                    <span id="desc_form" v-if="!editing_job">${ selected_job.description }</span>
+                                    
+                                    <textarea v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_description" class="tableData form-control" style="font-size: 18px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
+                                    
+                                    <div v-if="edit_errors.job_desc != null" class="formError">${ edit_errors.job_desc }</div>
+                                </td>
+                                
+                                
                             </tr>
                             
                             <tr>
                                 <td class="min">Type:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_tag }</td>
+                                <td class="tableData">
+                                    
+                                    <span v-if="!editing_job">${ selected_job.tag }</span>
+                                    
+                                    <select v-model="edit_job.tag" class="form-control" id="tag_form" v-if="editing_job">
+                                        <option>Citizen</option>
+                                        <option>Commercial</option>
+                                        <option>Criminal</option>
+                                        <option>Fun</option>
+                                        <option>Government</option>
+                                        <option>OP</option>
+                                        <option>Misc.</option>
+                                    </select>
+                                    
+                                    <div v-if="edit_errors.job_tag != null" class="formError">${ edit_errors.job_tag }</div>
+                                </td>
                             </tr>
                             
                             <tr>
                                 <td class="min">Salary:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);"><span>$</span>${ job_salary }</td>
+                                <td class="tableData">
+                                    <span v-if="!editing_job"><span>$</span>${ comma(selected_job.salary) }</span>
+                                    <input v-model="edit_job.salary" v-if="editing_job" id="job_salary" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
+                                    <div v-if="edit_errors.job_salary != null" class="formError">${ edit_errors.job_salary }</div>
+                                </td>
                             </tr>
                             
                             <tr>
                                 <td class="min">Max Players:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_max_players }</td>
+                                <td class="tableData">
+                                    <span v-if="!editing_job">${ selected_job.max_players }</span>
+                                    <input v-model="edit_job.max_players" v-if="editing_job" id="job_max_players" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
+                                    <div v-if="edit_errors.job_max_players != null" class="formError">${ edit_errors.job_max_players }</div>
+                                </td>
                             </tr>
                             
                             <tr>
                                 <td class="min">Vote:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_vote ? "Yes" : "No" }</td>
+                                <td class="tableData">
+                                    <span v-if="!editing_job">${ selected_job.vote ? "Yes" : "No" }</span>
+                                    
+                                    <div class="form-check" v-if="editing_job">
+                                        <input v-model="edit_job.vote" v-model="edit_job.vote" type="checkbox" class="form-check-input checkBox" id="job_vote">
+                                        <label for="job_vote" class="noBottomMargin noSelect">Vote?</label>
+                                        <div v-if="edit_errors.job_vote != null" class="formError">${ edit_errors.job_vote }</div>
+                                    </div>
+                                </td>
                             </tr>
                             
                             <tr>
                                 <td class="min">Admin Only:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_admin_only ? "Yes" : "No" }</td>
+                                <td class="tableData">
+                                    <span v-if="!editing_job">${ selected_job.admin_only  ? "Yes" : "No" }</span>
+                                    <div class="form-check" v-if="editing_job">
+                                        <input v-model="edit_job.admin_only" type="checkbox" class="form-check-input checkBox" id="job_admin_only">
+                                        <label for="job_admin_only" class="noBottomMargin noSelect">Admin Only?</label>
+                                        <div v-if="edit_errors.job_admin_only != null" class="formError">${ edit_errors.job_admin_only }</div>
+                                    </div>
+                                </td>
                             </tr>
                             
-                            <tr v-if="job_weapons.length > 0">
+                            <tr v-if="(editing_job) || (job_weapons.length > 0)">
                                 <td class="min">Weapons:</td>
-                                <td style="vertical-align: bottom; color: rgba(0, 0, 0, 0.75);">${ job_weapons }</td>
+                                <td class="tableData">
+                                    <span v-if="!editing_job">${ job_weapons }</span>
+                                    <div v-if="editing_job" style="background: white;">
+                                        <tag-it id='weaponTags' name='tags' placeholder='Add weapon classes' value=''></tag-it>
+                                    </div>
+                                    <div v-if="edit_errors.job_weapons != null" class="formError">${ edit_errors.job_weapons }</div>
+                                </td>
+                            </tr>
+                            
+                            <tr v-if="editing_job">
+                                <td class="min">Player model:</td>
+                                <td>
+                                    <job-model v-bind:value="edit_job.model" id="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=100 maxlength=100 onchange="APP.vue.edit_job.model = $('#job_model').val();" onkeyup="APP.vue.edit_job.model = $('#job_model').val();" onkeypress="return isJobModel(event);"></job-model>
+                                    <div v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
+                                </td>
+                            </tr>
+                            
+                            <tr v-if="editing_job">
+                                <td class="min">Color:</td>
+                                <td>
+                                    <color-it id='colorpicker'></color-it>
+                                    <div v-if="edit_errors.job_color != null" class="formError">${ edit_errors.job_color }</div>
+                                </td>
+                            </tr>
+                            
+                            <tr v-if="editing_job">
+                                <td class="min"></td>
+                                <td>
+                                    <div style="margin-bottom: 0px; text-align: right;">
+                                        <input v-on:click="submit" id="submit_button" class="editButtons pointer" type="button" value="Save" style="display: inline-block;"/>
+                                        <input v-on:click="toggle_edit_job()" class="editButtons pointer" type="button" value="Cancel" style="display: inline-block;"/>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -415,8 +554,8 @@
                                 
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
                                     
-                                    <img v-bind:src="getModelURL(job.model)" style="float: left; margin-left: 8px;"/>
-                                    
+                                    <img v-bind:src="getModelURL(job.model)" style="float: left; margin-left: 8px; overflow: hidden;"/>
+                                            
                                     <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
                                         ${job.name}
                                     </div>
@@ -515,7 +654,7 @@
 
 <script src="{{=URL('static', 'js/default_index_main.js')}}"></script>
 
-<script>
+<script>    
     $('#jobsLink').addClass('active');
     
     function toggleTagIcon() {

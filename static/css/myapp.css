@@ -102,10 +102,24 @@ input[type=checkbox].checkBox:checked:after {
 
 
 .closeJobDetails {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    cursor: pointer;
+    padding-top: 4px;
+    padding-right: 8px;
+}
+
+.editJobDetails {
+    padding-top: 7px;
+    padding-right: 16px;
+}
+.editJobDetails:hover {
+    opacity: 0.7;
+}
+
+.deleteJobDetails {
+    padding-top: 7px;
+    padding-right: 20px;
+}
+.deleteJobDetails:hover {
+    opacity: 0.7;
 }
 
 .pointer {
@@ -239,13 +253,16 @@ a.last::before {
     text-overflow: ellipsis;
 }
 
-.myTextBottomLeft2 {
-    padding-left: 12px;
-    padding-right: 12px;
+.tableData {
+    vertical-align: bottom;
+    color: rgba(0, 0, 0, 0.75);
+}
+
+.jobDetailsTextBottomLeft {
     font-size: 48px;
     font-weight: bold;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-all;
+    vertical-align: bottom;
 }
 
 .jobDescription {
@@ -276,6 +293,8 @@ a.last::before {
 .formError {
     color: red;
     margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .comment {
@@ -350,12 +369,19 @@ a.last::before {
 }
 
 .submitButton {
-  padding: 5px 15px;
-  background: #ccc;
-  border: 0 none;
-  cursor: pointer;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
+    padding: 5px 15px;
+    background: #ccc;
+    border: 0 none;
+    cursor: pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.editButtons {
+    padding: 5px 15px;
+    background: #ffffff;
+    border-radius: 4px;
+    border: 1px solid #2a2a2a; 
 }
 
 
