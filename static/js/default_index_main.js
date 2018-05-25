@@ -308,12 +308,26 @@ var app = function() {
         return (L > 0.179) ? "textColorBlack" : "textColorWhite";
     }
     
+    self.update_job_details = function(job) {
+        var vue = self.vue;
+        
+        // Make a deep copy of the object.
+        vue.selected_job = jQuery.extend(true, {}, job);
+        
+        // More details.
+        vue.job_command = (vue.selected_job.job_id.toLowerCase()).replace(/ /g,'');
+        vue.job_color_rgb = self.hexToRGB(vue.selected_job.color);
+        vue.job_weapons = vue.selected_job.weapons.join(", ");
+        vue.job_weapons_arr = vue.selected_job.weapons;
+        vue.job_created_by = vue.selected_job.created_by;
+        vue.job_mine = (vue.selected_job.created_by == my_username);
+    }
+    
     // https://stackoverflow.com/questions/6623231/remove-all-white-spaces-from-text
     self.show_job_details = function(job) {
-        
         var vue = self.vue;
-        // Make a deep copy of the object.
         
+        // Make a deep copy of the object.
         vue.selected_job = jQuery.extend(true, {}, job);
         
         // More details.
@@ -531,11 +545,12 @@ var app = function() {
                         // The form doesn't have errors, so update the job.
                         for (var i = 0; i < self.vue.jobs.length; i++) {
                             if (job.id == self.vue.jobs[i].id) {
-                                self.vue.jobs[i] = job;
+                                // Set the new job
+                                self.vue.$set(self.vue.jobs, i, job);
                                 if (i % 2 == 0) {
-                                    self.vue.even_jobs[Math.floor(i/2)] = job;
+                                    self.vue.$set(self.vue.even_jobs, Math.floor(i/2), job);
                                 } else {
-                                    self.vue.odd_jobs[Math.floor(i/2)] = job;
+                                    self.vue.$set(self.vue.odd_jobs, Math.floor(i/2), job);
                                 }
                                 break;
                             }
@@ -548,8 +563,12 @@ var app = function() {
                                 self.vue.edit_waiting = false;
                                 self.toggle_edit_job();
                             }
-                            self.show_job_details(job);
+                            // Update the new job details
+                            self.update_job_details(job);
                         }
+                        
+                        // Update the jobs page.
+                        self.get_jobs();
                     }
                 }
             }
@@ -654,6 +673,8 @@ var app = function() {
             
             checkedWeapons: [],
             checkedTags: [],
+            
+            selectedPersonal: false,
             
             isLoadingResults: false,
             
@@ -761,6 +782,7 @@ var app = function() {
     // Set the search form value.
     self.vue.search_form = self.vue.$route.query.search;
     self.vue.current_page = Math.max(1, self.vue.$route.query.page);
+    self.vue.selectedSort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
     
     self.vue.min_players = self.vue.$route.query.min_p;
     self.vue.max_players = self.vue.$route.query.max_p;

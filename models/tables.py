@@ -91,7 +91,7 @@ def check_widget(field, value):
                  _type='checkbox')
 
 db.define_table('job',
-                Field('user_id', default=get_user_id()),
+                Field('user_id', 'reference auth_user', default=get_user_id()),
                 Field('job_id', 'string', placeholder='DOCTOR'),
                 Field('name', 'string', placeholder='Doctor'),
                 Field('description', 'text', placeholder="Heal the community."),
@@ -110,12 +110,17 @@ db.define_table('job',
                 )
 
 db.define_table('post',
-                Field('post_id', 'reference job'),
+                Field('post_id', 'reference job', ondelete='CASCADE'),
                 Field('username', default=get_username()),
                 Field('user_id', default=get_user_id()),
                 Field('created_on', 'datetime', default=get_utc_time()),
                 Field('body', 'text')
                 )
+
+db.define_table('favorite',
+                Field('user_id', default=get_user_id()),
+                Field('job_id', 'reference job', ondelete='CASCADE')
+               )
 
 db.job.user_id.writable = db.job.user_id.readable = False
 db.job.is_public.writable = db.job.is_public.readable = False

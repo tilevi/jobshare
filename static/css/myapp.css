@@ -200,9 +200,18 @@ a.last::before {
 }
 
 .whiteGloss {
-    border-radius: 0px;
     width: 100%;
+    border-radius: 0px;
+    padding: 8px 2px 8px 2px;
 }
+
+.jobHeaderImg {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+
 
 .header {
     display: inline-block; 
@@ -262,7 +271,6 @@ a.last::before {
     font-size: 48px;
     font-weight: bold;
     word-break: break-all;
-    vertical-align: bottom;
 }
 
 .jobDescription {

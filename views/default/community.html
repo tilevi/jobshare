@@ -19,9 +19,9 @@
         var add_comment_url = "{{=URL('api', 'add_comment', user_signature=True)}}";
         var comments_url = "{{=URL('api', 'get_comments', user_signature=True)}}";
         
-        var update_job_url = "{{=URL('default', 'update_job', user_signature=True)}}";
-        var delete_job_url = "{{=URL('default', 'delete_job', user_signature=True)}}";
-        var toggle_job_url = "{{=URL('default', 'toggle_job', user_signature=True)}}";
+        var update_job_url = "{{=URL('api', 'update_job', user_signature=True)}}";
+        var delete_job_url = "{{=URL('api', 'delete_job', user_signature=True)}}";
+        var toggle_job_url = "{{=URL('api', 'toggle_job', user_signature=True)}}";
         
         var isCommunityPage = true;
         var isLoadingResults = false;
@@ -245,7 +245,7 @@
                 
                 
                 
-                <div  style="margin-top: 10px;">
+                <div style="margin-top: 10px;">
                         
                     <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterMaxPlayers">
                         
@@ -268,6 +268,25 @@
                                 <button class="btn btn-default btn-block" v-on:click="fetchNewResults();">
                                     <i class="fa fa-search"></i> Filter
                                 </button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                
+                <div  style="margin-top: 10px;">
+                    <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterPersonal">
+                        <i class="fa fa-chevron-down" id="filterPersonalIcon" style="margin-right: 4px;"></i>
+                        <span id="filterText">BY PUBLIC JOBS</span>
+                    </div>
+                    
+                    <div id="filterPersonal" class="collapse noSelect">
+                        
+                        <div class="cPanel">
+                            <div class="form-check">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="selectedPersonal" onclick="return !isLoadingResults;">
+                                <label for="personal" class="noBottomMargin">Public jobs</label>
                             </div>
                         </div>
                         
@@ -319,10 +338,6 @@
 
                 <div class="deleteJobDetails pointer pull-right">
                     <i class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;" href="#" data-toggle="modal" data-target="#deleteModal"></i>  
-                </div>
-
-                <div class="deleteJobDetails pointer pull-right">
-                    <i v-bind:class="{ 'fa fa-eye': selected_job.is_public, 'fa fa-eye-slash': !selected_job.is_public }" v-on:click="toggle_public()" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;"></i>  
                 </div>
             </div>
             
@@ -586,9 +601,9 @@
                             <div class="roundedCorners" style="background: rgba(0, 0, 0, 0);">
                                 
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
-                                    
+      
                                     <img v-bind:src="getModelURL(job.model)" style="float: left; margin-left: 8px; overflow: hidden;"/>
-                                            
+
                                     <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
                                         ${job.name}
                                     </div>
@@ -706,6 +721,10 @@
         $('#filterMaxPlayersIcon').toggleClass('fa-rotate-180');
     }
     
+    function togglePersonalIcon() {
+        $('#filterPersonalIcon').toggleClass('fa-rotate-180');
+    }
+    
     $(document).ready(function(){
         // Filter tags
         $('#filterTags').on('show.bs.collapse', toggleTagIcon);
@@ -722,5 +741,9 @@
         // Filter max players
         $('#filterMaxPlayers').on('show.bs.collapse', toggleMaxPlayersIcon);
         $('#filterMaxPlayers').on('hide.bs.collapse', toggleMaxPlayersIcon);
+        
+        // Filter personal jobs
+        $('#filterMaxPlayers').on('show.bs.collapse', togglePersonalIcon);
+        $('#filterMaxPlayers').on('hide.bs.collapse', togglePersonalIcon);        
     });
 </script>
