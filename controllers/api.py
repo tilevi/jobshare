@@ -229,7 +229,9 @@ def get_jobs():
     # The jobs that we will retrieve.
     jobs = []
     
-    if request.vars.public:
+    logger.info(request.vars.public)
+    
+    if  request.vars.public == "true":
         getShared = True
     else:
         getShared = False
@@ -266,69 +268,65 @@ def get_jobs():
     jobsPerPage = 6
     count = 0
     
+    # Build the query
+    q = (db.job.name.contains(search)) & (db.job.max_players >= min_players) & (db.job.max_players <= max_players) & (db.job.salary >= min_salary)
+
+    # If we want to get public jobs, make sure the job is public.
     if (getShared):
-        q = (db.job.is_public == True) & (db.job.name.contains(search)) & (db.job.max_players >= min_players) & (db.job.max_players <= max_players) & (db.job.salary >= min_salary)
-        
-        # Filter the weapons.
-        for wep in weps:
-            q = q & (db.job.weapons.contains(wep))
-            
-        # Filter the tags.
-        # For this context, OR logic makes the most sense.
-        tagQ = None
-        
-        for tag in tags:
-            if (tagQ is not None):
-                tagQ = tagQ | (db.job.tag.contains(tag))
-            else:
-                tagQ = (db.job.tag.contains(tag))
-        
-        if (tagQ is not None):
-            q = q & tagQ
-        
-        # Sources:
-        #   https://groups.google.com/forum/#!topic/web2py/PrIo2I-fgCc
-        #   https://stackoverflow.com/questions/35066588/is-there-a-simple-way-to-increment-a-datetime-object-one-month-in-python
-        if (time_range != 'any'):
-            if (time_range == 'day'):
-                q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(days=+1) ) )
-            elif (time_range == 'week'):
-                q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(weeks=+1) ) )
-            elif (time_range == 'month'):
-                q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(months=+1) ) )
-            elif (time_range == 'year'):
-                q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(years=+1) ) ) 
-        
-        if (max_salary >= 0):
-            q = q & (db.job.salary <= max_salary)
-        
-        result = db(q)
-        
-        count = result.count()
-        
-        if (sort == 'newest'):
-            jobs = result.select(
-                    orderby=~db.job.created_on,
-                    limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
-        elif (sort == 'recent'):
-            jobs = result.select(
-                    orderby=~db.job.updated_on,
-                    limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
-        else:
-            jobs = result.select(
-                    orderby=~db.job.created_on,
-                    limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
-        
-        
-        
-        
-        
+        q = q & (db.job.is_public == True)
+    else: # Otherwise, we just want our jobs.
+        q = q & (db.job.user_id == auth.user_id)
     
-    elif auth.user is not None:
-        result = db((db.job.user_id == auth.user_id) & (db.job.name.contains(search)))
-        count = result.count()
+    # Filter the weapons.
+    for wep in weps:
+        q = q & (db.job.weapons.contains(wep))
+
+    # Filter the tags.
+    # For this context, OR logic makes the most sense.
+    tagQ = None
+
+    for tag in tags:
+        if (tagQ is not None):
+            tagQ = tagQ | (db.job.tag.contains(tag))
+        else:
+            tagQ = (db.job.tag.contains(tag))
+
+    if (tagQ is not None):
+        q = q & tagQ
+
+    # Sources:
+    #   https://groups.google.com/forum/#!topic/web2py/PrIo2I-fgCc
+    #   https://stackoverflow.com/questions/35066588/is-there-a-simple-way-to-increment-a-datetime-object-one-month-in-python
+    if (time_range != 'any'):
+        if (time_range == 'day'):
+            q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(days=+1) ) )
+        elif (time_range == 'week'):
+            q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(weeks=+1) ) )
+        elif (time_range == 'month'):
+            q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(months=+1) ) )
+        elif (time_range == 'year'):
+            q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(years=+1) ) ) 
+
+    if (max_salary >= 0):
+        q = q & (db.job.salary <= max_salary)
+
+    result = db(q)
+
+    count = result.count()
+
+    if (sort == 'newest'):
         jobs = result.select(
+                orderby=~db.job.created_on,
                 limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+    elif (sort == 'recent'):
+        jobs = result.select(
+                orderby=~db.job.updated_on,
+                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+    else:
+        jobs = result.select(
+                orderby=~db.job.created_on,
+                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+
     
     rCount = (count // jobsPerPage)
     if ((count % jobsPerPage) > 0):

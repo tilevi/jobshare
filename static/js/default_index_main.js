@@ -155,7 +155,7 @@ var app = function() {
             tags: vue.checkedTags,
             time_range: vue.selectedTimeRange,
             sort: vue.selectedSort,
-            public: (isCommunityPage)
+            public: vue.selectedPublic
         }, function (data) {
             vue.jobs = data.jobs;
             
@@ -211,6 +211,7 @@ var app = function() {
 
             var time_range = vue.selectedTimeRange;
             var selected_sort = vue.selectedSort;
+            var selected_public = vue.selectedPublic;
 
             if (search != null && search != '') {
                 pp.search = vue.search_form;
@@ -250,6 +251,10 @@ var app = function() {
 
             if (selected_sort != null) {
                 pp.sort = selected_sort
+            }
+            
+            if (selected_public != null) {
+                pp.public = selected_public;
             }
         }
         
@@ -674,7 +679,7 @@ var app = function() {
             checkedWeapons: [],
             checkedTags: [],
             
-            selectedPersonal: false,
+            selectedPublic: true,
             
             isLoadingResults: false,
             
@@ -783,6 +788,7 @@ var app = function() {
     self.vue.search_form = self.vue.$route.query.search;
     self.vue.current_page = Math.max(1, self.vue.$route.query.page);
     self.vue.selectedSort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
+    self.vue.selectedPublic = self.vue.$route.query.public !== null;
     
     self.vue.min_players = self.vue.$route.query.min_p;
     self.vue.max_players = self.vue.$route.query.max_p;

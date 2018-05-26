@@ -285,7 +285,7 @@
                         
                         <div class="cPanel">
                             <div class="form-check">
-                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="selectedPersonal" onclick="return !isLoadingResults;">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="selectedPublic" onclick="return !isLoadingResults;">
                                 <label for="personal" class="noBottomMargin">Public jobs</label>
                             </div>
                         </div>
@@ -356,9 +356,13 @@
                                     
                                     <td class="tableData">
                                         
-                                        <div class="jobDetailsTextBottomLeft" v-bind:class="getTextClass(selected_job.color)">
+                                        <div>
                                             
-                                            <span v-if="!editing_job" style="vertical-align: bottom;">${ selected_job.name }</span>
+                                            
+                                            <div class="jobDetailsTextBottomLeft" v-if="!editing_job" v-bind:class="getTextClass(selected_job.color)">${ selected_job.name }</div>
+                                            
+                                            
+                                            
                                             
                                             <textarea v-model="edit_job.name" v-if="editing_job" v-on:keypress="isJobName" id="job_name" class="form-control" style="font-size: 48px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
                                             
@@ -595,36 +599,29 @@
                 
                 <div class="col-md-6 col-sm-6">
                     
-                    
                     <div v-for="job in even_jobs" class="pointer noSelect" style="padding: 4px;">
-                        <a v-on:click="show_job_details(job)" style="text-decoration: none;">
-                            <div class="roundedCorners" style="background: rgba(0, 0, 0, 0);">
+                        <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
+                            
+                            <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
                                 
-                                <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
-      
-                                    <img v-bind:src="getModelURL(job.model)" style="float: left; margin-left: 8px; overflow: hidden;"/>
-
-                                    <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
-                                        ${job.name}
-                                    </div>
-                                </div>                                
+                                <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
                                 
-                                <div class="jobDescription" v-bind:style="{ background: '#' + job.color + '59' }">
-                                    ${job.description}
-                                </div>
-                                
-                                <div class="postedBy">
-                                    <div class="postedByText">
-                                        Posted by: ${job.created_by}
-                                    </div>
+                                <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
+                                    ${job.name}
                                 </div>
                             </div>
-                        </a>
+
+                            <div class="clear jobDescription">
+                                ${job.description}
+                            </div>
+
+                            <div class="postedBy">
+                                <div class="postedByText">
+                                    Posted by: ${job.created_by}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    
-                    
-                    
                     
                 </div>
                 
@@ -633,31 +630,29 @@
                 <div class="col-md-6 col-sm-6">
                     
                     <div v-for="job in odd_jobs" class="pointer noSelect" style="padding: 4px;">
-                        <a v-on:click="show_job_details(job)" style="text-decoration: none;">
-                            <div class="roundedCorners" style="background: rgba(0, 0, 0, 0);">
+                        <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
+                            
+                            <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
+                                      
+                                <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
                                 
-                                <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
-                                    
-                                    <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
-                                    
-                                    <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
-                                        ${job.name}
-                                    </div>
-                                </div>
-                                
-                                <div class="jobDescription" v-bind:style="{ background: '#' + job.color + '59' }">
-                                    ${job.description}
-                                </div>
-                                
-                                <div class="postedBy">
-                                    <div class="postedByText">
-                                        Posted by: ${job.created_by}
-                                    </div>
+                                <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
+                                    ${job.name}
                                 </div>
                             </div>
-                        </a>
+
+                            <div class="clear jobDescription">
+                                ${job.description}
+                            </div>
+
+                            <div class="postedBy">
+                                <div class="postedByText">
+                                    Posted by: ${job.created_by}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                
+                    
                 
                 </div>
                 

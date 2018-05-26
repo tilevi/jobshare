@@ -202,7 +202,9 @@ a.last::before {
 .whiteGloss {
     width: 100%;
     border-radius: 0px;
-    padding: 8px 2px 8px 2px;
+    padding: 12px 2px 12px 2px;
+    
+    overflow: hidden;
 }
 
 .jobHeaderImg {
@@ -260,6 +262,10 @@ a.last::before {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    
+    height: 48px;
+    line-height: 48px;
+    margin-top: 12px;
 }
 
 .tableData {
@@ -271,22 +277,31 @@ a.last::before {
     font-size: 48px;
     font-weight: bold;
     word-break: break-all;
+    
+    line-height: 48px;
+    margin-top: 12px;
+}
+
+.clear{
+    clear: both;
 }
 
 .jobDescription {
     font-size: 18px;
     font-weight: bold;
-    padding: 8px;
+    margin: 6.4px 10px 6.4px 10px; /* Calculated by hand */
     color: rgba(0, 0, 0, 0.75);
     word-wrap: break-word;
+    
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     
-    height: 3.5em;
-    
     overflow: hidden;
     text-overflow: ellipsis;
+    
+    height: 2.8em;
+    line-height: 1.4em;
 }
 
 .jobDescription2 {
