@@ -254,7 +254,7 @@ var app = function() {
             }
             
             if (selected_public != null) {
-                pp.public = selected_public;
+                pp.public = selected_public ? 1 : 0;
             }
         }
         
@@ -647,6 +647,16 @@ var app = function() {
         }
     }
     
+    self.changedPublicJobs = function() {
+        $('#header_text').html(self.vue.selectedPublic ? "Community" : "Your Jobs");
+        
+        // Toggle the class
+        $('#jobsLink').toggleClass('active');
+        $('#homeLink').toggleClass('active');
+        
+        self.fetch_new_results();
+    }
+    
     var router = new VueRouter({
         mode: 'history',
         routes: []
@@ -780,7 +790,10 @@ var app = function() {
             submit: self.submit,
             
             // Job deletion
-            delete_job: self.delete_job
+            delete_job: self.delete_job,
+            
+            // Changed public jobs checkbox
+            changedPublicJobs: self.changedPublicJobs
         }
     });
     
@@ -788,7 +801,16 @@ var app = function() {
     self.vue.search_form = self.vue.$route.query.search;
     self.vue.current_page = Math.max(1, self.vue.$route.query.page);
     self.vue.selectedSort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
-    self.vue.selectedPublic = self.vue.$route.query.public !== null;
+    self.vue.selectedPublic = self.vue.$route.query.public == '1';
+    
+    // Set the highlight of one of the top bottoms.
+    if (self.vue.selectedPublic) {
+        $('#jobsLink').addClass('active');
+        $('#header_text').html("Community");
+    } else {
+        $('#homeLink').addClass('active');
+        $('#header_text').html("Your Jobs");
+    }
     
     self.vue.min_players = self.vue.$route.query.min_p;
     self.vue.max_players = self.vue.$route.query.max_p;
