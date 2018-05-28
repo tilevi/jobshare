@@ -1,15 +1,33 @@
-import datetime
-from dateutil.relativedelta import *
+import datetime, requests
 
-import requests
+from dateutil.relativedelta import *
+from urlparse import urlparse, parse_qs
 
 def getWorkshopItem():
-    id = '612053603' # request.vars.id
+    id = '612053603'
     
     r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': id})
     
-    logger.info(r.text)
+    return response.json(r.json())
+
+def workshop():
+    id = request.vars.id
     
+    r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': id})
+    
+    title = "N/A"
+    file_size = "N/A"
+        
+    if (r.status_code == 200):
+        json = r.json()
+        
+        if ("title" in json["response"]["publishedfiledetails"][0]):
+            title = json["response"]["publishedfiledetails"][0]["title"]
+        
+        if ("file_size" in json["response"]["publishedfiledetails"][0]):
+            file_size = json["response"]["publishedfiledetails"][0]["file_size"]
+    
+    return response.json(dict(title=title, size=file_size))
 
 def isNoneOrEmpty(var):
     return var is None or var == ""
@@ -55,9 +73,15 @@ def checkDescription(form, job_desc):
 
 def checkSalary(form, job_salary):
     if job_salary < 0:
-        form["errors"]["salary"] = "Salary must be greater than zero."
+        form["errors"]["job_salary"] = "Salary must be greater than zero."
     elif job_salary >= 1000000000000:
-        form["errors"]["salary"] = "Salary must be less than 1 trillion."
+        form["errors"]["job_salary"] = "Salary must be less than 1 trillion."
+
+def checkSuggestedModel(form, job_suggested_model):
+    if len(job_suggested_model) > 50:
+        form["errors"]["job_suggested_model"] = "Suggested model is too long."
+    elif not (all(x.isalnum() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_suggested_model)):
+        form["errors"]["job_suggested_model"] = "Suggested model must be alphanumeric."
 
 tags = [
     "Citizen",
@@ -79,12 +103,39 @@ def checkWeapons(form, weps):
         if not (all(x.isalnum() or x == "_" for x in wep)):
             okay = False
             break
-        
     
     if (not okay):
         form["errors"]["job_weapons"] = "One of the weapons contains one or more invalid characters."
     
+def checkWorkshopID(form, id):
+    preview_url = "";
+    
+    if len(id) < 9 or not (all(x.isdigit() for x in id)):
+        form["errors"]["job_workshop"] = "Invalid workshop ID."
+    else: 
+        r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': id})
+        
+        if (r.status_code != 200):
+            form["errors"]["job_workshop"] = "Unable to verify Workshop item. Please try again."
+        else:
+            json = r.json()
+            if (("consumer_app_id" in json["response"]["publishedfiledetails"][0]) and json["response"]["publishedfiledetails"][0]["consumer_app_id"] == 4000):
+                found = False
+                for tag in (json["response"]["publishedfiledetails"][0]["tags"]):
+                    if (tag["tag"] == "model"):
+                        found = True
+                        break
 
+                if (not found):
+                    form["errors"]["job_workshop"] = "Workshop item must have the 'Model' tag."
+                
+                if ("preview_url" in json["response"]["publishedfiledetails"][0]):
+                    preview_url = json["response"]["publishedfiledetails"][0]["preview_url"]
+            else:
+                form["errors"]["job_workshop"] = "The game for the Workshop item must be Garry's Mod."
+        
+    return preview_url
+        
 @auth.requires_login()
 @auth.requires_signature()
 def create_job():
@@ -96,11 +147,12 @@ def create_job():
     job_model = request.vars.job_model
     job_tag = request.vars.job_tag
     job_color = request.vars.job_color
+    job_workshop = request.vars.job_workshop
+    job_suggested_model = request.vars.job_suggested_model
     
     job_weapons = request.vars.get('weps[]', [])
     if isinstance(job_weapons, basestring):
         job_weapons = [job_weapons]
-    
     
     # Check job ID
     if (isNoneOrEmpty(job_job_id)):
@@ -159,6 +211,25 @@ def create_job():
     # Verify that all of the weapons contain valid characters.
     checkWeapons(form, job_weapons)
     
+    # We don't require a Steam Workshop item
+    if (len(job_workshop) > 0):
+        # First try to parse a Workshop URL
+        # Source: https://stackoverflow.com/questions/10113090/best-way-to-parse-a-url-query-string
+        parsed_url = urlparse(job_workshop)
+        result = parse_qs(parsed_url.query)
+        
+        try:
+            job_workshop = result['id'][0]
+        except:
+            pass
+        
+        # We need to check the workshop ID.
+        preview_url = checkWorkshopID(form, job_workshop)
+        
+        # Check the suggested model (it may be blank--it's not required).
+        checkSuggestedModel(form, job_suggested_model)
+    
+    
     # Check now for errors.
     error = False
     
@@ -195,6 +266,9 @@ def create_job():
             job_id = job_job_id,
             name = job_name,
             description = job_desc,
+            workshop = job_workshop,
+            suggested_model = job_suggested_model,
+            preview_url = preview_url,
             color = job_color,
             model = job_model,
             salary = job_salary,

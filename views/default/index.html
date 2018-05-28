@@ -18,6 +18,7 @@
         var community_url = "{{=URL('default', 'index')}}";
         var add_comment_url = "{{=URL('api', 'add_comment', user_signature=True)}}";
         var comments_url = "{{=URL('api', 'get_comments', user_signature=True)}}";
+        var workshop_url = "{{=URL('api', 'workshop', user_signature=True)}}";
         
         var update_job_url = "{{=URL('api', 'update_job', user_signature=True)}}";
         var delete_job_url = "{{=URL('api', 'delete_job', user_signature=True)}}";
@@ -322,7 +323,7 @@
             </div>
             
             
-            <div v-if="showing_job_details" class="row no-gutters rounded" v-bind:style="{ background: '#' + selected_job.color + '59' }" style="margin-top: 8px;">
+            <div v-if="showing_job_details" class="row no-gutters rounded" v-bind:style="{ background: '#' + selected_job.color + '59' }" style="margin-top: 8px; margin-bottom: 34px;">
                 
 <div class="container">
     <div class="row">
@@ -352,7 +353,11 @@
                         <table class="table" style="margin-bottom: 0px !important;">
                             <tbody>
                                 <tr style="border-top: hidden;">
-                                    <td class="min"><img v-bind:src="getModelURL(selected_job.model)"/></td>
+                                    <td class="min">
+                                        <img v-if="selected_job.preview_url == ''" v-bind:src="getModelURL(selected_job.model)" style="width: 64px; height: 64px;"/>
+                                        
+                                        <img v-if="selected_job.preview_url != ''" v-bind:src="selected_job.preview_url" style="width: 64px; height: 64px;"/>
+                                    </td>
                                     
                                     <td class="tableData">
                                         
@@ -457,6 +462,9 @@
                 
                 <!-- https://stackoverflow.com/questions/26983301/how-to-make-a-table-column-be-a-minimum-width -->
                 <div id="Details" class="table-responsive" style="padding: 20px; padding-top: 22px;" v-bind:style="{ display: (job_current_tab == 0) ? 'block' : 'none' }">
+                    
+                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 8px;"><u>Job Details</u></div>
+                    
                     <table class="table table-striped">
                         <tbody>
                             
@@ -556,7 +564,7 @@
                                     <div v-if="edit_errors.job_weapons != null" class="formError">${ edit_errors.job_weapons }</div>
                                 </td>
                             </tr>
-                            
+                             
                             <tr v-if="editing_job">
                                 <td class="min">Color:</td>
                                 <td>
@@ -582,9 +590,53 @@
                                     </div>
                                 </td>
                             </tr>
+                            
+                            
+                            
                         </tbody>
                     </table>
+                    
+                    <div class="table-responsive" v-if="selected_job.workshop != null">
+                    
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 8px;"><u>Player Model Details</u></div>
+
+                        <table class="table table-striped" style="background: rgba(255, 255, 255, 0.1);">
+                            <tbody>
+
+                                <tr>
+                                    <td class="min">Title:</td>
+                                    <td>${ job_workshop_title }</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td class="min">File Size: &thinsp;&thinsp;&thinsp;&thinsp;</td>
+                                    <td>${ job_workshop_size }</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td class="min">ID:</td>
+                                    <td>
+                                        ${ selected_job.workshop }
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td class="min">Workshop URL:</td>
+                                    <td><a style="color: black; font-weight: bold;" v-bind:href="'https://steamcommunity.com/sharedfiles/filedetails/?id=' + selected_job.workshop" target="_blank">https://steamcommunity.com/sharedfiles/filedetails/?id=${ selected_job.workshop }</a></td>
+                                </tr>
+                                
+                                <tr v-if="selected_job.suggested_model != null">
+                                    <td class="min">Suggested Model:</td>
+                                    <td>${ selected_job.suggested_model }</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
                 </div>
+                
+                
+                
                 
                 <div class="postedBy">
                     <div class="postedByText">
@@ -604,7 +656,9 @@
                             
                             <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
                                 
-                                <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
+                                <img v-if="job.preview_url == ''" v-bind:src="getModelURL(job.model)" style="float: left; margin-left: 8px; width: 64px; height: 64px;"/>
+                                
+                                <img v-if="job.preview_url != ''" v-bind:src="job.preview_url" style="float: left; margin-left: 8px; width: 64px; height: 64px;"/>
                                 
                                 <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
                                     ${job.name}
@@ -633,8 +687,10 @@
                         <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
                             
                             <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
-                                      
-                                <img v-bind:src="getModelURL(job.model)" style="float: left; padding-left: 8px;"/>
+                                
+                                <img v-if="job.preview_url == ''" v-bind:src="getModelURL(job.model)" style="float: left; margin-left: 8px; width: 64px; height: 64px;"/>
+                                
+                                <img v-if="job.preview_url != ''" v-bind:src="job.preview_url" style="float: left; margin-left: 8px; width: 64px; height: 64px;"/>
                                 
                                 <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
                                     ${job.name}

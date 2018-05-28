@@ -350,6 +350,15 @@ var app = function() {
         // Reset the tab to the first.
         vue.job_current_tab = 0;
         
+        if (vue.selected_job.workshop) {
+            // Reset the Workshop details
+            vue.job_workshop_title = "Loading...";
+            vue.job_workshop_size = "Loading...";
+            
+            // Fetch the Workshop item details, if necessary.
+            self.get_workshop();
+        }
+        
         // Get the job's comments.
         self.get_comments();
         
@@ -366,6 +375,7 @@ var app = function() {
         // We are no longer showing job details.
         vue.showing_job_details = false;
         vue.view_id = null;
+        
         self.setNewURL();
     }
     
@@ -388,6 +398,18 @@ var app = function() {
     }
     
     
+    self.get_workshop = function() {
+        $.post(workshop_url,
+            {
+                id: self.vue.selected_job.workshop
+            },
+            function (data) {
+                self.vue.job_workshop_title = data.title;
+                self.vue.job_workshop_size = (data.size / 1048576).toFixed(2) + " MB";
+            }
+        );
+    }
+    
     // Comments
     function get_comments_url(start_idx, end_idx, id) {
         var pp = {
@@ -398,7 +420,7 @@ var app = function() {
         return comments_url + "?" + $.param(pp);
     }
     
-    self.get_comments = function () {
+    self.get_comments = function() {
         $.post(comments_url,
             {
                 start: 0,
@@ -712,6 +734,9 @@ var app = function() {
             job_color_rgb: null,
             job_weapons: null,
             job_weapons_arr: null,
+            
+            job_workshop_title: "",
+            job_workshop_size: "",
             
             job_vote: null,
             job_admin_only: null,

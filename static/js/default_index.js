@@ -89,6 +89,8 @@ var app = function() {
                 job_job_id: self.vue.job_job_id,
                 job_name: self.vue.job_name,
                 job_desc: self.vue.job_desc,
+                job_workshop: self.vue.job_workshop,
+                job_suggested_model: self.vue.job_suggested_model,
                 job_model: self.vue.job_model,
                 job_salary: self.vue.job_salary,
                 job_max_players: self.vue.job_max_players,
@@ -102,14 +104,18 @@ var app = function() {
             },
             function (data) {
                 if (data.errors) {
+                    console.log(data.form.errors);
+                    
                     var vue = self.vue;
                     var errors = data.form.errors;
 
                     vue.job_job_id_error = data.form.errors.job_job_id;
                     vue.job_name_error = data.form.errors.job_name;
                     vue.job_desc_error = data.form.errors.job_desc;
+                    vue.job_workshop_error = data.form.errors.job_workshop;
                     vue.job_model_error = data.form.errors.job_model;
-
+                    vue.job_suggested_model_error = data.form.errors.job_suggested_model;
+                    
                     vue.job_salary_error = data.form.errors.job_salary;
                     vue.job_max_players_error = data.form.errors.job_max_players;
                     vue.job_color_error = data.form.errors.job_color;
@@ -128,7 +134,7 @@ var app = function() {
                     }
                 } else {
                     // The form doesn't have errors, so redirect.
-                    window.location.replace(home_url);
+                    window.location.replace(default_url);
                 }
             }
         );
@@ -176,7 +182,7 @@ var app = function() {
         e = (e) ? e : window.event;
         var charCode = (e.which) ? e.which : e.keyCode;
            
-        if(!(charCode === 32 || charCode == 33 || charCode == 46 || charCode == 39 || charCode == 44 || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
+        if(!(charCode === 32 || charCode == 33 || charCode == 46 || charCode == 39 || charCode == 44 || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122) || (charCode >= 48 && charCode <= 57))) {
             e.preventDefault();
         } else {
             return true;
@@ -206,6 +212,8 @@ var app = function() {
             job_job_id: "",
             job_name: null,
             job_desc: null,
+            job_workshop: null,
+            job_suggested_model: null,
             job_model: null,
             job_salary: null,
             job_max_players: null,
@@ -222,6 +230,8 @@ var app = function() {
             job_job_id_error: null,
             job_name_error: null,
             job_desc_error: null,
+            job_workshop_error: null,
+            job_suggested_model_error: null,
             job_model_error: null,
             job_salary_error: null,
             job_max_players_error: null,
