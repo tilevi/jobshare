@@ -3,6 +3,31 @@
 
 var app = function() {
     var self = {};
+    
+    self.player_models = [
+        
+        [
+            {image: "alyx.png", model: "models/player/alyx.mdl"},
+            {image: "medic07.png", model: "models/player/Group03m/male_07.mdl"},
+            {image: "kleiner.png", model: "models/player/kleiner.mdl"},
+            {image: "monk.png", model: "models/player/monk.mdl"}
+        ],
+        [
+            {image: "police.png", model: "models/player/police.mdl"},
+            {image: "combine.png", model: "models/player/combine_soldier.mdl"},
+            {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
+            {image: "gman.png", model: "models/player/gman_high.mdl"}
+        ],
+        [
+            {image: "eli.png", model: "models/player/eli.mdl"},
+            {image: "css_arctic.png", model: "models/player/arctic.mdl"},
+            {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
+            {image: "css_phoenix.png", model: "models/player/phoenix.mdl"}
+        ]
+    ];
+    
+    
+    
     Vue.config.silent = false;
     Vue.config.ignoredElements = ['tags'];
     
@@ -30,31 +55,24 @@ var app = function() {
                 self.vue.job_weapons = JSON.stringify(wepTags);
             }
             tagify.on('add', onAddTag);
-        },
-        beforeDestroy: function() {
-            $(this.$el).destroy();
         }
     });
     
     Vue.component('job-model', {
         template: '<input/>',
         mounted: function() {
-            var availableTags = [
-                'models/player/alyx.mdl',
-                'models/player/police.mdl',
-                'models/player/combine_super_soldier.mdl',
-                'models/player/Group01/female_01.mdl',
-                'models/player/breen.mdl',
-                'models/player/monk.mdl',
-                'models/player/kleiner.mdl',
-                'models/player/phoenix.mdl'
-            ];
+            var availableTags = [];
+            
+            // We have to go inside of each array to extract the models.
+            self.player_models.forEach(function(array) {
+                array.forEach(function(obj) {
+                    availableTags.push(obj.model);
+                });
+            });
+            
             $("#job_model").autocomplete({
                 source: availableTags
             });
-        },
-        beforeDestroy: function() {
-            $(this.$el).destroy();
         }
     });
     
@@ -203,6 +221,23 @@ var app = function() {
         $temp.remove();
     }
     
+    self.show_player_models = function() {
+        self.vue.showing_player_models = true;
+    }
+    
+    self.close_player_models = function() {
+        self.vue.showing_player_models = false;
+        window.scrollTo(0, 0);
+    }
+    
+    self.select_player_model = function(model) {
+        // Set the input field
+        self.vue.job_model = model;
+        
+        // Close the player model page
+        self.close_player_models();
+    }
+    
     self.vue = new Vue({
         el: "#vue-div",
         delimiters: ['${', '}'],
@@ -239,7 +274,12 @@ var app = function() {
             job_weapons_error: null,
             job_vote_error: null,
             job_admin_only_error: null,
-            job_tag_error: null
+            job_tag_error: null,
+            
+            // Player models
+            showing_player_models: true,
+            player_models: self.player_models,
+            image_url: image_url
         },
         methods: {
             setRGB: self.setRGB,
@@ -248,7 +288,11 @@ var app = function() {
             isJobDescription: self.isJobDescription,
             copy_code: self.copy_code,
             submit: self.submit,
-            submit_share: self.submit_share
+            submit_share: self.submit_share,
+            
+            show_player_models: self.show_player_models,
+            close_player_models: self.close_player_models,
+            select_player_model: self.select_player_model
         }
     });
     

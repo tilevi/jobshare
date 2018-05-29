@@ -326,6 +326,15 @@ var app = function() {
         vue.job_weapons_arr = vue.selected_job.weapons;
         vue.job_created_by = vue.selected_job.created_by;
         vue.job_mine = (vue.selected_job.created_by == my_username);
+        
+        if (vue.selected_job.workshop) {
+            // Reset the Workshop details
+            vue.job_workshop_title = "Loading...";
+            vue.job_workshop_size = "Loading...";
+
+            // Fetch the Workshop item details, if necessary.
+            self.get_workshop();
+        }
     }
     
     // https://stackoverflow.com/questions/6623231/remove-all-white-spaces-from-text
@@ -399,13 +408,16 @@ var app = function() {
     
     
     self.get_workshop = function() {
+        var id = self.vue.view_id
         $.post(workshop_url,
             {
                 id: self.vue.selected_job.workshop
             },
             function (data) {
-                self.vue.job_workshop_title = data.title;
-                self.vue.job_workshop_size = (data.size / 1048576).toFixed(2) + " MB";
+                if (self.vue.view_id == id) {
+                    self.vue.job_workshop_title = data.title;
+                    self.vue.job_workshop_size = (data.size / 1048576).toFixed(2) + " MB";
+                }
             }
         );
     }
@@ -548,6 +560,8 @@ var app = function() {
                 job_name: vue.edit_job.name,
                 job_desc: vue.edit_job.description,
                 job_model: vue.edit_job.model,
+                job_workshop: vue.edit_job.workshop,
+                job_suggested_model: vue.edit_job.suggested_model,
                 job_salary: vue.edit_job.salary,
                 job_max_players: vue.edit_job.max_players,
                 job_color: vue.edit_job.color,

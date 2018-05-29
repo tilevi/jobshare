@@ -3,13 +3,6 @@ import datetime, requests
 from dateutil.relativedelta import *
 from urlparse import urlparse, parse_qs
 
-def getWorkshopItem():
-    id = '612053603'
-    
-    r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': id})
-    
-    return response.json(r.json())
-
 def workshop():
     id = request.vars.id
     
@@ -27,7 +20,7 @@ def workshop():
         if ("file_size" in json["response"]["publishedfiledetails"][0]):
             file_size = json["response"]["publishedfiledetails"][0]["file_size"]
     
-    return response.json(dict(title=title, size=file_size))
+    return response.json(dict(id=id, title=title, size=file_size))
 
 def isNoneOrEmpty(var):
     return var is None or var == ""
@@ -173,7 +166,7 @@ def create_job():
         checkDescription(form, job_desc)
     
     if (isNoneOrEmpty(job_model)):
-        form['errors']['job_model'] = "Job model is missing."
+        form['errors']['job_model'] = "Player model is missing."
     else:
         checkModel(form, job_model)
     
@@ -428,6 +421,8 @@ def update_job():
     job_model = request.vars.job_model
     job_tag = request.vars.job_tag
     job_color = request.vars.job_color
+    job_workshop = request.vars.job_workshop
+    job_suggested_model = request.vars.job_suggested_model
     
     job_weapons = request.vars.get('weps[]', [])
     if isinstance(job_weapons, basestring):
@@ -485,6 +480,24 @@ def update_job():
     # Verify that all of the weapons contain valid characters.
     checkWeapons(form, job_weapons)
     
+    # We don't require a Steam Workshop item
+    if (len(job_workshop) > 0):
+        # First try to parse a Workshop URL
+        # Source: https://stackoverflow.com/questions/10113090/best-way-to-parse-a-url-query-string
+        parsed_url = urlparse(job_workshop)
+        result = parse_qs(parsed_url.query)
+        
+        try:
+            job_workshop = result['id'][0]
+        except:
+            pass
+        
+        # We need to check the workshop ID.
+        preview_url = checkWorkshopID(form, job_workshop)
+        
+        # Check the suggested model (it may be blank--it's not required).
+        checkSuggestedModel(form, job_suggested_model)
+    
     # Check now for errors.
     error = False
     
@@ -524,6 +537,9 @@ def update_job():
             job_id = job_job_id,
             name = job_name,
             description = job_desc,
+            workshop = job_workshop,
+            suggested_model = job_suggested_model,
+            preview_url = preview_url,
             color = job_color,
             model = job_model,
             salary = job_salary,

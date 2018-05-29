@@ -100,10 +100,26 @@ input[type=checkbox].checkBox:checked:after {
     left: 5px;
 }
 
-
 .closeJobDetails {
     padding-top: 4px;
     padding-right: 8px;
+}
+
+.closePlayerModels {
+    padding-top: 4px;
+    padding-right: 0px;
+}
+
+.playerModel {
+    width: 100%;
+    background: #e2e2e2;
+    border-radius: 4px;
+    margin-bottom: 30px;
+}
+
+.playerModel:hover {
+    cursor: pointer;
+    background: lightgreen;
 }
 
 .editJobDetails {
@@ -276,8 +292,19 @@ a.last::before {
     word-break: break-all;
 }
 
-.clear{
+.clear {
     clear: both;
+}
+
+.playerModelLink {
+    color: #007bff;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+.playerModelLink:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .jobDescription {
