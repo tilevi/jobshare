@@ -217,6 +217,10 @@ var app = function() {
                 return;
             }
             
+            if (vue.first_load) {
+                vue.first_load = false;
+            }
+            
             vue.even_jobs = [];
             vue.odd_jobs = [];
             
@@ -593,6 +597,7 @@ var app = function() {
             },
             function (data) {
                 self.vue.selected_job.is_public = data.is_public;
+                self.get_jobs();
             }
         ); 
     }
@@ -776,6 +781,7 @@ var app = function() {
         delimiters: ['${', '}'],
         unsafeDelimiters: ['!{', '}'],
         data: {
+            first_load: true,
             jobs: [],
             even_jobs: [],
             odd_jobs: [],
@@ -866,7 +872,9 @@ var app = function() {
             
             showing_player_models: false,
             player_models: self.player_models,
-            image_url: player_model_image_url
+            image_url: player_model_image_url,
+            
+            my_username: my_username
         },
         methods: {
             fetchNewResults: self.fetch_new_results,
@@ -917,7 +925,7 @@ var app = function() {
     self.vue.search_form = self.vue.$route.query.search;
     self.vue.current_page = Math.max(1, self.vue.$route.query.page);
     self.vue.selectedSort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
-    self.vue.selectedPublic = self.vue.$route.query.public == '1';
+    self.vue.selectedPublic = (my_username == "" || self.vue.$route.query.public == '1');
     
     // Set the highlight of one of the top bottoms.
     if (self.vue.selectedPublic) {

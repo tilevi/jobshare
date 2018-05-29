@@ -32,8 +32,10 @@ var app = function() {
     Vue.component('tag-it', {
         template: '<input/>',
         mounted: function() {
+            console.log("Loaded again!");
+            
             var input = document.querySelector("#weaponTags");
-            var tagify = new Tagify(input, {
+            self.tagify = new Tagify(input, {
                 whitelist : [
                     "weapon_ar2", 
                     "weapon_glock", 
@@ -69,21 +71,36 @@ var app = function() {
             });
             
             // Weapons
-            var wepTags = [];
+            var wepTags = ((self.vue != null) && (self.vue.job_weapons_arr != null)) ? self.vue.job_weapons_arr : [];
+            
+            var realWepTags = [];
+            
+            wepTags.forEach(function(e) {
+                realWepTags.push({value: e});
+            });
+            
+            // Add the existing tags (if any).
+            if (realWepTags.length > 0) {
+                self.tagify.addTags(realWepTags);
+            }
             
             function onRemoveTag(e){
                 wepTags.splice(wepTags.indexOf(e.detail.value), 1);
                 self.vue.job_weapons_arr = wepTags;
                 self.vue.job_weapons = JSON.stringify(wepTags);
             }
-            tagify.on('remove', onRemoveTag);
+            self.tagify.on('remove', onRemoveTag);
             
             function onAddTag(e) {
                 wepTags.push(e.detail.value);
                 self.vue.job_weapons_arr = wepTags;
                 self.vue.job_weapons = JSON.stringify(wepTags);
             }
-            tagify.on('add', onAddTag);
+            self.tagify.on('add', onAddTag);
+        },
+        beforeDestroy: function() {
+            console.log("Trying to get destroyed.");
+            self.tagify.destroy();
         }
     });
     
@@ -111,11 +128,14 @@ var app = function() {
             $("#colorpicker").spectrum({
                 preferredFormat: "hex",
                 showInput: true,
-                color: "#23B5EB",
+                color: "#" + ((self.vue) != null ? self.vue.job_color : "23B5EB"),
                 change: function() {
                     self.vue.setRGB();
                 }
             });
+        },
+        beforeDestroy: function() {
+            $("#colorpicker").spectrum("destroy");
         }
     });
     
@@ -251,6 +271,7 @@ var app = function() {
     }
     
     self.show_player_models = function() {
+        // $("#weaponTags").remove();
         self.vue.showing_player_models = true;
     }
     
@@ -272,6 +293,8 @@ var app = function() {
         delimiters: ['${', '}'],
         unsafeDelimiters: ['!{', '}'],
         data: {
+            tagify: null,
+            
             job_command: null,
             job_job_id: "",
             job_name: null,

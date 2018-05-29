@@ -26,7 +26,7 @@
         
         var isCommunityPage = true;
         var isLoadingResults = false;
-        var my_username = "";
+        var my_username = null;
         
         {{if auth.user is not None:}}
             my_username = "{{=auth.user.username}}"
@@ -234,7 +234,7 @@
                                 <input v-model="max_salary" name="price_max" type="text" class="form-control" placeholder="50">
                             </div>             
 
-                            <div style="margin-top:8px;">
+                            <div style="margin-top: 8px;">
                                 <button class="btn btn-default btn-block" v-on:click="fetchNewResults();">
                                     <i class="fa fa-search"></i> Filter
                                 </button>
@@ -338,8 +338,13 @@
                 </div>
 
                 <div class="deleteJobDetails pointer pull-right">
-                    <i class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;" href="#" data-toggle="modal" data-target="#deleteModal"></i>  
+                    <i class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;" href="#" data-toggle="modal" data-target="#deleteModal"></i> 
                 </div>
+                
+                <div class="deleteJobDetails pointer pull-right">
+                    <i id="public_icon" v-bind:class="{ 'fa fa-eye': selected_job.is_public, 'fa fa-eye-slash': !selected_job.is_public }" v-on:click="toggle_public()" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 30px;" data-toggle="tooltip" v-bind:title="selected_job.is_public ? 'Click to make this job private.' : 'Click to make this job public.'"></i>
+                </div>
+                
             </div>
             
         </div>
@@ -700,6 +705,13 @@
             
             <div v-if="!showing_job_details" class="row no-gutters" style="margin-top: 8px;">
                 
+                <div v-if="my_username == null && !selectedPublic" style="width: 100%; height: 100px; background: white;">
+                    <center><span style="font-size: 24px; font-weight: bold; line-height: 100px;">You must be logged in to see your jobs.</span></center>
+                </div>
+                
+                <div id="noViewableJobs" v-if="!first_load && !(my_username == null && !selectedPublic) && (jobs.length == 0)" style="width: 100%; height: 100px; background: white;">
+                    <center><span style="font-size: 24px; font-weight: bold; line-height: 100px;">Oops! There are no viewable jobs.</span></center>
+                </div>
                 
                 
                 <div class="col-md-6 col-sm-6">
@@ -787,7 +799,7 @@
                                 <a class="page-link" v-on:click="set_page(pageNumber)" v-bind:class="{last: (pageNumber == pages && Math.abs(pageNumber - current_page) > 3), first:(pageNumber == 1 && Math.abs(pageNumber - current_page) > 3)}">${pageNumber}</a>
                             </li>
 
-                            <li class="page-item noSelect" v-bind:class="{disabled: current_page == pages}">
+                            <li class="page-item noSelect" v-bind:class="{disabled: (current_page == pages || pages == 0)}">
                                 <a class="page-link" v-on:click="next_page()">Next</a>
                             </li>
                         </ul>
@@ -827,7 +839,10 @@
         $('#filterPersonalIcon').toggleClass('fa-rotate-180');
     }
     
-    $(document).ready(function(){
+    $(document).ready(function() {
+        
+        $("#public_icon").tooltip();   
+        
         // Filter tags
         $('#filterTags').on('show.bs.collapse', toggleTagIcon);
         $('#filterTags').on('hide.bs.collapse', toggleTagIcon);

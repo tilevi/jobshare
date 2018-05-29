@@ -219,6 +219,7 @@ a.last::before {
     width: 100%;
     border-radius: 0px;
     padding: 12px 2px 12px 2px;
+    padding-bottom: 4px;
     
     overflow: hidden;
 }

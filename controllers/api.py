@@ -3,14 +3,21 @@ import datetime, requests
 from dateutil.relativedelta import *
 from urlparse import urlparse, parse_qs
 
+def getWorkshop():
+    r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': '1394998020'})
+    
+    return r.text
+    
 def workshop():
     id = request.vars.id
     
     r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': id})
     
+    logger.info(r.text)
+    
     title = "N/A"
     file_size = "N/A"
-        
+    
     if (r.status_code == 200):
         json = r.json()
         
@@ -201,6 +208,9 @@ def create_job():
     
     # Verify that all of the weapons contain valid characters.
     checkWeapons(form, job_weapons)
+    
+    
+    preview_url = ""
     
     # We don't require a Steam Workshop item
     if (len(job_workshop) > 0):
