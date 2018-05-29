@@ -51,37 +51,31 @@
     
     <div class="container" style="background-color: white; margin-bottom: 5px;">
         
-        
-        
         <div v-if="showing_player_models">
-            
-<div class="container">
-    <div class="row">
-        <div class="col-md-12" style="padding: 0 !important; margin-bottom: 5px !important;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12" style="padding: 0 !important; margin-bottom: 10px !important;">
+                        <div class="closePlayerModels pointer pull-right">
+                            <i v-on:click="close_player_models()" class="fa fa-close pointer" style="font-size: 36px;"></i>
+                        </div>
+                    </div>
 
-            <div class="closePlayerModels pointer pull-right">
-                <i v-on:click="close_player_models()" class="fa fa-close pointer" style="font-size: 36px;"></i>
+                </div>    
+            </div>
+            
+            <div v-for="(item, index) in player_models" class="row">
+                <div v-for="obj in item" class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="playerModel">
+                        <div style="padding: 10px 10px 0px 10px;" v-on:click="select_player_model(obj.model)">
+                            <img style="width: 100%;" v-bind:src="image_url + '/' + obj.image"/>
+                        </div>
+                        <div style="padding: 0px 10px 10px 10px;">
+                            <input class="form-control" style="margin-top: 10px;" type="text" v-bind:value="obj.model" disabled/>
+                        </div>
+                    </div>
+                </div>  
             </div>
         </div>
-        
-    </div>    
-</div>
-        
-        <div v-for="(item, index) in player_models" class="row">
-            <div v-for="obj in item" class="col-md-3 col-sm-6 col-xs-12">
-                <div class="playerModel">
-                    <div style="padding: 10px 10px 0px 10px;" v-on:click="select_player_model(obj.model)">
-                        <img style="width: 100%;" v-bind:src="image_url + '/' + obj.image"/>
-                    </div>
-                    <div style="padding: 0px 10px 10px 10px;">
-                        <input class="form-control" style="margin-top: 10px;" type="text" v-bind:value="obj.model" disabled/>
-                    </div>
-                </div>
-            </div>  
-        </div>
-        
-            
-</div>
         
         <div v-if="!showing_player_models" class="row">
                 <div class="col-md-6 col-sm-6" style="margin-top: 10px; margin-bottom: 10px;">

@@ -6,7 +6,29 @@ var router = new VueRouter({
 
 var app = function() {
     var self = {};
-
+    
+    self.player_models = [
+        
+        [
+            {image: "alyx.png", model: "models/player/alyx.mdl"},
+            {image: "medic07.png", model: "models/player/Group03m/male_07.mdl"},
+            {image: "kleiner.png", model: "models/player/kleiner.mdl"},
+            {image: "monk.png", model: "models/player/monk.mdl"}
+        ],
+        [
+            {image: "police.png", model: "models/player/police.mdl"},
+            {image: "combine.png", model: "models/player/combine_soldier.mdl"},
+            {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
+            {image: "gman.png", model: "models/player/gman_high.mdl"}
+        ],
+        [
+            {image: "eli.png", model: "models/player/eli.mdl"},
+            {image: "css_arctic.png", model: "models/player/arctic.mdl"},
+            {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
+            {image: "css_phoenix.png", model: "models/player/phoenix.mdl"}
+        ]
+    ];
+    
     Vue.config.silent = false; // show all warnings
     Vue.config.ignoredElements = ['tags'];
     
@@ -15,7 +37,37 @@ var app = function() {
         mounted: function() {
             var input = document.querySelector("#weaponTags");
             var tagify = new Tagify(input, {
-                whitelist : ["weapon_ak47", "weapon_ar2"]
+                whitelist : [
+                    "weapon_glock", 
+                    "weapon_shotgun", 
+                    "weapon_crowbar", 
+                    "weapon_rpg",
+                    "weapon_glock",
+                    "weapon_usp",
+                    "weapon_p228",
+                    "weapon_deagle",
+                    "weapon_elite",
+                    "weapon_fiveseven",
+                    "weapon_m3",
+                    "weapon_xm1014",
+                    "weapon_galil",
+                    "weapon_ak47",
+                    "weapon_scout", 
+                    "weapon_sg552",
+                    "weapon_awp",
+                    "weapon_g3sg1", 
+                    "weapon_famas",
+                    "weapon_m4a1",
+                    "weapon_aug",
+                    "weapon_sg550", 
+                    "weapon_mac10",
+                    "weapon_tmp",
+                    "weapon_mp5navy",
+                    "weapon_ump45",
+                    "weapon_p90",
+                    "weapon_m249"
+                ],
+                suggestionsMinChars: 0
             });
             
             // Add any pre-existing tags.
@@ -64,16 +116,15 @@ var app = function() {
     Vue.component('job-model', {
         template: '<input/>',
         mounted: function() {
-            var availableTags = [
-                'models/player/alyx.mdl',
-                'models/player/police.mdl',
-                'models/player/combine_super_soldier.mdl',
-                'models/player/Group01/female_01.mdl',
-                'models/player/breen.mdl',
-                'models/player/monk.mdl',
-                'models/player/kleiner.mdl',
-                'models/player/phoenix.mdl'
-            ];
+            var availableTags = [];
+            
+            // We have to go inside of each array to extract the models.
+            self.player_models.forEach(function(array) {
+                array.forEach(function(obj) {
+                    availableTags.push(obj.model);
+                });
+            });
+            
             $("#job_model").autocomplete({
                 source: availableTags
             });
@@ -94,7 +145,7 @@ var app = function() {
     
     self.getModelURL = function(mdl) {
         if (player_models[mdl] == null) {
-            return "";
+            return image_url + "/question_mark.jpg";
         }
         return image_url + "/" + player_models[mdl];
     }
@@ -693,6 +744,25 @@ var app = function() {
         self.fetch_new_results();
     }
     
+    self.show_player_models = function() {
+        self.vue.showing_player_models = true;
+        
+        var position = $("#Details").offset();
+        scroll(0, position.top);
+    }
+    
+    self.close_player_models = function() {
+        self.vue.showing_player_models = false;
+    }
+    
+    self.select_player_model = function(model) {
+        // Set the input field
+        self.vue.edit_job.model = model;
+        
+        // Close the player model page
+        self.close_player_models();
+    }
+    
     var router = new VueRouter({
         mode: 'history',
         routes: []
@@ -792,7 +862,11 @@ var app = function() {
             edit_job_admin_only: null,
             edit_job_tag: null,
             
-            edit_errors: {}
+            edit_errors: {},
+            
+            showing_player_models: false,
+            player_models: self.player_models,
+            image_url: player_model_image_url
         },
         methods: {
             fetchNewResults: self.fetch_new_results,
@@ -827,6 +901,9 @@ var app = function() {
             isJobDescription: self.isJobDescription,
             toggle_edit_job: self.toggle_edit_job,
             submit: self.submit,
+            show_player_models: self.show_player_models,
+            close_player_models: self.close_player_models,
+            select_player_model: self.select_player_model,
             
             // Job deletion
             delete_job: self.delete_job,

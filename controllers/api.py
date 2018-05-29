@@ -165,9 +165,7 @@ def create_job():
         # Check Job Description
         checkDescription(form, job_desc)
     
-    if (isNoneOrEmpty(job_model)):
-        form['errors']['job_model'] = "Player model is missing."
-    else:
+    if (not isNoneOrEmpty(job_model)):
         checkModel(form, job_model)
     
     if (isNoneOrEmpty(job_tag)):
@@ -424,6 +422,8 @@ def update_job():
     job_workshop = request.vars.job_workshop
     job_suggested_model = request.vars.job_suggested_model
     
+    logger.info("The model is: %r" % job_model)
+    
     job_weapons = request.vars.get('weps[]', [])
     if isinstance(job_weapons, basestring):
         job_weapons = [job_weapons]
@@ -447,9 +447,7 @@ def update_job():
         # Check Job Description
         checkDescription(form, job_desc)
     
-    if (isNoneOrEmpty(job_model)):
-        form['errors']['job_model'] = "Job model is missing."
-    else:
+    if (not isNoneOrEmpty(job_model)):
         checkModel(form, job_model)
     
     if (isNoneOrEmpty(job_tag)):
@@ -479,6 +477,8 @@ def update_job():
     
     # Verify that all of the weapons contain valid characters.
     checkWeapons(form, job_weapons)
+    
+    preview_url = ""
     
     # We don't require a Steam Workshop item
     if (len(job_workshop) > 0):

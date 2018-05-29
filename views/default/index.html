@@ -11,8 +11,8 @@
     <script src="{{=URL('static', 'js/vue-router.min.js')}}"></script>
     
     <script>
-        
         var image_url = "{{=URL('static', 'images')}}";
+        var player_model_image_url = "{{=URL('static', 'images/player_models')}}";
         
         var jobs_url = "{{=URL('api', 'get_jobs')}}";
         var community_url = "{{=URL('default', 'index')}}";
@@ -380,7 +380,7 @@
                     </div>
                 </div>
                 
-                <div style="background-color: rgba(32, 32, 32); width: 100%;">
+                <div style="background: rgba(32, 32, 32); width: 100%;">
                     <div class="tab noSelect">
                         <div class="tablinks" v-bind:class="{ active: (job_current_tab == 0) }" v-on:click="openTab(0)">Details</div>
                         <div class="tablinks" v-bind:class="{ active: (job_current_tab == 1) }" v-on:click="openTab(1)">Code</div>
@@ -392,18 +392,24 @@
                 <div id="Comments" style="width: 100%;" v-bind:style="{ display: (job_current_tab == 2) ? 'block' : 'none' }">
                     {{if auth.user is not None:}}
 
-                        <div class="container" style="padding: 20px; padding-top: 34px; background-color: white;">
-
-                            <div class="commentError" v-if="comment_error">
-                                Comment can't be empty.
-                            </div>
-
+                        <div class="container" style="padding: 20px; padding-top: 34px; background: white;">
+                            
                             <div class="form-group" style="margin-bottom: 0px;">
                                 <textarea class="form-control" style="width: 100%;" placeholder="Leave a comment" v-model="comment_form"></textarea>
+                                
+                                <div class="commentError" v-if="comment_error">
+                                    Comment can't be empty.
+                                </div>
                             </div>
 
                             <div style="margin-bottom: 0px; margin-top: 0px; text-align: right;">
                                 <input class="submitButton" type="button" value="Comment" v-on:click="add_comment()" style="display: inline-block;"/>
+                            </div>
+                        </div>
+                    {{else:}}
+                        <div class="container" style="padding: 20px; padding-top: 34px; background: white;">
+                            <div class="commentError" style="font-size: 20px;">
+                                <center>You must be logged in to post a comment.</center>
                             </div>
                         </div>
                     {{pass}}
@@ -411,7 +417,7 @@
                     <div v-for="comment in comments"> 
                         <div class="comment">
                             <div class="comment_top">
-                                <b>${comment.username} <span v-if="comment.username == job_created_by" style="font-size: 9px; color: white; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
+                                <b>${comment.username} <span v-if="comment.username == job_created_by" style="font-size: 9px; color: #e2e2e2; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
                             </div>
                             
                             <div class="comment_text">
@@ -432,7 +438,7 @@
                 </div>
                 
                 
-                <div id="Code" v-bind:style="{ display: (job_current_tab == 1) ? 'block' : 'none' }" style="width: 100%; background: rgba(240, 240, 240, 1);">
+                <div id="Code" v-bind:style="{ display: (job_current_tab == 1) ? 'block' : 'none' }" style="width: 100%; background: white;">
                 
                     
                     
@@ -461,193 +467,225 @@
 
                 
                 <!-- https://stackoverflow.com/questions/26983301/how-to-make-a-table-column-be-a-minimum-width -->
-                <div id="Details" class="table-responsive" style="padding: 20px; padding-top: 22px;" v-bind:style="{ display: (job_current_tab == 0) ? 'block' : 'none' }">
+                <div id="Details" class="table-responsive" v-bind:style="{ display: (job_current_tab == 0) ? 'block' : 'none' }">
                     
-                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 8px;"><u>Job Details</u></div>
                     
-                    <table class="table table-striped">
-                        <tbody>
-                            
-                            <tr v-if="editing_job">
-                                <td class="min">Job ID:</td>
-                                <td>
-                                    <input v-model="edit_job.job_id" class="form-control" maxlength=50/>
-                                    <div v-on:keypress="isJobID" v-if="edit_errors.job_job_id != null" class="formError">${ edit_errors.job_job_id }</div>
-                                </td>
-                            </tr>
-                            
-                            
-                            <tr>
-                                <td class="min" style="">Description:</td>
-                                <td class="tableData" style="font-size: 18px; font-weight: bold; word-break: break-all;">
-                                    
-                                    <span id="desc_form" v-if="!editing_job">${ selected_job.description }</span>
-                                    
-                                    <textarea v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_description" class="tableData form-control" style="font-size: 18px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
-                                    
-                                    <div v-if="edit_errors.job_desc != null" class="formError">${ edit_errors.job_desc }</div>
-                                </td>
-                                
-                                
-                            </tr>
-                            
-                            <tr>
-                                <td class="min">Type:</td>
-                                <td class="tableData">
-                                    
-                                    <span v-if="!editing_job">${ selected_job.tag }</span>
-                                    
-                                    <select v-model="edit_job.tag" class="form-control" id="tag_form" v-if="editing_job">
-                                        <option>Citizen</option>
-                                        <option>Commercial</option>
-                                        <option>Criminal</option>
-                                        <option>Fun</option>
-                                        <option>Government</option>
-                                        <option>OP</option>
-                                        <option>Misc.</option>
-                                    </select>
-                                    
-                                    <div v-if="edit_errors.job_tag != null" class="formError">${ edit_errors.job_tag }</div>
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="min">Salary:</td>
-                                <td class="tableData">
-                                    <span v-if="!editing_job"><span>$</span>${ comma(selected_job.salary) }</span>
-                                    <input v-model="edit_job.salary" v-if="editing_job" id="job_salary" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
-                                    <div v-if="edit_errors.job_salary != null" class="formError">${ edit_errors.job_salary }</div>
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="min">Max Players:</td>
-                                <td class="tableData">
-                                    <span v-if="!editing_job">${ selected_job.max_players }</span>
-                                    <input v-model="edit_job.max_players" v-if="editing_job" id="job_max_players" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
-                                    <div v-if="edit_errors.job_max_players != null" class="formError">${ edit_errors.job_max_players }</div>
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="min">Vote:</td>
-                                <td class="tableData">
-                                    <span v-if="!editing_job">${ selected_job.vote ? "Yes" : "No" }</span>
-                                    
-                                    <div class="form-check" v-if="editing_job">
-                                        <input v-model="edit_job.vote" v-model="edit_job.vote" type="checkbox" class="form-check-input checkBox" id="job_vote">
-                                        <label for="job_vote" class="noBottomMargin noSelect">Vote?</label>
-                                        <div v-if="edit_errors.job_vote != null" class="formError">${ edit_errors.job_vote }</div>
+                    <div id="player_models" v-if="showing_player_models" style="padding: 20px; padding-top: 5px;">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12" style="padding: 0 !important; margin-bottom: 10px !important;">
+                                    <div class="closePlayerModels pointer pull-right">
+                                        <i v-on:click="close_player_models()" class="fa fa-close pointer" style="font-size: 36px;"></i>
                                     </div>
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <td class="min">Admin Only:</td>
-                                <td class="tableData">
-                                    <span v-if="!editing_job">${ selected_job.admin_only  ? "Yes" : "No" }</span>
-                                    <div class="form-check" v-if="editing_job">
-                                        <input v-model="edit_job.admin_only" type="checkbox" class="form-check-input checkBox" id="job_admin_only">
-                                        <label for="job_admin_only" class="noBottomMargin noSelect">Admin Only?</label>
-                                        <div v-if="edit_errors.job_admin_only != null" class="formError">${ edit_errors.job_admin_only }</div>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr v-if="(editing_job) || (job_weapons.length > 0)">
-                                <td class="min">Weapons:</td>
-                                <td class="tableData">
-                                    <span v-if="!editing_job">${ job_weapons }</span>
-                                    <div v-if="editing_job" style="background: white;">
-                                        <tag-it id='weaponTags' name='tags' placeholder='Add weapon classes' value=''></tag-it>
-                                    </div>
-                                    <div v-if="edit_errors.job_weapons != null" class="formError">${ edit_errors.job_weapons }</div>
-                                </td>
-                            </tr>
-                             
-                            <tr v-if="editing_job">
-                                <td class="min">Color:</td>
-                                <td>
-                                    <color-it id='colorpicker'></color-it>
-                                    <div v-if="edit_errors.job_color != null" class="formError">${ edit_errors.job_color }</div>
-                                </td>
-                            </tr>
-                            
-                            <tr v-if="editing_job">
-                                <td class="min">Player model:</td>
-                                <td>
-                                    <job-model v-bind:value="edit_job.model" id="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=100 maxlength=100 onchange="APP.vue.edit_job.model = $('#job_model').val();" onkeyup="APP.vue.edit_job.model = $('#job_model').val();" onkeypress="return isJobModel(event);"></job-model>
-                                    <div v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <div class="table-responsive" v-if="selected_job.workshop != null">
-                    
-                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 8px;"><u>Player Model Details</u></div>
+                                </div>
 
-                        <table class="table table-striped" style="background: rgba(255, 255, 255, 0.1);">
-                            <tbody>
+                            </div>    
+                        </div>
 
-                                <tr v-if="!editing_job">
-                                    <td class="min">Title:</td>
-                                    <td>${ job_workshop_title }</td>
-                                </tr>
-                                
-                                <tr v-if="!editing_job">
-                                    <td class="min">File Size: &thinsp;&thinsp;&thinsp;&thinsp;</td>
-                                    <td>${ job_workshop_size }</td>
-                                </tr>
-                                
-                                <tr>
-                                    <td class="min">ID:</td>
-                                    <td>
-                                        
-                                        <span v-if="!editing_job">${ selected_job.workshop }</span>
-                                        
-                                        <input v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.workshop" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Steam Workshop URL or Workshop ID" maxlength=200/>
-                                        
-                                        <div v-if="edit_errors.job_workshop != null" class="formError">${ edit_errors.job_workshop }</div>
-                                        
-                                        <div v-if="editing_job" style="margin-top: 10px;">
-                                            <a href="https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Model" target="_blank" style="color: black; font-weight: bold;">Browse the Steam Workshop</a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                
-                                <tr v-if="!editing_job">
-                                    <td class="min">Workshop URL:</td>
-                                    <td><a style="color: black; font-weight: bold;" v-bind:href="'https://steamcommunity.com/sharedfiles/filedetails/?id=' + selected_job.workshop" target="_blank">https://steamcommunity.com/sharedfiles/filedetails/?id=${ selected_job.workshop }</a></td>
-                                </tr>
-                                
-                                <tr v-if="editing_job || (selected_job.suggested_model != null && selected_job.suggested_model != '')">
-                                    <td class="min">Suggested Model:</td>
-                                    <td>
-                                    
-                                        <span v-if="!editing_job">${ selected_job.suggested_model }</span>
-                                        
-                                        <input v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.suggested_model" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Specify a character (e.g. Deadpool)" maxlength=200/>
-                                        
-                                        <div v-if="edit_errors.job_suggested_model != null" class="formError">${ edit_errors.job_suggested_model }</div>
-                                        
-                                    </td>
-                                </tr>
-                                
-                                <tr v-if="editing_job">
-                                    <td class="min"></td>
-                                    <td>
-                                        <div style="margin-bottom: 0px; text-align: right;">
-                                            <input v-on:click="submit" id="submit_button" class="editButtons pointer" type="button" value="Save" style="display: inline-block;"/>
-                                            <input v-on:click="toggle_edit_job()" class="editButtons pointer" type="button" value="Cancel" style="display: inline-block;"/>
-                                        </div>
-                                    </td>
-                                </tr>
-                                
-                            </tbody>
-                        </table>
+                        <div v-for="(item, index) in player_models" class="row">
+                            <div v-for="obj in item" class="col-md-3 col-sm-6 col-xs-12">
+                                <div class="playerModel">
+                                    <div style="padding: 10px 10px 0px 10px;" v-on:click="select_player_model(obj.model)">
+                                        <img style="width: 100%;" v-bind:src="image_url + '/' + obj.image"/>
+                                    </div>
+                                    <div style="padding: 0px 10px 10px 10px;">
+                                        <input class="form-control" style="margin-top: 10px;" type="text" v-bind:value="obj.model" disabled/>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>
                     </div>
                     
+                    <div v-if="!showing_player_models" style="padding: 20px; padding-top: 22px;">
+                        <div style="font-size: 20px; font-weight: bold; margin-bottom: 8px;"><u>Job Details</u></div>
+
+                        <table class="table table-striped">
+                            <tbody>
+
+                                <tr v-if="editing_job">
+                                    <td class="min">Job ID:</td>
+                                    <td>
+                                        <input v-model="edit_job.job_id" class="form-control" maxlength=50/>
+                                        <div v-on:keypress="isJobID" v-if="edit_errors.job_job_id != null" class="formError">${ edit_errors.job_job_id }</div>
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+                                    <td class="min" style="">Description:</td>
+                                    <td class="tableData" style="font-size: 18px; font-weight: bold; word-break: break-all;">
+
+                                        <span id="desc_form" v-if="!editing_job">${ selected_job.description }</span>
+
+                                        <textarea v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_description" class="tableData form-control" style="font-size: 18px; font-weight: bold; width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
+
+                                        <div v-if="edit_errors.job_desc != null" class="formError">${ edit_errors.job_desc }</div>
+                                    </td>
+
+
+                                </tr>
+
+                                <tr>
+                                    <td class="min">Type:</td>
+                                    <td class="tableData">
+
+                                        <span v-if="!editing_job">${ selected_job.tag }</span>
+
+                                        <select v-model="edit_job.tag" class="form-control" id="tag_form" v-if="editing_job">
+                                            <option>Citizen</option>
+                                            <option>Commercial</option>
+                                            <option>Criminal</option>
+                                            <option>Fun</option>
+                                            <option>Government</option>
+                                            <option>OP</option>
+                                            <option>Misc.</option>
+                                        </select>
+
+                                        <div v-if="edit_errors.job_tag != null" class="formError">${ edit_errors.job_tag }</div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="min">Salary:</td>
+                                    <td class="tableData">
+                                        <span v-if="!editing_job"><span>$</span>${ comma(selected_job.salary) }</span>
+                                        <input v-model="edit_job.salary" v-if="editing_job" id="job_salary" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
+                                        <div v-if="edit_errors.job_salary != null" class="formError">${ edit_errors.job_salary }</div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="min">Max Players:</td>
+                                    <td class="tableData">
+                                        <span v-if="!editing_job">${ selected_job.max_players }</span>
+                                        <input v-model="edit_job.max_players" v-if="editing_job" id="job_max_players" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
+                                        <div v-if="edit_errors.job_max_players != null" class="formError">${ edit_errors.job_max_players }</div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="min">Vote:</td>
+                                    <td class="tableData">
+                                        <span v-if="!editing_job">${ selected_job.vote ? "Yes" : "No" }</span>
+
+                                        <div class="form-check" v-if="editing_job">
+                                            <input v-model="edit_job.vote" v-model="edit_job.vote" type="checkbox" class="form-check-input checkBox" id="job_vote">
+                                            <label for="job_vote" class="noBottomMargin noSelect">Vote?</label>
+                                            <div v-if="edit_errors.job_vote != null" class="formError">${ edit_errors.job_vote }</div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="min">Admin Only:</td>
+                                    <td class="tableData">
+                                        <span v-if="!editing_job">${ selected_job.admin_only  ? "Yes" : "No" }</span>
+                                        <div class="form-check" v-if="editing_job">
+                                            <input v-model="edit_job.admin_only" type="checkbox" class="form-check-input checkBox" id="job_admin_only">
+                                            <label for="job_admin_only" class="noBottomMargin noSelect">Admin Only?</label>
+                                            <div v-if="edit_errors.job_admin_only != null" class="formError">${ edit_errors.job_admin_only }</div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr v-if="(editing_job) || (job_weapons.length > 0)">
+                                    <td class="min">Weapons:</td>
+                                    <td class="tableData">
+                                        <span v-if="!editing_job">${ job_weapons }</span>
+                                        <div v-if="editing_job" style="background: white;">
+                                            <tag-it id='weaponTags' name='tags' placeholder='Add weapon classes' value=''></tag-it>
+                                        </div>
+                                        <div v-if="edit_errors.job_weapons != null" class="formError">${ edit_errors.job_weapons }</div>
+                                    </td>
+                                </tr>
+
+                                <tr v-if="editing_job">
+                                    <td class="min">Color:</td>
+                                    <td>
+                                        <color-it id='colorpicker'></color-it>
+                                        <div v-if="edit_errors.job_color != null" class="formError">${ edit_errors.job_color }</div>
+                                    </td>
+                                </tr>
+
+                                <tr v-if="editing_job">
+                                    <td class="min">Player model:</td>
+                                    <td>
+                                        <job-model v-bind:value="edit_job.model" id="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=100 maxlength=100 onchange="APP.vue.edit_job.model = $('#job_model').val();" onkeyup="APP.vue.edit_job.model = $('#job_model').val();" onkeypress="return isJobModel(event);"></job-model>
+                                        <div v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
+                                        
+                                        <div style="margin-top: 5px;">
+                                            <span class="playerModelLinkEdit" v-on:click="show_player_models()">Browse player models</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="table-responsive" v-if="editing_job || ((selected_job.workshop != null) && (selected_job.workshop != ''))">
+
+                            <div style="font-size: 20px; font-weight: bold; margin-bottom: 8px;"><u>Player Model Details</u></div>
+
+                            <table class="table table-striped" style="background: rgba(255, 255, 255, 0.1);">
+                                <tbody>
+
+                                    <tr v-if="!editing_job">
+                                        <td class="min">Title:</td>
+                                        <td>${ job_workshop_title }</td>
+                                    </tr>
+
+                                    <tr v-if="!editing_job">
+                                        <td class="min">File Size: &thinsp;&thinsp;&thinsp;&thinsp;</td>
+                                        <td>${ job_workshop_size }</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="min">ID:</td>
+                                        <td>
+
+                                            <span v-if="!editing_job">${ selected_job.workshop }</span>
+
+                                            <input v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.workshop" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Steam Workshop URL or Workshop ID" maxlength=200/>
+
+                                            <div v-if="edit_errors.job_workshop != null" class="formError">${ edit_errors.job_workshop }</div>
+
+                                            <div v-if="editing_job" style="margin-top: 5px;">
+                                                <a href="https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Model" target="_blank" style="color: black; font-weight: bold;">Browse the Steam Workshop</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr v-if="!editing_job">
+                                        <td class="min">Workshop URL:</td>
+                                        <td><a style="color: black; font-weight: bold;" v-bind:href="'https://steamcommunity.com/sharedfiles/filedetails/?id=' + selected_job.workshop" target="_blank">https://steamcommunity.com/sharedfiles/filedetails/?id=${ selected_job.workshop }</a></td>
+                                    </tr>
+
+                                    <tr v-if="editing_job || (selected_job.suggested_model != null && selected_job.suggested_model != '')">
+                                        <td class="min">Suggested Model:</td>
+                                        <td>
+
+                                            <span v-if="!editing_job">${ selected_job.suggested_model }</span>
+
+                                            <input v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.suggested_model" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Specify a character (e.g. Deadpool)" maxlength=200/>
+
+                                            <div v-if="edit_errors.job_suggested_model != null" class="formError">${ edit_errors.job_suggested_model }</div>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr v-if="editing_job">
+                                        <td class="min"></td>
+                                        <td>
+                                            <div style="margin-bottom: 0px; text-align: right;">
+                                                <input v-on:click="submit" id="submit_button" class="editButtons pointer" type="button" value="Save" style="display: inline-block;"/>
+                                                <input v-on:click="toggle_edit_job()" class="editButtons pointer" type="button" value="Cancel" style="display: inline-block;"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 
                 
