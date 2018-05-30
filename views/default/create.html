@@ -2,20 +2,19 @@
 
 {{block head}}
     <!-- Spectrum -->
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+    <link href="{{=URL('static','css/spectrum.min.css')}}" rel="stylesheet" type="text/css"/>
+    <script src="{{=URL('static','js/spectrum.min.js')}}"></script>
     
     <!-- Tagify -->
-    <script src="{{=URL('static','js/tagify.js')}}"></script>
-    <script src="{{=URL('static','js/jQuery.tagify.js')}}"></script>
+    <script src="{{=URL('static','js/tagify.min.js')}}"></script>
     
     <!-- jQuery UI -->
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <link href="{{=URL('static','css//jquery-ui.min.css')}}" rel="stylesheet" type="text/css"/>
+    <script src="{{=URL('static','js/jquery-ui.min.js')}}"></script>
     
     <!-- Vue.js -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-    
+    <script src="{{=URL('static','js/vue.min.js')}}"></script>
+
     <!-- Misc. JS -->
     <script src="{{=URL('static','js/misc.js')}}"></script>
     <script src="{{=URL('static', 'js/models_weps.js')}}"></script>
@@ -213,7 +212,6 @@
             </div>    
         </div>
         
-
         <div v-if="!showing_player_models" class="container">
             <div id="codeDiv">
 

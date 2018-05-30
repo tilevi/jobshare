@@ -18,6 +18,28 @@ html, body {max-width: 100vw; overflow-x: hidden}
     margin-bottom: 10px;
 }
 
+.image64 {
+    width: 64px;
+    height: 64px;
+}
+
+#editTextJob {
+    font-size: 48px;
+    font-weight: bold;
+    width: 100%;
+    padding: 6px 12px 6px 12px;
+}
+
+#jobNameErrorText {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+#jobRowHeader {
+    padding: 0 !important;
+    margin-bottom: 0px !important; 
+}
+
 #rowHeader {
     padding: 0 !important;
     margin-bottom: 10px !important;
@@ -426,6 +448,26 @@ a.last::before {
     padding: 5px;
 }
 
+
+.padding10TopBottom {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.marginBottom5 {
+    margin-bottom: 5px !important;
+}
+
+#jobDetailsRow {
+    margin-top: 8px;
+    margin-bottom: 35px;
+}
+
+#refineResultsDiv {
+    color: #777;
+    padding-top: 8px;
+}
+
 .loadMore {
     color: white;
     background-color: #383838;
@@ -460,6 +502,34 @@ a.last::before {
 .preCode {
     padding: 0px 32px 32px 32px;
     margin-bottom: 0px;
+}
+
+.messageText {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 100px;
+}
+
+.messageDiv {
+    width: 100%;
+    height: 100px;
+    background: white;
+}
+
+.descriptionText {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.jobDetailsHeaderText {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.imageFloatLeft {
+    float: left;
+    margin-left: 8px;
 }
 
 .darkBackground {

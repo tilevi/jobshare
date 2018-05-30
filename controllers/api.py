@@ -382,7 +382,7 @@ def update_job():
     error = False
     
     for k, v in form["errors"].items():
-        if (v != ""):
+        if (v is not None):
             error = True
             break
     
