@@ -42,6 +42,37 @@ var app = function() {
        });
     });
     
+    self.weps = [
+                    { name: "Glock", class: "weapon_glock" },
+                    { name: "USP", class: "weapon_usp" },
+                    { name: "P228", class: "weapon_p228" },
+                    { name: "Deagle", class: "weapon_deagle" },
+                    { name: "FiveSeven", class: "weapon_fiveseven" },
+                    { name: "Shotgun", class: "weapon_shotgun" },
+                    { name: "M3", class: "weapon_m3" },
+                    { name: "Galil", class: "weapon_galil" },
+                    { name: "AK-47", class: "weapon_ak47" },
+                    { name: "Scout", class: "weapon_scout" },
+                    { name: "SG 552", class: "weapon_sg552" },
+                    { name: "AWP", class: "weapon_awp" },
+                    { name: "G3SG1", class: "weapon_g3sg1" },
+                    { name: "Famas", class: "weapon_famas" },
+                    { name: "M4A1", class: "weapon_m4a1" },
+                    { name: "AUG", class: "weapon_aug" },
+                    { name: "SG 550", class: "weapon_sg550" },
+                    { name: "Mac-10", class: "weapon_mac10" },
+                    { name: "TMP", class: "weapon_tmp" },
+                    { name: "MP5", class: "weapon_mp5navy" },
+                    { name: "UMP 45", class:"weapon_ump45" },
+                    { name: "P90", class: "weapon_p90" },
+                    { name: "M249", class: "weapon_m249" }
+                ]
+    
+    self.wepClasses = [];
+    self.weps.forEach(function(wepObj) {
+        self.wepClasses.push(wepObj.class);
+    });
+    
     Vue.config.silent = false; // show all warnings
     Vue.config.ignoredElements = ['tags'];
     
@@ -50,36 +81,7 @@ var app = function() {
         mounted: function() {
             var input = document.querySelector("#weaponTags");
             var tagify = new Tagify(input, {
-                whitelist : [
-                    "weapon_glock", 
-                    "weapon_shotgun", 
-                    "weapon_crowbar", 
-                    "weapon_rpg",
-                    "weapon_glock",
-                    "weapon_usp",
-                    "weapon_p228",
-                    "weapon_deagle",
-                    "weapon_elite",
-                    "weapon_fiveseven",
-                    "weapon_m3",
-                    "weapon_xm1014",
-                    "weapon_galil",
-                    "weapon_ak47",
-                    "weapon_scout", 
-                    "weapon_sg552",
-                    "weapon_awp",
-                    "weapon_g3sg1", 
-                    "weapon_famas",
-                    "weapon_m4a1",
-                    "weapon_aug",
-                    "weapon_sg550", 
-                    "weapon_mac10",
-                    "weapon_tmp",
-                    "weapon_mp5navy",
-                    "weapon_ump45",
-                    "weapon_p90",
-                    "weapon_m249"
-                ],
+                whitelist : self.wepClasses,
                 suggestionsMinChars: 0
             });
             
@@ -803,6 +805,7 @@ var app = function() {
         delimiters: ['${', '}'],
         unsafeDelimiters: ['!{', '}'],
         data: {
+            weps: self.weps,
             first_load: true,
             jobs: [],
             even_jobs: [],

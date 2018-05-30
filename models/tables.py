@@ -35,6 +35,7 @@ db.define_table('job',
                 Field('vote', 'boolean'),
                 Field('weapons', 'list:string', default=[]),
                 Field('is_public', 'boolean', default=False),
+                Field('has_custom_swep', 'boolean', default=False),
                 Field('created_by', default=get_username()),
                 Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
                 Field('updated_on', 'datetime', default=datetime.datetime.utcnow())

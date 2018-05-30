@@ -189,19 +189,9 @@
                     <div id="filterWeapons" class="collapse noSelect">
                         
                         <div class="cPanel">
-                            <div class="form-check">
-                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="ak47" value="weapon_ak47" v-model="checkedWeapons" onclick="return !isLoadingResults;">
-                                <label for="ak47" class="noBottomMargin">AK-47</label>
-                            </div>
-                            
-                            <div class="form-check">
-                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="ar2" value="weapon_ar2" v-model="checkedWeapons" onclick="return !isLoadingResults;">
-                                <label for="ar2" class="noBottomMargin">AR2</label>
-                            </div>
-                            
-                            <div class="form-check">
-                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="custom" value="custom_swep" v-model="checkedWeapons" onclick="return !isLoadingResults;">
-                                <label for="custom" class="noBottomMargin">Custom SWEP</label>
+                            <div v-for="wep in weps" class="form-check">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checkedWeapons" onclick="return !isLoadingResults;">
+                                <label v-bind:for="wep.class" class="noBottomMargin">${ wep.name }</label>
                             </div>
                         </div>
                         

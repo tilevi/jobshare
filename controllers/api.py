@@ -3,11 +3,6 @@ import datetime, requests
 from dateutil.relativedelta import *
 from urlparse import urlparse, parse_qs
 
-def getWorkshop():
-    r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': '1394998020'})
-    
-    return r.text
-    
 def workshop():
     id = request.vars.id
     
@@ -15,8 +10,8 @@ def workshop():
     
     logger.info(r.text)
     
-    title = "N/A"
-    file_size = "N/A"
+    title = "Not available"
+    file_size = "Not available"
     
     if (r.status_code == 200):
         json = r.json()
@@ -96,17 +91,53 @@ tags = [
 def checkTag(form, job_tag):
     if not (job_tag in tags):
         form["errors"]["tag"] = "Please select a valid job tag.";
+        
+wepsDict = dict(
+    weapon_glock=True,
+    weapon_shotgun=True,
+    weapon_rpg=True,
+    weapon_usp=True,
+    weapon_p228=True,
+    weapon_deagle=True,
+    weapon_elite=True,
+    weapon_fiveseven=True,
+    weapon_m3=True,
+    weapon_galil=True,
+    weapon_ak47=True,
+    weapon_scout=True,
+    weapon_sg552=True,
+    weapon_awp=True,
+    weapon_g3sg1=True,
+    weapon_famas=True,
+    weapon_m4a1=True,
+    weapon_aug=True,
+    weapon_sg550=True,
+    weapon_mac10=True,
+    weapon_tmp=True,
+    weapon_mp5navy=True,
+    weapon_ump45=True,
+    weapon_p90=True,
+    weapon_m249=True
+)
 
 def checkWeapons(form, weps):
     okay = True
+    customSWEP = False
+    
     for wep in weps:
-        if not (all(x.isalnum() or x == "_" for x in wep)):
+        if wep in wepsDict:
+            customSWEP = True
+        if okay and (not (all(x.isalnum() or x == "_" for x in wep))):
             okay = False
+        
+        if (not okay and customSWEP):
             break
     
     if (not okay):
         form["errors"]["job_weapons"] = "One of the weapons contains one or more invalid characters."
     
+    return customSWEP
+
 def checkWorkshopID(form, id):
     preview_url = "";
     
@@ -207,7 +238,7 @@ def create_job():
         make_public = True
     
     # Verify that all of the weapons contain valid characters.
-    checkWeapons(form, job_weapons)
+    customSWEP = checkWeapons(form, job_weapons)
     
     
     preview_url = ""
@@ -278,7 +309,8 @@ def create_job():
             tag = job_tag,
             vote = job_vote,
             weapons = job_weapons,
-            is_public = make_public
+            is_public = make_public,
+            has_custom_swep = customSWEP
         )
         
         return response.json(dict(form=form, errors=False))
@@ -354,8 +386,12 @@ def get_jobs():
     
     # Filter the weapons.
     for wep in weps:
-        q = q & (db.job.weapons.contains(wep))
-
+        if wep != "custom_swep":
+            q = q & (db.job.weapons.contains(wep))
+        else:
+            logger.info("THIS!!!")
+            q = q & (db.job.has_custom_swep == True)
+    
     # Filter the tags.
     # For this context, OR logic makes the most sense.
     tagQ = None
