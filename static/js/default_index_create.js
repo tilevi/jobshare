@@ -1,77 +1,20 @@
 
-// This is the js for the default/index.html view.
+// This is for the job creation page.
 
 var app = function() {
     var self = {};
     
-    self.player_models = [
-        [
-            {image: "css_arctic.png", model: "models/player/arctic.mdl"},
-            {image: "css_phoenix.png", model: "models/player/phoenix.mdl"},
-            {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
-            {image: "css_leet.png", model: "models/player/leet.mdl"}
-        ],
-        [
-            {image: "police.png", model: "models/player/police.mdl"},
-            {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
-            {image: "combineprison.png", model: "models/player/combine_soldier_prisonguard.mdl"},
-            {image: "combine.png", model: "models/player/combine_soldier.mdl"}
-        ],
-        [
-            {image: "alyx.png", model: "models/player/alyx.mdl"},
-            {image: "eli.png", model: "models/player/eli.mdl"},
-            {image: "kleiner.png", model: "models/player/kleiner.mdl"},
-            {image: "monk.png", model: "models/player/monk.mdl"}
-        ],
-        [
-            {image: "skeleton.png", model: "models/player/skeleton.mdl"},
-            {image: "zombie.png", model: "models/player/zombie_classic.mdl"},
-            {image: "corpse.png", model: "models/player/corpse1.mdl"},
-            {image: "charple.png", model: "models/player/charple.mdl"}
-        ]
-    ];
-    
+    // Vue configuration
     Vue.config.silent = false;
     Vue.config.ignoredElements = ['tags'];
     
+    // Vue components
     Vue.component('tag-it', {
         template: '<input/>',
         mounted: function() {
-            console.log("Loaded again!");
-            
             var input = document.querySelector("#weaponTags");
             self.tagify = new Tagify(input, {
-                whitelist : [
-                    "weapon_ar2", 
-                    "weapon_glock", 
-                    "weapon_shotgun", 
-                    "weapon_crowbar", 
-                    "weapon_rpg",
-                    "weapon_glock",
-                    "weapon_usp",
-                    "weapon_p228",
-                    "weapon_deagle",
-                    "weapon_elite",
-                    "weapon_fiveseven",
-                    "weapon_m3",
-                    "weapon_xm1014",
-                    "weapon_galil",
-                    "weapon_ak47",
-                    "weapon_scout", 
-                    "weapon_sg552",
-                    "weapon_awp",
-                    "weapon_g3sg1", 
-                    "weapon_famas",
-                    "weapon_m4a1",
-                    "weapon_aug",
-                    "weapon_sg550", 
-                    "weapon_mac10",
-                    "weapon_tmp",
-                    "weapon_mp5navy",
-                    "weapon_ump45",
-                    "weapon_p90",
-                    "weapon_m249"
-                ],
+                whitelist: self.wepClasses,
                 suggestionsMinChars: 0
             });
             
@@ -104,26 +47,7 @@ var app = function() {
             self.tagify.on('add', onAddTag);
         },
         beforeDestroy: function() {
-            console.log("Trying to get destroyed.");
             self.tagify.destroy();
-        }
-    });
-    
-    Vue.component('job-model', {
-        template: '<input/>',
-        mounted: function() {
-            var availableTags = [];
-            
-            // We have to go inside of each array to extract the models.
-            self.player_models.forEach(function(array) {
-                array.forEach(function(obj) {
-                    availableTags.push(obj.model);
-                });
-            });
-            
-            $("#job_model").autocomplete({
-                source: availableTags
-            });
         }
     });
     
@@ -144,11 +68,21 @@ var app = function() {
         }
     });
     
-    self.submit_share = function() {
-        $("#submit_share_button").prop("disabled", true);
-        self.submit(true);
-    }
     
+    // Player models
+    self.player_models = player_models;
+    self.weps = weapons;
+    
+    // Weapons
+    self.wepClasses = [];
+    self.weps.forEach(function(wepObj) {
+        self.wepClasses.push(wepObj.class);
+    });
+    
+    
+    //// FUNCTIONS /////
+    
+    // Submits the form.
     self.submit = function(makePublic) {
         if (makePublic) {
             $("#submit_share_button").prop("disabled", true);
@@ -176,27 +110,8 @@ var app = function() {
             },
             function (data) {
                 if (data.errors) {
-                    console.log(data.form.errors);
-                    
                     var vue = self.vue;
-                    var errors = data.form.errors;
-
-                    vue.job_job_id_error = data.form.errors.job_job_id;
-                    vue.job_name_error = data.form.errors.job_name;
-                    vue.job_desc_error = data.form.errors.job_desc;
-                    vue.job_workshop_error = data.form.errors.job_workshop;
-                    vue.job_model_error = data.form.errors.job_model;
-                    vue.job_suggested_model_error = data.form.errors.job_suggested_model;
-                    
-                    vue.job_salary_error = data.form.errors.job_salary;
-                    vue.job_max_players_error = data.form.errors.job_max_players;
-                    vue.job_color_error = data.form.errors.job_color;
-
-                    vue.job_weapons_error = data.form.errors.job_weapons;
-                    vue.job_vote_error = data.form.errors.job_vote;
-                    vue.job_admin_only_error = data.form.errors.job_admin_only;
-                    
-                    vue.job_tag_error = data.form.errors.job_tag;
+                    vue.job_errors = data.form.errors;
                     
                     // Re-enable the button
                     if (makePublic) {
@@ -212,21 +127,22 @@ var app = function() {
         );
     }
     
-    self.setRGB = function() {
-        var hex = $("#colorpicker").spectrum("get").toHex();
-        var bigint = parseInt(hex, 16);
-        
-        var r = ((bigint >> 16) & 255);
-        var g =  ((bigint >> 8) & 255);
-        var b = (bigint & 255);
-        
-        self.vue.job_color = hex;
-        self.vue.job_color_arr = [r, g, b];
+    // Submit job (to be made public)
+    self.submit_share = function() {
+        $("#submit_share_button").prop("disabled", true);
+        self.submit(true);
     }
     
-    /* Sources:
-        http://jsfiddle.net/gargdeendayal/4qqza69k/
-        https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
+    
+    // Below are functions to check job information entry
+    // Of course, input is also checked server-side.
+    
+    /* 
+        Check the Job/Team ID
+        
+        Sources:
+            http://jsfiddle.net/gargdeendayal/4qqza69k/
+            https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
     */
     self.isJobID = function(e) {
         e = (e) ? e : window.event;
@@ -239,6 +155,7 @@ var app = function() {
         }
     }
     
+    // Check the job name
     self.isJobName = function(e) {
         e = (e) ? e : window.event;
         var charCode = (e.which) ? e.which : e.keyCode;
@@ -250,6 +167,7 @@ var app = function() {
         }
     }
     
+    // Check the job description
     self.isJobDescription = function(e) {
         e = (e) ? e : window.event;
         var charCode = (e.which) ? e.which : e.keyCode;
@@ -261,6 +179,7 @@ var app = function() {
         }
     }
     
+    // Copy the code (located at the bottom of the page).
     self.copy_code = function() {
         $("#copyButton").text("Copied!");
         setTimeout(function() {
@@ -275,7 +194,12 @@ var app = function() {
         $temp.remove();
     }
     
-    // Source: https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
+    /*
+        Scroll to the player model input element.
+        
+        Source:
+            https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
+    */
     function scrollToMiddle(id) {
         var $window = $(window),
         $element = $(id),
@@ -287,6 +211,7 @@ var app = function() {
         $window.scrollTop(scrollIt);
     }
     
+    // Show the player models page.
     self.show_player_models = function() {
         var position = $("#job_info").offset();
         scroll(0, position.top);
@@ -294,6 +219,7 @@ var app = function() {
         self.vue.showing_player_models = true;
     }
     
+    // Close the player models page.
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
         
@@ -302,6 +228,10 @@ var app = function() {
         }, 0);
     }
     
+    /*
+        Select a player model.
+        Once a PM is selected, we want to close the player models page.
+    */
     self.select_player_model = function(model) {
         // Set the input field
         self.vue.job_model = model;
@@ -310,13 +240,27 @@ var app = function() {
         self.close_player_models();
     }
     
+    // Set the color of the job
+    // This function is called when a user picks a color.
+    self.setRGB = function() {
+        var hex = $("#colorpicker").spectrum("get").toHex();
+        var bigint = parseInt(hex, 16);
+        
+        var r = ((bigint >> 16) & 255);
+        var g =  ((bigint >> 8) & 255);
+        var b = (bigint & 255);
+        
+        self.vue.job_color = hex;
+        self.vue.job_color_arr = [r, g, b];
+    }
+    
+    // The Vue object
     self.vue = new Vue({
         el: "#vue-div",
         delimiters: ['${', '}'],
         unsafeDelimiters: ['!{', '}'],
         data: {
-            tagify: null,
-            
+            // Job fields
             job_command: null,
             job_job_id: "",
             job_name: null,
@@ -327,43 +271,41 @@ var app = function() {
             job_salary: null,
             job_max_players: null,
             job_color: "23B5EB",
-            
             job_color_arr: [35, 181, 235],
-            
             job_weapons: null,
             job_weapons_arr: [],
             job_vote: null,
             job_admin_only: null,
             job_tag: null,
             
-            job_job_id_error: null,
-            job_name_error: null,
-            job_desc_error: null,
-            job_workshop_error: null,
-            job_suggested_model_error: null,
-            job_model_error: null,
-            job_salary_error: null,
-            job_max_players_error: null,
-            job_color_error: null,
-            job_weapons_error: null,
-            job_vote_error: null,
-            job_admin_only_error: null,
-            job_tag_error: null,
+            // Job errors
+            job_errors: {},
             
             // Player models
             showing_player_models: false,
             player_models: self.player_models,
-            image_url: image_url
+            
+            // Miscellaneous variables
+            image_url: image_url,
+            weps: self.weps,
         },
         methods: {
-            setRGB: self.setRGB,
+            // Input field enforcers
             isJobID: self.isJobID,
             isJobName: self.isJobName,
             isJobDescription: self.isJobDescription,
+            
+            // Copy code function
             copy_code: self.copy_code,
+            
+            // Submit functions
             submit: self.submit,
             submit_share: self.submit_share,
             
+            // Set RGB (for the color input field)
+            setRGB: self.setRGB,
+            
+            // Player model page functions
             show_player_models: self.show_player_models,
             close_player_models: self.close_player_models,
             select_player_model: self.select_player_model
@@ -371,7 +313,6 @@ var app = function() {
     });
     
     $("#vue-div").show();
-    
     return self;
 };
 

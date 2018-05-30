@@ -3,10 +3,15 @@ import datetime, requests
 from dateutil.relativedelta import *
 from urlparse import urlparse, parse_qs
 
+# The number of jobs to display per page.
+jobs_per_page = 6
+
+# Workshop Endpoint
+# This function uses the Steam Web API to access Workshop information.
 def workshop():
     id = request.vars.id
     
-    r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': id})
+    r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***", data = {"itemcount": 1, "publishedfileids[0]": id})
     
     logger.info(r.text)
     
@@ -24,61 +29,73 @@ def workshop():
     
     return response.json(dict(id=id, title=title, size=file_size))
 
-def isNoneOrEmpty(var):
+# Below contains job verification for forms.
+def is_none_or_empty(var):
     return var is None or var == ""
 
-# Check color
-allowed = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+# The allowed hex characters for colors
+allowed_hex_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
            'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F']
 
-def checkColor(form, job_color):
+# Check color
+def check_color(form, job_color):
     if len(job_color) != 6:
-        form["errors"]["job_color"] = 'Color must be a hexadecimal value.'
+        form["errors"]["job_color"] = "Color must be a hexadecimal value."
     else:
         good = True
         for letter in job_color:
-            if (not (letter in allowed)):
+            if (not (letter in allowed_hex_chars)):
                 good = False
                 break
         if (not good):
-            form["errors"]["job_color"] = 'Color is not valid.'
+            form["errors"]["job_color"] = "Color is not valid."
 
-def checkPlayers(form, job_max_players):
+# Check max players
+def check_players(form, job_max_players):
     if job_max_players < 0:
-        form["errors"]["job_max_players"] = 'Max players must be at least 1.'
+        form["errors"]["job_max_players"] = "Max players must be at least 1."
+    elif job_max_players > 128:
+        form["errors"]["job_max_players"] = "Max players must be less than 128."
 
-def checkTeamID(form, job_id):
+# Check Team ID
+# Resource: https://stackoverflow.com/questions/20890618/isalpha-python-function-wont-consider-spaces
+def check_teamid(form, job_id):
     if not (all(x.isalnum() or x == "_" for x in job_id)):
         form["errors"]["job_job_id"] = "Job ID must have only alphanumeric characters or underscores."
 
-def checkModel(form, job_model):
+# Check the player model
+def check_model(form, job_model):
     if not (all(x.isalnum() or x == "/" or x == "." or x == "_" for x in job_model)):
         form["errors"]["job_model"] = "Player model contains invalid characters."
 
-# https://stackoverflow.com/questions/20890618/isalpha-python-function-wont-consider-spaces
-def checkJob(form, job_name):
+# Check job name
+def check_job(form, job_name):
     if not (all(x.isalnum() or x.isspace() or x == "'" for x in job_name)):
         form["errors"]["job_name"] = "Job name must be alphanumeric."
 
-def checkDescription(form, job_desc):
+# Check job description
+def check_description(form, job_desc):
     if len(job_desc) > 50:
         form["errors"]["job_desc"] = "Job description is too long."
     elif not (all(x.isalnum() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_desc)):
         form["errors"]["job_desc"] = "Job description must be alphanumeric."
 
-def checkSalary(form, job_salary):
+# Check salary
+def check_salary(form, job_salary):
     if job_salary < 0:
         form["errors"]["job_salary"] = "Salary must be greater than zero."
     elif job_salary >= 1000000000000:
         form["errors"]["job_salary"] = "Salary must be less than 1 trillion."
 
-def checkSuggestedModel(form, job_suggested_model):
+# Check the suggested character/model
+def check_suggested_model(form, job_suggested_model):
     if len(job_suggested_model) > 50:
         form["errors"]["job_suggested_model"] = "Suggested model is too long."
     elif not (all(x.isalnum() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_suggested_model)):
         form["errors"]["job_suggested_model"] = "Suggested model must be alphanumeric."
 
-tags = [
+# The available filter options for job tags
+job_tags = [
     "Citizen",
     "Commercial",
     "Criminal",
@@ -88,11 +105,13 @@ tags = [
     "Misc."
 ]
 
-def checkTag(form, job_tag):
-    if not (job_tag in tags):
+# Check job tag/type
+def check_tag(form, job_tag):
+    if not (job_tag in job_tags):
         form["errors"]["tag"] = "Please select a valid job tag.";
-        
-wepsDict = dict(
+
+# The default weapons available.
+weapons = dict(
     weapon_glock=True,
     weapon_shotgun=True,
     weapon_rpg=True,
@@ -120,31 +139,33 @@ wepsDict = dict(
     weapon_m249=True
 )
 
-def checkWeapons(form, weps):
+# Check the weapons.
+def check_weapons(form, weps):
     okay = True
     customSWEP = False
     
     for wep in weps:
-        if wep in wepsDict:
+        if not (wep in weapons):
             customSWEP = True
+        
         if okay and (not (all(x.isalnum() or x == "_" for x in wep))):
             okay = False
         
-        if (not okay and customSWEP):
+        if ((not okay) and customSWEP):
             break
-    
+        
     if (not okay):
         form["errors"]["job_weapons"] = "One of the weapons contains one or more invalid characters."
     
     return customSWEP
 
-def checkWorkshopID(form, id):
+def check_workshop_id(form, id):
     preview_url = "";
     
     if len(id) < 9 or not (all(x.isdigit() for x in id)):
         form["errors"]["job_workshop"] = "Invalid workshop ID."
     else: 
-        r = requests.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***', data = {'itemcount': 1, 'publishedfileids[0]': id})
+        r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***", data = {"itemcount": 1, "publishedfileids[0]": id})
         
         if (r.status_code != 200):
             form["errors"]["job_workshop"] = "Unable to verify Workshop item. Please try again."
@@ -164,14 +185,13 @@ def checkWorkshopID(form, id):
                     preview_url = json["response"]["publishedfiledetails"][0]["preview_url"]
             else:
                 form["errors"]["job_workshop"] = "The game for the Workshop item must be Garry's Mod."
-        
-    return preview_url
-        
-@auth.requires_login()
-@auth.requires_signature()
-def create_job():
-    form = { 'errors': { 'job_job_id': '', 'job_name': '', 'job_desc': '', 'job_model': '', 'job_tag': '', 'job_color': '', 'job_weapons': '', 'job_salary': '', 'job_max_players': '', 'job_vote': '', 'job_admin_only': '' } }
     
+    return preview_url
+
+# This function checks and verifies all of the job information.
+# verify_job() is used in both the create_job() and update_job() endpoints.
+def verify_job(form, request):
+    # Grab the job information.
     job_job_id = request.vars.job_job_id
     job_name = request.vars.job_name
     job_desc = request.vars.job_desc
@@ -181,65 +201,72 @@ def create_job():
     job_workshop = request.vars.job_workshop
     job_suggested_model = request.vars.job_suggested_model
     
-    job_weapons = request.vars.get('weps[]', [])
+    # Dummy values.
+    job_salary = 0
+    job_max_players = 0
+    job_admin_only = False
+    job_vote = False
+    
+    job_weapons = request.vars.get("weps[]", [])
     if isinstance(job_weapons, basestring):
         job_weapons = [job_weapons]
     
     # Check job ID
-    if (isNoneOrEmpty(job_job_id)):
-        form['errors']['job_job_id'] = "Job ID is missing."
+    if (is_none_or_empty(job_job_id)):
+        form["errors"]["job_job_id"] = "Job ID is missing."
     else:
-        checkTeamID(form, job_job_id)
+        check_teamid(form, job_job_id)
     
     # Check job name
-    if (isNoneOrEmpty(job_name)):
-        form['errors']['job_name'] = "Job name is missing."
+    if (is_none_or_empty(job_name)):
+        form["errors"]["job_name"] = "Job name is missing."
     else:
-        checkJob(form, job_name)
+        check_job(form, job_name)
         
-    if (isNoneOrEmpty(job_desc)):
-        form['errors']['job_desc'] = "Job description is missing."
+    if (is_none_or_empty(job_desc)):
+        form["errors"]["job_desc"] = "Job description is missing."
     else:
         # Check Job Description
-        checkDescription(form, job_desc)
+        check_description(form, job_desc)
     
-    if (not isNoneOrEmpty(job_model)):
-        checkModel(form, job_model)
+    if (not is_none_or_empty(job_model)):
+        check_model(form, job_model)
     
-    if (isNoneOrEmpty(job_tag)):
-        form['errors']['job_tag'] = "Job tag is missing."
+    if (is_none_or_empty(job_tag)):
+        form["errors"]["job_tag"] = "Job tag is missing."
     else:
-        checkTag(form, job_tag)
+        check_tag(form, job_tag)
     
     # Check job color
-    if (isNoneOrEmpty(job_color)):
-        form['errors']['job_color'] = "Job color is missing."
+    if (is_none_or_empty(job_color)):
+        form["errors"]["job_color"] = "Job color is missing."
     else:
-        checkColor(form, job_color)
+        check_color(form, job_color)
     
     # Check job salary
-    if (isNoneOrEmpty(request.vars.job_salary)):
-        form['errors']['job_salary'] = "Job salary is missing."
+    if (is_none_or_empty(request.vars.job_salary)):
+        form["errors"]["job_salary"] = "Job salary is missing."
     else:
-        job_salary = int(request.vars.job_salary)
-        checkSalary(form, job_salary)
+        job_salary = int(round(float(request.vars.job_salary)))
+        check_salary(form, job_salary)
 
     # Check max players
-    if (isNoneOrEmpty(request.vars.job_max_players)):
-        form['errors']['job_max_players'] = "Max players is missing."
+    if (is_none_or_empty(request.vars.job_max_players)):
+        form["errors"]["job_max_players"] = "Max players is missing."
     else:
         job_max_players = int(request.vars.job_max_players)
-        checkPlayers(form, job_max_players)
+        check_players(form, job_max_players)
     
     # Determine whether or not this job should be made public.
-    if (int(request.vars.make_public) == 0):
-        make_public = False
-    else:
+    if ((request.vars.make_public is not None) and 
+            int(request.vars.make_public) == 1):
         make_public = True
+    else:
+        make_public = False
     
     # Verify that all of the weapons contain valid characters.
-    customSWEP = checkWeapons(form, job_weapons)
-    
+    custom_swep = check_weapons(form, job_weapons)
+    logger.info("custom swep inside: %r" % custom_swep)
     
     preview_url = ""
     
@@ -251,16 +278,105 @@ def create_job():
         result = parse_qs(parsed_url.query)
         
         try:
-            job_workshop = result['id'][0]
+            job_workshop = result["id"][0]
         except:
             pass
         
         # We need to check the workshop ID.
-        preview_url = checkWorkshopID(form, job_workshop)
+        preview_url = check_workshop_id(form, job_workshop)
         
         # Check the suggested model (it may be blank--it's not required).
-        checkSuggestedModel(form, job_suggested_model)
+        check_suggested_model(form, job_suggested_model)
     
+    # Check misc. options (vote and admin only checkboxes)
+    if (request.vars.job_vote is None):
+        form["errors"]["job_vote"] = "Vote option is missing."
+    else:
+        if (int(request.vars.job_vote) == 0):
+            job_vote = False
+        else:
+            job_vote = True
+    
+    if (request.vars.job_admin_only is None):
+        form["errors"]["job_admin_only"] = "Admin only option is missing."
+    else:
+        if (int(request.vars.job_admin_only) == 0):
+            job_admin_only = False
+        else:
+            job_admin_only = True
+    
+    return dict(job_job_id=job_job_id,
+                job_name=job_name,
+                job_desc=job_desc,
+                job_model=job_model,
+                job_tag=job_tag,
+                job_color=job_color,
+                job_workshop=job_workshop,
+                job_suggested_model=job_suggested_model,
+                job_weapons=job_weapons,
+                job_admin_only=job_admin_only,
+                job_vote=job_vote,
+                job_max_players=job_max_players,
+                job_salary=job_salary,
+                make_public=make_public,
+                preview_url=preview_url,
+                custom_swep=custom_swep)
+
+@auth.requires_login()
+@auth.requires_signature()
+def create_job():
+    # The form
+    form = {"errors": { "job_job_id": None, "job_name": None, "job_desc": None, 
+                        "job_model": None, "job_tag": None, "job_color": None, 
+                        "job_weapons": None, "job_salary": None, "job_max_players": None, 
+                        "job_vote": None, "job_admin_only": None}}
+    
+    # Verify the job information
+    result = verify_job(form, request)
+    
+    # Check now for errors.
+    error = False
+    
+    for k, v in form["errors"].items():
+        if (v is not None):
+            error = True
+            break
+    
+    if (error):
+        return response.json(dict(form=form, errors=True))
+    else:
+        j_id = db.job.insert(
+            job_id = result["job_job_id"],
+            name = result["job_name"],
+            description = result["job_desc"],
+            workshop = result["job_workshop"],
+            suggested_model = result["job_suggested_model"],
+            preview_url = result["preview_url"],
+            color = result["job_color"],
+            model = result["job_model"],
+            salary = result["job_salary"],
+            max_players = result["job_max_players"],
+            admin_only = result["job_admin_only"],
+            tag = result["job_tag"],
+            vote = result["job_vote"],
+            weapons = result["job_weapons"],
+            is_public = result["make_public"],
+            has_custom_swep = result["custom_swep"]
+        )
+        
+        return response.json(dict(form=form, errors=False))
+
+@auth.requires_login()
+@auth.requires_signature()
+def update_job():
+    # The form
+    form = {"errors": { "job_job_id": None, "job_name": None, "job_desc": None, 
+                        "job_model": None, "job_tag": None, "job_color": None, 
+                        "job_weapons": None, "job_salary": None, "job_max_players": None, 
+                        "job_vote": None, "job_admin_only": None}}
+    
+    # Verify the job information
+    result = verify_job(form, request)
     
     # Check now for errors.
     error = False
@@ -271,80 +387,64 @@ def create_job():
             break
     
     if (error):
-        logger.info("We have an error in the form.");
-        return response.json(dict(form=form, errors=True))
+        return response.json(dict(form=form, errors=True, job=False))
     else:
-        logger.info("The form is ready to go.");
+        q = ((db.job.id == request.vars.job_id) & (db.job.user_id == auth.user_id))
+        row = db(q).select().first()
         
-        # Check misc. options (vote and admin only checkboxes)
-        if (request.vars.job_vote is None):
-            form['errors']['job_vote'] = "Vote option is missing."
-        else:
-            if (int(request.vars.job_vote) == 0):
-                job_vote = False
-            else:
-                job_vote = True
-        
-        
-        if (request.vars.job_admin_only is None):
-            form['errors']['job_admin_only'] = "Admin only option is missing."
-        else:
-            if (int(request.vars.job_admin_only) == 0):
-                job_admin_only = False
-            else:
-                job_admin_only = True
-        
-        j_id = db.job.insert(
-            job_id = job_job_id,
-            name = job_name,
-            description = job_desc,
-            workshop = job_workshop,
-            suggested_model = job_suggested_model,
-            preview_url = preview_url,
-            color = job_color,
-            model = job_model,
-            salary = job_salary,
-            max_players = job_max_players,
-            admin_only = job_admin_only,
-            tag = job_tag,
-            vote = job_vote,
-            weapons = job_weapons,
-            is_public = make_public,
-            has_custom_swep = customSWEP
+        row.update_record(
+            job_id = result["job_job_id"],
+            name = result["job_name"],
+            description = result["job_desc"],
+            workshop = result["job_workshop"],
+            suggested_model = result["job_suggested_model"],
+            preview_url = result["preview_url"],
+            color = result["job_color"],
+            model = result["job_model"],
+            salary = result["job_salary"],
+            max_players = result["job_max_players"],
+            admin_only = result["job_admin_only"],
+            tag = result["job_tag"],
+            vote = result["job_vote"],
+            weapons = result["job_weapons"],
+            is_public = result["make_public"],
+            has_custom_swep = result["custom_swep"],
+            updated_on = datetime.datetime.utcnow()
         )
         
-        return response.json(dict(form=form, errors=False))
+        # Return the updated job.
+        job = db((db.job.id == request.vars.job_id)).select().first()
+        return response.json(dict(form=form, errors=False, job=job))
 
 def get_jobs():
     # Time range
     time_range = request.vars.time_range
     
-    # Sort (for orderby)
+    # Sort type (newest or recently updated jobs)
     sort = request.vars.sort
     
     # Get the filtered weapons
     # Source: https://groups.google.com/forum/#!topic/web2py/Awb9qrdl1nM
-    weps = request.vars.get('weps[]', [])
+    weps = request.vars.get("weps[]", [])
     if isinstance(weps, basestring):
         weps = [weps]
     
     # Get the tags
-    tags = request.vars.get('tags[]', [])
+    tags = request.vars.get("tags[]", [])
     if isinstance(tags, basestring):
         tags = [tags]
     
     # The jobs that we will retrieve.
     jobs = []
     
-    logger.info(request.vars.public)
-    
+    # Determine if we're looking for public jobs.
     if  request.vars.public == "true":
-        getShared = True
+        get_public_jobs = True
     else:
-        getShared = False
+        get_public_jobs = False
     
-    # Search by job title
-    search = request.vars.search or ''
+    # Job title to search for
+    search = request.vars.search or ""
     
     # We make a try-catch block to prevent any internal errors.
     try:
@@ -372,14 +472,11 @@ def get_jobs():
     except:
         max_salary = -1
     
-    jobsPerPage = 6
-    count = 0
-    
     # Build the query
     q = (db.job.name.contains(search)) & (db.job.max_players >= min_players) & (db.job.max_players <= max_players) & (db.job.salary >= min_salary)
 
     # If we want to get public jobs, make sure the job is public.
-    if (getShared):
+    if (get_public_jobs):
         q = q & (db.job.is_public == True)
     else: # Otherwise, we just want our jobs.
         q = q & (db.job.user_id == auth.user_id)
@@ -394,53 +491,52 @@ def get_jobs():
     
     # Filter the tags.
     # For this context, OR logic makes the most sense.
-    tagQ = None
+    tag_q = None
 
     for tag in tags:
-        if (tagQ is not None):
-            tagQ = tagQ | (db.job.tag.contains(tag))
+        if (tag_q is not None):
+            tag_q = tag_q | (db.job.tag.contains(tag))
         else:
-            tagQ = (db.job.tag.contains(tag))
+            tag_q = (db.job.tag.contains(tag))
 
-    if (tagQ is not None):
-        q = q & tagQ
+    if (tag_q is not None):
+        q = q & tag_q
 
     # Sources:
     #   https://groups.google.com/forum/#!topic/web2py/PrIo2I-fgCc
     #   https://stackoverflow.com/questions/35066588/is-there-a-simple-way-to-increment-a-datetime-object-one-month-in-python
-    if (time_range != 'any'):
-        if (time_range == 'day'):
-            q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(days=+1) ) )
-        elif (time_range == 'week'):
+    if (time_range != "any"):
+        if (time_range == "day"):
+            q = q & (db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(days=+1) ) )
+        elif (time_range == "week"):
             q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(weeks=+1) ) )
-        elif (time_range == 'month'):
+        elif (time_range == "month"):
             q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(months=+1) ) )
-        elif (time_range == 'year'):
+        elif (time_range == "year"):
             q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(years=+1) ) ) 
 
     if (max_salary >= 0):
         q = q & (db.job.salary <= max_salary)
 
     result = db(q)
-
     count = result.count()
-
-    if (sort == 'newest'):
+    
+    if (sort == "newest"):
         jobs = result.select(
                 orderby=~db.job.created_on,
-                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
-    elif (sort == 'recent'):
+                limitby=(pn * jobs_per_page, (pn + 1) * jobs_per_page))
+    elif (sort == "recent"):
         jobs = result.select(
                 orderby=~db.job.updated_on,
-                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+                limitby=(pn * jobs_per_page, (pn + 1) * jobs_per_page))
     else:
         jobs = result.select(
                 orderby=~db.job.created_on,
-                limitby=(pn * jobsPerPage, (pn + 1) * jobsPerPage))
+                limitby=(pn * jobs_per_page, (pn + 1) * jobs_per_page))
 
     
-    rCount = (count // jobsPerPage)
-    if ((count % jobsPerPage) > 0):
+    rCount = (count // jobs_per_page)
+    if ((count % jobs_per_page) > 0):
         rCount = rCount + 1
     
     return response.json(
@@ -451,155 +547,6 @@ def get_jobs():
                 page = (pn + 1)
         )
     )
-
-
-@auth.requires_login()
-@auth.requires_signature()
-def update_job():
-    form = { 'errors': { 'job_job_id': '', 'job_name': '', 'job_desc': '', 'job_model': '', 'job_tag': '', 'job_color': '', 'job_weapons': '', 'job_salary': '', 'job_max_players': '', 'job_vote': '', 'job_admin_only': '' } }
-    
-    job_id = request.vars.job_id
-    job_job_id = request.vars.job_job_id
-    job_name = request.vars.job_name
-    job_desc = request.vars.job_desc
-    job_model = request.vars.job_model
-    job_tag = request.vars.job_tag
-    job_color = request.vars.job_color
-    job_workshop = request.vars.job_workshop
-    job_suggested_model = request.vars.job_suggested_model
-    
-    logger.info("The model is: %r" % job_model)
-    
-    job_weapons = request.vars.get('weps[]', [])
-    if isinstance(job_weapons, basestring):
-        job_weapons = [job_weapons]
-    
-    
-    # Check job ID
-    if (isNoneOrEmpty(job_job_id)):
-        form['errors']['job_job_id'] = "Job ID is missing."
-    else:
-        checkTeamID(form, job_job_id)
-    
-    # Check job name
-    if (isNoneOrEmpty(job_name)):
-        form['errors']['job_name'] = "Job name is missing."
-    else:
-        checkJob(form, job_name)
-        
-    if (isNoneOrEmpty(job_desc)):
-        form['errors']['job_desc'] = "Job description is missing."
-    else:
-        # Check Job Description
-        checkDescription(form, job_desc)
-    
-    if (not isNoneOrEmpty(job_model)):
-        checkModel(form, job_model)
-    
-    if (isNoneOrEmpty(job_tag)):
-        form['errors']['job_tag'] = "Job tag is missing."
-    else:
-        checkTag(form, job_tag)
-    
-    # Check job color
-    if (isNoneOrEmpty(job_color)):
-        form['errors']['job_color'] = "Job color is missing."
-    else:
-        checkColor(form, job_color)
-    
-    # Check job salary
-    if (isNoneOrEmpty(request.vars.job_salary)):
-        form['errors']['job_salary'] = "Job salary is missing."
-    else:
-        job_salary = int(request.vars.job_salary)
-        checkSalary(form, job_salary)
-
-    # Check max players
-    if (isNoneOrEmpty(request.vars.job_max_players)):
-        form['errors']['job_max_players'] = "Max players is missing."
-    else:
-        job_max_players = int(request.vars.job_max_players)
-        checkPlayers(form, job_max_players)
-    
-    # Verify that all of the weapons contain valid characters.
-    checkWeapons(form, job_weapons)
-    
-    preview_url = ""
-    
-    # We don't require a Steam Workshop item
-    if (len(job_workshop) > 0):
-        # First try to parse a Workshop URL
-        # Source: https://stackoverflow.com/questions/10113090/best-way-to-parse-a-url-query-string
-        parsed_url = urlparse(job_workshop)
-        result = parse_qs(parsed_url.query)
-        
-        try:
-            job_workshop = result['id'][0]
-        except:
-            pass
-        
-        # We need to check the workshop ID.
-        preview_url = checkWorkshopID(form, job_workshop)
-        
-        # Check the suggested model (it may be blank--it's not required).
-        checkSuggestedModel(form, job_suggested_model)
-    
-    # Check now for errors.
-    error = False
-    
-    for k, v in form["errors"].items():
-        if (v != ""):
-            error = True
-            break
-    
-    if (error):
-        logger.info("We have an error in the form.");
-        return response.json(dict(form=form, errors=True, job=False))
-    else:
-        logger.info("The form is ready to go.");
-        
-        # Check misc. options (vote and admin only checkboxes)
-        if (request.vars.job_vote is None):
-            form['errors']['job_vote'] = "Vote option is missing."
-        else:
-            if (int(request.vars.job_vote) == 0):
-                job_vote = False
-            else:
-                job_vote = True
-                
-        if (request.vars.job_admin_only is None):
-            form['errors']['job_admin_only'] = "Admin only option is missing."
-        else:
-            if (int(request.vars.job_admin_only) == 0):
-                job_admin_only = False
-            else:
-                job_admin_only = True
-        
-        
-        q = ((db.job.id == job_id) & (db.job.user_id == auth.user_id))
-        row = db(q).select().first()
-        
-        row.update_record(
-            job_id = job_job_id,
-            name = job_name,
-            description = job_desc,
-            workshop = job_workshop,
-            suggested_model = job_suggested_model,
-            preview_url = preview_url,
-            color = job_color,
-            model = job_model,
-            salary = job_salary,
-            max_players = job_max_players,
-            admin_only = job_admin_only,
-            tag = job_tag,
-            vote = job_vote,
-            weapons = job_weapons,
-            updated_on = datetime.datetime.utcnow()
-        )
-        
-        # Return the updated job.
-        job = db((db.job.id == job_id)).select().first()
-        return response.json(dict(form=form, errors=False, job=job))
 
 @auth.requires_login()
 @auth.requires_signature()
@@ -623,9 +570,6 @@ def get_comments():
     start_idx = int(request.vars.start) if request.vars.start is not None else 0
     end_idx = int(request.vars.end) if request.vars.end is not None else 0
     
-    logger.info('Start index: %r' % start_idx)
-    logger.info('End index: %r' % end_idx)
-    
     id = int(request.vars.id)
     
     get_comments = []
@@ -641,7 +585,7 @@ def get_comments():
                 id = r.id,
                 username = r.username,
                 body = r.body,
-                created_on = r.created_on.strftime('%B %d, %Y')
+                created_on = r.created_on.strftime("%B %d, %Y")
             )
             get_comments.append(c)
         else:
@@ -667,8 +611,8 @@ def toggle_visibility():
 @auth.requires_login()
 @auth.requires_signature()
 def add_comment():
-    if request.vars.body.strip() == '':
-        return response.json(dict(error='Comment cannot be empty.'))
+    if request.vars.body.strip() == "":
+        return response.json(dict(error="Comment cannot be empty."))
     else:
         c_id = db.post.insert(
             post_id = int(request.vars.id),
@@ -679,4 +623,4 @@ def add_comment():
         c = db.post(c_id)
         return response.json(dict(comment = dict(post_id = c.post_id, body=c.body,
                                                 user_id = c.user_id, username = c.username,
-                                                created_on = c.created_on.strftime('%B %d, %Y'))))
+                                                created_on = c.created_on.strftime("%B %d, %Y"))))

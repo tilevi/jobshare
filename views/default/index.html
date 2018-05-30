@@ -193,12 +193,15 @@
                                 <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checkedWeapons" onclick="return !isLoadingResults;">
                                 <label v-bind:for="wep.class" class="noBottomMargin">${ wep.name }</label>
                             </div>
+                            
+                            <div class="form-check">
+                                <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="custom_swep" value="custom_swep" v-model="checkedWeapons" onclick="return !isLoadingResults;">
+                                <label for="custom_swep" class="noBottomMargin">Custom SWEP</label>
+                            </div>
                         </div>
                         
                     </div>
                 </div>
-                
-                
                 
                 <div  style="margin-top: 10px;">
                         
@@ -808,7 +811,7 @@
 
 </div>
 
-
+<script src="{{=URL('static', 'js/models_weps.js')}}"></script>
 <script src="{{=URL('static', 'js/default_index_main.js')}}"></script>
 
 <script>

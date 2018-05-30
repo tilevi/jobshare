@@ -4,6 +4,51 @@ html {box-sizing:border-box;}
 *, *:after, *:before {border:0; margin:0; padding:0; box-sizing:inherit;}
 html, body {max-width: 100vw; overflow-x: hidden}
 
+.actionButtons {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding-left: 0px;
+    padding-right: 0px;
+    text-align: right;
+    display: inline-block;
+}
+
+.margin10TopBottom {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#rowHeader {
+    padding: 0 !important;
+    margin-bottom: 10px !important;
+}
+
+#createJobRow {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+#jobInfoHeader {
+    background: #e2e2e2;
+    padding-left: 0px !important;
+}
+
+#jobInfoRow {
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+
+#jobInfoText {
+    font-size: 12px;
+    font-family: sans-serif;
+    color: rgba(32, 32, 32, 0.5);
+}
+
+#createJobContainer {
+    background: white;
+    margin-bottom: 5px;
+}
+
 .leftSpaced {
     margin-left: 5px;
 }
@@ -388,55 +433,47 @@ a.last::before {
     padding: 10px;
 }
 
-/*** grid ***/
-.containerS {margin-right:-20px}
-.containerS>.quarter, .containerS>.half, .containerS>.third, .containerS>.twothirds, .containerS>.threequarters, .containerS>.sixty, .containerS>.fourty {display:inline-block; padding: 0 20px 0 0; vertical-align:top}
-.containerS>.fill{display: inline-block; padding-right: 20px; margin-right:-10px}
-.containerS img, .containerS video {max-width:100%}
-.max900 {margin-left:auto; margin-right:auto}
+.background {
+    background: #e2e2e2;
+}
 
-@media all and (min-width:800px) {
-  .max900 {max-width:900px}
-  .quarter {width:25%; margin-right:-5px}
-  .half {width:50%; margin-right:-10px}
-  .sixty {width: 90%; margin-right:-10px}
-  .fourty {width: 10%; margin-right:-10px}
-  .third {width:33.33%; margin-right:-6.66px}
-  .twothirds {width:66.66%; margin-right:-13.33px}
-  .threequarters {width:75%; margin-right:-15px}
+#genCodeText {
+    color: white;
+    margin-bottom: 0px;
+    padding: 20px;
 }
-@media all and (min-width:600px) and (max-width:799px) {
-  .quarter.compressible {width:25%; margin-right:-5px}
-  .half.compressible {width:50%; margin-right:-10px}
-  .fourty.compressible {width:10%; margin-right:-10px}
-  .sixty.compressible {width:90%; margin-right:-10px}
-  .threequarters.compressible {width:75%; margin-right:-15px}
-  .quarter:not(.compressible), .half:not(.compressible), .threequarters:not(.compressible) {width:100%; margin-right:-20px}
-  .third {width:33.33%; margin-right:-6.66px}
-  .twothirds {width:66.66%; margin-right:-13.33px}
-  label.quarter:not(.compressible).right, label.half:not(.compressible).right, 
-  label.fourty:not(.compressible).right,label.sixty:not(.compressible).right,label.threequarters:not(.compressible).right   {float:left; text-align:left}
+
+#codeDiv {
+    background: white;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-bottom: 35px;
 }
-@media all and (max-width:599px) {  
-  .quarter:not(.compressible), .half:not(.compressible), .fourty:not(.compressible), .sixty:not(.compressible), .third:not(.compressible), .twothirds:not(.compressible), .threequarters:not(.compressible) {width:100%;}
-  label.quarter:not(.compressible).right, label.half:not(.compressible).right, label.sixty:not(.compressible).right, label.fourty:not(.compressible).right, label.threequarters:not(.compressible).right,
-  label.third:not(.compressible).right, label.twothirds:not(.compressible).right   {float:left; text-align:left}
-  .quarter.compressible {width:25%; margin-right:-5px}
-  .half.compressible {width:50%; margin-right:-10px}
-  .fourty.compressible {width:10%; margin-right:-10px}
-  .sixty.compressible {width:90%; margin-right:-10px}
-  .third.compressible {width:33.33%; margin-right:-6.66px}
-  .twothirds.compressible {width:66.66%; margin-right:-13.33px}
-  .threequarters.compressible {width:75%; margin-right:-15px}
+
+#copyButton {
+    background: steelblue;
+    color: white;
+    padding: 5px 10px 5px 10px;
+    border-bottom-left-radius: 4px;
+}
+
+.preCode {
+    padding: 0px 32px 32px 32px;
+    margin-bottom: 0px;
+}
+
+.darkBackground {
+    background: rgba(32, 32, 32);
 }
 
 .submitButton {
     padding: 5px 15px;
-    background: #ccc;
+    background: steelblue;
+    color: white;
     border: 0 none;
     cursor: pointer;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
 }
 
 .editButtons {
