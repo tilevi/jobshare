@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     
-    <script src="{{=URL('static', 'js/vue.js')}}"></script>
+    <!-- <script src="{{=URL('static', 'js/vue.js')}}"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
     <script src="{{=URL('static', 'js/vue-router.min.js')}}"></script>
     
     <script>
@@ -30,6 +31,7 @@
         
         {{if auth.user is not None:}}
             my_username = "{{=auth.user.username}}"
+            console.log(my_username);
         {{pass}}
          
         function isJobModel(event) {
@@ -615,7 +617,8 @@
                                 <tr v-if="editing_job">
                                     <td class="min">Player model:</td>
                                     <td>
-                                        <job-model v-bind:value="edit_job.model" id="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=100 maxlength=100 onchange="APP.vue.edit_job.model = $('#job_model').val();" onkeyup="APP.vue.edit_job.model = $('#job_model').val();" onkeypress="return isJobModel(event);"></job-model>
+                                        <input id="job_model" v-model="edit_job.model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=50 onkeypress="return isJobModel(event);"/>
+                                        
                                         <div v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
                                         
                                         <div style="margin-top: 5px;">

@@ -79,7 +79,7 @@
             </div>
         </div>
         
-        <div v-if="!showing_player_models" class="row">
+        <div id="job_info" v-if="!showing_player_models" class="row">
                 <div class="col-md-6 col-sm-6" style="margin-top: 10px; margin-bottom: 10px;">
 
                     <div class="form-group">
@@ -103,7 +103,8 @@
                     <div class="form-group">
                         <label for="job_model">Player model</label>
                         <br/>
-                        <job-model id="job_model" v-model="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=100 onkeypress="return isJobModel(event);"></job-model>
+
+                        <input id="job_model" v-model="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=50 onkeypress="return isJobModel(event);"/>
                         
                         <div style="margin-top: 5px;">
                             <span class="playerModelLink" v-on:click="show_player_models()">Browse player models</span>

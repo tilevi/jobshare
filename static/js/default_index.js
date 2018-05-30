@@ -5,24 +5,29 @@ var app = function() {
     var self = {};
     
     self.player_models = [
-        
+        [
+            {image: "css_arctic.png", model: "models/player/arctic.mdl"},
+            {image: "css_phoenix.png", model: "models/player/phoenix.mdl"},
+            {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
+            {image: "css_leet.png", model: "models/player/leet.mdl"}
+        ],
+        [
+            {image: "police.png", model: "models/player/police.mdl"},
+            {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
+            {image: "combineprison.png", model: "models/player/combine_soldier_prisonguard.mdl"},
+            {image: "combine.png", model: "models/player/combine_soldier.mdl"}
+        ],
         [
             {image: "alyx.png", model: "models/player/alyx.mdl"},
-            {image: "medic07.png", model: "models/player/Group03m/male_07.mdl"},
+            {image: "eli.png", model: "models/player/eli.mdl"},
             {image: "kleiner.png", model: "models/player/kleiner.mdl"},
             {image: "monk.png", model: "models/player/monk.mdl"}
         ],
         [
-            {image: "police.png", model: "models/player/police.mdl"},
-            {image: "combine.png", model: "models/player/combine_soldier.mdl"},
-            {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
-            {image: "gman.png", model: "models/player/gman_high.mdl"}
-        ],
-        [
-            {image: "eli.png", model: "models/player/eli.mdl"},
-            {image: "css_arctic.png", model: "models/player/arctic.mdl"},
-            {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
-            {image: "css_phoenix.png", model: "models/player/phoenix.mdl"}
+            {image: "skeleton.png", model: "models/player/skeleton.mdl"},
+            {image: "zombie.png", model: "models/player/zombie_classic.mdl"},
+            {image: "corpse.png", model: "models/player/corpse1.mdl"},
+            {image: "charple.png", model: "models/player/charple.mdl"}
         ]
     ];
     
@@ -270,14 +275,31 @@ var app = function() {
         $temp.remove();
     }
     
+    // Source: https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
+    function scrollToMiddle(id) {
+        var $window = $(window),
+        $element = $(id),
+        elementTop = $(id)[0].getBoundingClientRect().top + $(window)['scrollTop'](),
+        elementHeight = $element.height(),
+        viewportHeight = $window.height(),
+        scrollIt = elementTop - ((viewportHeight - elementHeight) / 2);
+        
+        $window.scrollTop(scrollIt);
+    }
+    
     self.show_player_models = function() {
-        // $("#weaponTags").remove();
+        var position = $("#job_info").offset();
+        scroll(0, position.top);
+        
         self.vue.showing_player_models = true;
     }
     
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
-        window.scrollTo(0, 0);
+        
+        setTimeout(function() {
+            scrollToMiddle("#job_model");
+        }, 0);
     }
     
     self.select_player_model = function(model) {

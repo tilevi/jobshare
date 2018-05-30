@@ -8,26 +8,39 @@ var app = function() {
     var self = {};
     
     self.player_models = [
-        
+        [
+            {image: "css_arctic.png", model: "models/player/arctic.mdl"},
+            {image: "css_phoenix.png", model: "models/player/phoenix.mdl"},
+            {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
+            {image: "css_leet.png", model: "models/player/leet.mdl"}
+        ],
+        [
+            {image: "police.png", model: "models/player/police.mdl"},
+            {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
+            {image: "combineprison.png", model: "models/player/combine_soldier_prisonguard.mdl"},
+            {image: "combine.png", model: "models/player/combine_soldier.mdl"}
+        ],
         [
             {image: "alyx.png", model: "models/player/alyx.mdl"},
-            {image: "medic07.png", model: "models/player/Group03m/male_07.mdl"},
+            {image: "eli.png", model: "models/player/eli.mdl"},
             {image: "kleiner.png", model: "models/player/kleiner.mdl"},
             {image: "monk.png", model: "models/player/monk.mdl"}
         ],
         [
-            {image: "police.png", model: "models/player/police.mdl"},
-            {image: "combine.png", model: "models/player/combine_soldier.mdl"},
-            {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
-            {image: "gman.png", model: "models/player/gman_high.mdl"}
-        ],
-        [
-            {image: "eli.png", model: "models/player/eli.mdl"},
-            {image: "css_arctic.png", model: "models/player/arctic.mdl"},
-            {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
-            {image: "css_phoenix.png", model: "models/player/phoenix.mdl"}
+            {image: "zombiefast.png", model: "models/player/zombie_fast.mdl"},
+            {image: "zombie.png", model: "models/player/zombie_classic.mdl"},
+            {image: "corpse.png", model: "models/player/corpse1.mdl"},
+            {image: "charple.png", model: "models/player/charple.mdl"}
         ]
     ];
+    
+    self.player_models_object = {};
+    
+    self.player_models.forEach(function(array) {
+       array.forEach(function(item) {
+           self.player_models_object[item.model] = item.image;
+       });
+    });
     
     Vue.config.silent = false; // show all warnings
     Vue.config.ignoredElements = ['tags'];
@@ -132,22 +145,14 @@ var app = function() {
     });
     
     
-    var player_models = {
-        'models/player/alyx.mdl': 'alyx.png',
-        'models/player/police.mdl': 'police.png',
-        'models/player/combine_super_soldier.mdl': 'combine_super_soldier.png',
-        'models/player/Group01/female_01.mdl': 'female_01.png',
-        'models/player/breen.mdl': 'breen.png',
-        'models/player/monk.mdl': 'monk.png',
-        'models/player/kleiner.mdl': 'kleiner.png',
-        'models/player/phoenix.mdl': 'phoenix.png'
-    }
+    
+    
     
     self.getModelURL = function(mdl) {
-        if (player_models[mdl] == null) {
+        if (self.player_models_object[mdl] == null) {
             return image_url + "/question_mark.jpg";
         }
-        return image_url + "/" + player_models[mdl];
+        return image_url + "/" + self.player_models_object[mdl];
     }
     
     // Extends an array
@@ -749,15 +754,32 @@ var app = function() {
         self.fetch_new_results();
     }
     
-    self.show_player_models = function() {
-        self.vue.showing_player_models = true;
+    
+    // Source: https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
+    function scrollToMiddle(id) {
+        var $window = $(window),
+        $element = $(id),
+        elementTop = $(id)[0].getBoundingClientRect().top + $(window)['scrollTop'](),
+        elementHeight = $element.height(),
+        viewportHeight = $window.height(),
+        scrollIt = elementTop - ((viewportHeight - elementHeight) / 2);
         
+        $window.scrollTop(scrollIt);
+    }
+    
+    self.show_player_models = function() {      
         var position = $("#Details").offset();
         scroll(0, position.top);
+        
+        self.vue.showing_player_models = true;
     }
     
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
+        
+        setTimeout(function() {
+            scrollToMiddle("#job_model");
+        }, 0);
     }
     
     self.select_player_model = function(model) {
@@ -925,7 +947,7 @@ var app = function() {
     self.vue.search_form = self.vue.$route.query.search;
     self.vue.current_page = Math.max(1, self.vue.$route.query.page);
     self.vue.selectedSort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
-    self.vue.selectedPublic = (my_username == "" || self.vue.$route.query.public == '1');
+    self.vue.selectedPublic = (my_username == null || self.vue.$route.query.public == '1');
     
     // Set the highlight of one of the top bottoms.
     if (self.vue.selectedPublic) {
