@@ -63,7 +63,7 @@ var app = function() {
                 showInput: true,
                 color: "#" + ((self.vue) != null ? self.vue.job_color : "23B5EB"),
                 change: function() {
-                    self.vue.setRGB();
+                    self.vue.set_rgb();
                 }
             });
         },
@@ -93,6 +93,9 @@ var app = function() {
         } else {
             $("#submit_button").prop("disabled", true);
         }
+        
+        // Clear the errors.
+        self.vue.job_errors = {}
         
         $.post(create_job_url,
             {
@@ -148,7 +151,7 @@ var app = function() {
             http://jsfiddle.net/gargdeendayal/4qqza69k/
             https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
     */
-    self.isJobID = function(e) {
+    self.is_job_id = function(e) {
         e = (e) ? e : window.event;
         var charCode = (e.which) ? e.which : e.keyCode;
         
@@ -160,7 +163,7 @@ var app = function() {
     }
     
     // Checks the job name
-    self.isJobName = function(e) {
+    self.is_job_name = function(e) {
         e = (e) ? e : window.event;
         var charCode = (e.which) ? e.which : e.keyCode;
            
@@ -172,7 +175,7 @@ var app = function() {
     }
     
     // Checks the job description
-    self.isJobDescription = function(e) {
+    self.is_job_description = function(e) {
         e = (e) ? e : window.event;
         var charCode = (e.which) ? e.which : e.keyCode;
            
@@ -204,7 +207,7 @@ var app = function() {
         Source:
             https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
     */
-    function scrollToMiddle(id) {
+    self.scroll_to_middle = function(id) {
         var $window = $(window),
         $element = $(id),
         elementTop = $(id)[0].getBoundingClientRect().top + $(window)['scrollTop'](),
@@ -228,7 +231,7 @@ var app = function() {
         self.vue.showing_player_models = false;
         
         setTimeout(function() {
-            scrollToMiddle("#job_model");
+            self.scroll_to_middle("#job_model");
         }, 0);
     }
     
@@ -246,7 +249,7 @@ var app = function() {
     
     // Sets the color of the job
     // This function is called when a user picks a color.
-    self.setRGB = function() {
+    self.set_rgb = function() {
         var hex = $("#colorpicker").spectrum("get").toHex();
         var bigint = parseInt(hex, 16);
         
@@ -295,9 +298,9 @@ var app = function() {
         },
         methods: {
             // Input field enforcers
-            isJobID: self.isJobID,
-            isJobName: self.isJobName,
-            isJobDescription: self.isJobDescription,
+            is_job_id: self.is_job_id,
+            is_job_name: self.is_job_name,
+            is_job_description: self.is_job_description,
             
             // Copy code function
             copy_code: self.copy_code,
@@ -307,7 +310,7 @@ var app = function() {
             submit_share: self.submit_share,
             
             // Set RGB (for the color input field)
-            setRGB: self.setRGB,
+            set_rgb: self.set_rgb,
             
             // Player model page functions
             show_player_models: self.show_player_models,

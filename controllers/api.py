@@ -407,7 +407,6 @@ def update_job():
             tag = result["job_tag"],
             vote = result["job_vote"],
             weapons = result["job_weapons"],
-            is_public = result["make_public"],
             has_custom_swep = result["custom_swep"],
             updated_on = datetime.datetime.utcnow()
         )
@@ -415,6 +414,10 @@ def update_job():
         # Return the updated job.
         job = db((db.job.id == request.vars.job_id)).select().first()
         return response.json(dict(form=form, errors=False, job=job))
+
+def get_job():
+    job = db(db.job.id == request.vars.job_id).select().first()
+    return response.json(dict(error=(job is None), job=job))
 
 def get_jobs():
     # Time range
@@ -486,7 +489,6 @@ def get_jobs():
         if wep != "custom_swep":
             q = q & (db.job.weapons.contains(wep))
         else:
-            logger.info("THIS!!!")
             q = q & (db.job.has_custom_swep == True)
     
     # Filter the tags.
@@ -501,7 +503,7 @@ def get_jobs():
 
     if (tag_q is not None):
         q = q & tag_q
-
+    
     # Sources:
     #   https://groups.google.com/forum/#!topic/web2py/PrIo2I-fgCc
     #   https://stackoverflow.com/questions/35066588/is-there-a-simple-way-to-increment-a-datetime-object-one-month-in-python

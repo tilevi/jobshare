@@ -125,7 +125,7 @@ var app = function() {
             e._idx = k++;
         });
     };
-            
+    
     // Gets the jobs.
     self.get_jobs = function() {
         var vue = self.vue;
@@ -187,6 +187,22 @@ var app = function() {
             isLoadingResults = false;
         })
     };
+    
+    // Gets a specific job
+    self.get_job_by_id = function(view_id) {
+        var vue = self.vue;
+        
+        $.post(get_job_url, 
+            {
+                job_id: view_id
+            },
+            function(data) {
+                if (!data.error) {
+                    self.show_job_details(data.job);
+                }
+            }
+        );
+    }
     
     // Fetches job results and loads the first page.
     self.fetch_new_results = function() {
@@ -358,6 +374,9 @@ var app = function() {
         vue.edit_waiting = false;
         vue.editing_job = false;
         
+        // Hide the comment error
+        vue.comment_error = false;
+        
         // We are no longer showing job details.
         vue.showing_job_details = false;
         vue.view_id = null;
@@ -478,6 +497,9 @@ var app = function() {
             vue.edit_waiting = false;
             
             if (vue.editing_job) {
+                // Switch to the 'Details' tab
+                self.open_tab(0);
+                
                 vue.edit_errors = {};
                 vue.edit_job = jQuery.extend(true, {}, vue.selected_job);       
                 
@@ -501,6 +523,7 @@ var app = function() {
         vue.job_weapons = vue.selected_job.weapons.join(", ");
         vue.job_weapons_arr = vue.selected_job.weapons;
         vue.job_mine = (vue.selected_job.created_by == my_username);
+        vue.text_color = self.get_text_class(vue.selected_job.color);
         
         if (vue.selected_job.workshop) {
             // Reset the Workshop details
@@ -519,6 +542,9 @@ var app = function() {
         
         // Disable the button
         $("#submit_button").prop("disabled", true);
+        
+        // Remove errors
+        vue.edit_errors = {};
         
         $.post(update_job_url,
             {
@@ -543,6 +569,7 @@ var app = function() {
                     
                     var errors = data.form.errors;
                     vue.edit_errors = errors;
+                    vue.edit_waiting = false;
                     
                     // Re-enable the button
                     $("#submit_button").prop("disabled", false);
@@ -622,7 +649,7 @@ var app = function() {
         self.vue.showing_player_models = false;
         
         setTimeout(function() {
-            scrollToMiddle("#job_model");
+            self.scroll_to_middle("#job_model");
         }, 0);
     }
     
@@ -685,7 +712,7 @@ var app = function() {
         Source:
             https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
     */
-    self.get_text_class = function(bgColor, faded) {
+    self.get_text_class = function(bgColor) {
         var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
             var r = parseInt(color.substring(0, 2), 16); // hexToR
             var g = parseInt(color.substring(2, 4), 16); // hexToG
@@ -698,11 +725,6 @@ var app = function() {
             return Math.pow((col + 0.055) / 1.055, 2.4);
         });
         var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
-        
-        if (faded) {
-           return (L > 0.179) ? "textColorBlackFaded" : "textColorWhiteFaded"; 
-        }
-        
         return (L > 0.179) ? "textColorBlack" : "textColorWhite";
     }
     
@@ -751,7 +773,7 @@ var app = function() {
         Source:
                 https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
     */
-    self.scrollToMiddle = function(id) {
+    self.scroll_to_middle = function(id) {
         var $window = $(window),
         $element = $(id),
         elementTop = $(id)[0].getBoundingClientRect().top + $(window)['scrollTop'](),
@@ -772,7 +794,7 @@ var app = function() {
         
         self.fetch_new_results();
     }
-    
+        
     // Vue.js router
     var router = new VueRouter({
         mode: 'history',
@@ -985,6 +1007,12 @@ var app = function() {
     // Convert it to an array, if it's a string.
     if ((typeof tagArr) == "string") {
         self.vue.checkedTags = [ tagArr ];
+    }
+    
+    // Get the view id
+    var view_id = self.vue.$route.query.view_id;
+    if (view_id) {
+        self.get_job_by_id(view_id);
     }
     
     // Get the corresponding jobs.

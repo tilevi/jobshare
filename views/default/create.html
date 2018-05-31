@@ -27,7 +27,7 @@
 {{end}}
 
 <div id="vue-div" style="display: none;">
-    <div class="mycontent background">
+    <div class="mycontent lightBackground">
     
         <div class="container-fluid darkBackground">
             <div class="container" style="padding-left: 0px !important;">
@@ -73,28 +73,35 @@
                     </div>  
                 </div>
             </div>
-        
+            
             <div id="job_info" v-if="!showing_player_models" class="row">
                 <div class="col-md-6 col-sm-6 margin10TopBottom">
 
                     <div class="form-group">
                         <label for="job_job_id">ID</label>
-                        <input v-model="job_job_id" v-on:keypress="isJobID" id="job_job_id" class="form-control" placeholder="DOCTOR" maxlength=50/>
+                        <input v-model="job_job_id" v-on:keypress="is_job_id" id="job_job_id" class="form-control" placeholder="DOCTOR" maxlength=50/>
                         
-                        <div v-if="job_errors.job_job_id != null" class="formError">${ job_errors.job_job_id }</div>
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_job_id != null" class="formError">${ job_errors.job_job_id }</div>
+                        </transition>
                     </div>
                     
                     <div class="form-group">
                         <label for="job_name">Name</label>
-                        <input v-model="job_name" v-on:keypress="isJobName" id="job_name" class="form-control" placeholder="Doctor" maxlength=50/>
+                        <input v-model="job_name" v-on:keypress="is_job_name" id="job_name" class="form-control" placeholder="Doctor" maxlength=50/>
                         
-                        <div v-if="job_errors.job_name != null" class="formError">${ job_errors.job_name }</div>
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_name != null" class="formError">${ job_errors.job_name }</div>
+                        </transition>
                     </div>
 
                     <div class="form-group">
                         <label for="job_description">Description</label>
-                        <input v-model="job_desc" v-on:keypress="isJobDescription" id="job_description" class="form-control" placeholder="Heal the community." maxlength=50/>
-                        <div v-if="job_errors.job_desc != null" class="formError">${ job_errors.job_desc }</div>
+                        <input v-model="job_desc" v-on:keypress="is_job_description" id="job_description" class="form-control" placeholder="Heal the community." maxlength=50/>
+                        
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_desc != null" class="formError">${ job_errors.job_desc }</div>
+                        </transition>
                     </div>
                     
                     <div class="form-group">
@@ -107,24 +114,31 @@
                             <span class="playerModelLink" v-on:click="show_player_models()">Browse player models</span>
                         </div>
                         
-                        <div v-if="job_errors.job_model != null" class="formError">${ job_errors.job_model }</div>
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_model != null" class="formError">${ job_errors.job_model }</div>
+                        </transition>
                     </div>
                     
                     <div class="form-group">
                         <label for="job_custom_model">Workshop Player Model</label>
                         
                         <input id="job_custom_model" class="form-control" placeholder="Steam Workshop URL or Workshop ID" maxlength=200 v-model="job_workshop"/>
-                        <div v-if="job_errors.job_workshop != null" class="formError">${ job_errors.job_workshop }</div>
+                        
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_workshop != null" class="formError">${ job_errors.job_workshop }</div>
+                        </transition>
                         
                         <label for="job_suggested_model" style="margin-top: 10px;">Suggested Character</label>
                         
-                        <input id="job_suggested_model" class="form-control" placeholder="Specify a character (e.g. Deadpool)" maxlength=200 v-model="job_suggested_model" v-on:keypress="isJobDescription"/>
+                        <input id="job_suggested_model" class="form-control" placeholder="Specify a character (e.g. Deadpool)" maxlength=200 v-model="job_suggested_model" v-on:keypress="is_job_description"/>
                         
                         <div style="margin-top: 5px;">
                             <a href="https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Model" target="_blank">Browse the Steam Workshop</a>
                         </div>
                         
-                        <div v-if="job_errors.job_suggested_model != null" class="formError">${ job_errors.job_suggested_model }</div>
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_suggested_model != null" class="formError">${ job_errors.job_suggested_model }</div>
+                        </transition>
                     </div>
                     
                 </div>
@@ -138,21 +152,29 @@
                             <color-it id="colorpicker" v-on:change="setRGB()" id="job_color" placeholder="" v-once></color-it>
                         </div>
                         
-                        <div v-if="job_errors.job_color != null" class="formError">${ job_errors.job_color }</div>
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_color != null" class="formError">${ job_errors.job_color }</div>
+                        </transition>
                     </div>
 
                     <div class="form-group">
                         <label for="job_salary">Salary</label>
                         <br/>
                         <input v-model="job_salary" id="job_salary" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
-                        <div v-if="job_errors.job_salary != null" class="formError">${ job_errors.job_salary }</div>
+                        
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_salary != null" class="formError">${ job_errors.job_salary }</div>
+                        </transition>
                     </div>
 
                     <div class="form-group">
                         <label for="job_salary">Max players</label>
                         <br/>
                         <input v-model="job_max_players" id="job_max_players" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
-                        <div v-if="job_errors.job_max_players != null" class="formError">${ job_errors.job_max_players }</div>
+                        
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_max_players != null" class="formError">${ job_errors.job_max_players }</div>
+                        </transition>
                     </div>
                     
                     <div class="form-group">
@@ -169,7 +191,10 @@
                         
                         <!-- Hidden input -->
                         <input id="job_tag" placeholder="" value="Citizen" type="hidden"/>
-                        <div v-if="job_errors.job_tag != null" class="formError">${ job_errors.job_tag }</div>
+                        
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_tag != null" class="formError">${ job_errors.job_tag }</div>
+                        </transition>
                     </div>
                     
                     <div class="form-group">
@@ -178,7 +203,10 @@
                         <tag-it id='weaponTags' name='tags' placeholder='Add weapon classes' value=''></tag-it>
                         <!-- Hidden input -->
                         <input v-model="job_weapons" id="job_weapons" placeholder="Add weapon classes" value="" type="hidden"/>
-                        <div v-if="job_errors.job_weapons != null" class="formError">${ job_errors.job_weapons }</div>
+                        
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_weapons != null" class="formError">${ job_errors.job_weapons }</div>
+                        </transition>
                     </div>
                     
                     <div class="form-group">
@@ -186,13 +214,17 @@
                         <br/>
                        
                         <div class="form-check">
-                        <div v-if="job_errors.job_vote != null" class="formError">${ job_errors.job_vote }</div>
+                            <transition name="slide-fade">
+                                <div v-if="job_errors.job_vote != null" class="formError">${ job_errors.job_vote }</div>
+                            </transition>
                             <input v-model="job_vote" type="checkbox" class="form-check-input" id="job_vote">
                             <label for="job_vote" class="noBottomMargin noSelect">Vote?</label>
                         </div>
                         
                         <div class="form-check">
-                            <div v-if="job_errors.job_admin_only != null" class="formError">${ job_errors.job_admin_only }</div>
+                            <transition name="slide-fade">
+                                <div v-if="job_errors.job_admin_only != null" class="formError">${ job_errors.job_admin_only }</div>
+                            </transition>
                             <input v-model="job_admin_only" type="checkbox" class="form-check-input" id="job_admin_only">
                             <label for="job_admin_only" class="noBottomMargin noSelect">Admin Only?</label>
                         </div>
