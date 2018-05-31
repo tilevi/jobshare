@@ -1,4 +1,11 @@
+/*
+    File:
+            default_index_main.js
+    Purpose:
+            Holds the Vue.js code for the main page.
+*/
 
+// VueRouter object
 var router = new VueRouter({
     mode: 'history',
     routes: []
@@ -21,10 +28,10 @@ var app = function() {
     });
     
     // Weapons
-    self.weps = weapons;
+    self.weapons = weapons;
     
     self.wepClasses = [];
-    self.weps.forEach(function(wepObj) {
+    self.weapons.forEach(function(wepObj) {
         self.wepClasses.push(wepObj.class);
     });
     
@@ -77,7 +84,7 @@ var app = function() {
                 showInput: true,
                 color: "#" + self.vue.selected_job.color,
                 change: function() {
-                    self.vue.setRGB();
+                    self.vue.set_rgb();
                 }
             });
         }
@@ -118,27 +125,7 @@ var app = function() {
             e._idx = k++;
         });
     };
-    
-    // Gets a model image URL
-    self.getModelURL = function(mdl) {
-        if (self.player_models_object[mdl] == null) {
-            return image_url + "/question_mark.jpg";
-        }
-        return image_url + "/" + self.player_models_object[mdl];
-    }
-    
-    // Fetches job results and loads the first page.
-    self.fetch_new_results = function() {
-        self.vue.current_page = 1;
-        self.get_jobs();        
-    }
-    
-    // Sets the page.
-    self.set_page = function(page) {
-        self.vue.current_page = page;
-        self.get_jobs();
-    }
-    
+            
     // Gets the jobs.
     self.get_jobs = function() {
         var vue = self.vue;
@@ -193,7 +180,7 @@ var app = function() {
             vue.current_page = data.page;
             
             // Set the new URL.
-            self.setNewURL();
+            self.set_new_url();
             
             // We are done loading.
             vue.isLoadingResults = false;
@@ -201,11 +188,17 @@ var app = function() {
         })
     };
     
+    // Fetches job results and loads the first page.
+    self.fetch_new_results = function() {
+        self.vue.current_page = 1;
+        self.get_jobs();        
+    }
+    
     /*
         Sets the page URL.
         Note: The main page is never redirected. Only the URL is updated.
     */
-    self.setNewURL = function() {
+    self.set_new_url = function() {
         var vue = self.vue;
         var pp = {};
         
@@ -291,142 +284,10 @@ var app = function() {
         }
     }
     
-    // Converts hex to RGB
-    self.hexToRGB = function(hex) {
-        var bigint = parseInt(hex, 16);
-        var r = (bigint >> 16) & 255;
-        var g = (bigint >> 8) & 255;
-        var b = bigint & 255;
-        return [r, g, b];
-    }
-    
-    /*
-        Gets the proper text class for light or dark text.
-        
-        Source:
-            https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
-    */
-    self.getTextClass = function(bgColor, faded) {
-        var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
-            var r = parseInt(color.substring(0, 2), 16); // hexToR
-            var g = parseInt(color.substring(2, 4), 16); // hexToG
-            var b = parseInt(color.substring(4, 6), 16); // hexToB
-            var uicolors = [r / 255, g / 255, b / 255];
-            var c = uicolors.map((col) => {
-            if (col <= 0.03928) {
-                return col / 12.92;
-            }
-            return Math.pow((col + 0.055) / 1.055, 2.4);
-        });
-        var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
-        
-        if (faded) {
-           return (L > 0.179) ? "textColorBlackFaded" : "textColorWhiteFaded"; 
-        }
-        
-        return (L > 0.179) ? "textColorBlack" : "textColorWhite";
-    }
-    
-    // Updates the job details.
-    self.update_job_details = function(job) {
-        var vue = self.vue;
-        
-        // Make a deep copy of the object.
-        vue.selected_job = jQuery.extend(true, {}, job);
-        
-        // More details.
-        vue.job_command = (vue.selected_job.job_id.toLowerCase()).replace(/ /g,'');
-        vue.job_color_rgb = self.hexToRGB(vue.selected_job.color);
-        vue.job_weapons = vue.selected_job.weapons.join(", ");
-        vue.job_weapons_arr = vue.selected_job.weapons;
-        vue.job_created_by = vue.selected_job.created_by;
-        vue.job_mine = (vue.selected_job.created_by == my_username);
-        
-        if (vue.selected_job.workshop) {
-            // Reset the Workshop details
-            vue.job_workshop_title = "Loading...";
-            vue.job_workshop_size = "Loading...";
-
-            // Fetch the Workshop item details, if necessary.
-            self.get_workshop();
-        }
-    }
-    
-    /*
-        Shows the job details page (when a user clicks on a job).
-        
-        Resource:
-                https://stackoverflow.com/questions/6623231/remove-all-white-spaces-from-text
-    */
-    self.show_job_details = function(job) {
-        var vue = self.vue;
-        
-        // Make a deep copy of the object.
-        vue.selected_job = jQuery.extend(true, {}, job);
-        
-        // More details.
-        vue.job_command = (vue.selected_job.job_id.toLowerCase()).replace(/ /g,'');
-        vue.job_color_rgb = self.hexToRGB(vue.selected_job.color);
-        vue.job_weapons = vue.selected_job.weapons.join(", ");
-        vue.job_weapons_arr = vue.selected_job.weapons;
-        vue.job_created_by = vue.selected_job.created_by;
-        vue.job_mine = (vue.selected_job.created_by == my_username);
-        
-        vue.view_id = vue.selected_job.id;    
-        
-        vue.showing_job_details = true;
-        
-        // Reset the tab to the first.
-        vue.job_current_tab = 0;
-        
-        if (vue.selected_job.workshop) {
-            // Reset the Workshop details
-            vue.job_workshop_title = "Loading...";
-            vue.job_workshop_size = "Loading...";
-            
-            // Fetch the Workshop item details, if necessary.
-            self.get_workshop();
-        }
-        
-        // Get the job's comments.
-        self.get_comments();
-        
-        // Set the new URL.
-        self.setNewURL();
-    }
-    
-    // Closes the job details page.
-    self.close_job_details = function() {
-        var vue = self.vue;
-        // We are no longer editing a job/or waiting for it to process.
-        vue.edit_waiting = false;
-        vue.editing_job = false;
-        
-        // We are no longer showing job details.
-        vue.showing_job_details = false;
-        vue.view_id = null;
-        
-        self.setNewURL();
-    }
-    
-    // Opens a tab in the job details page.
-    self.openTab = function(idx) {
-        self.vue.job_current_tab = idx;
-    }
-    
-    // Copies the GLua code (from the 'Code' tab).
-    self.copy_code = function() {
-            $("#copyButton").text("Copied!");
-            setTimeout(function() {
-                $("#copyButton").text("Copy");
-                copied = false;
-            }, 1000);
-            
-            var $temp = $("<textarea>");
-            $("body").append($temp);
-            $temp.val($("#genCode").text()).select();
-            document.execCommand("copy");
-            $temp.remove();
+    // Sets the page.
+    self.set_page = function(page) {
+        self.vue.current_page = page;
+        self.get_jobs();
     }
     
     // Fetches Workshop details for a player model on the Steam Workshop.
@@ -445,16 +306,66 @@ var app = function() {
         );
     }
     
-    // Comments
-    function get_comments_url(start_idx, end_idx, id) {
-        var pp = {
-            start_idx: start_idx,
-            end_idx: end_idx,
-            id: id
-        };
-        return comments_url + "?" + $.param(pp);
+    /*
+        Shows the job details page (when a user clicks on a job).
+        
+        Resource:
+                https://stackoverflow.com/questions/6623231/remove-all-white-spaces-from-text
+    */
+    self.show_job_details = function(job) {
+        var vue = self.vue;
+        
+        // Make a deep copy of the object.
+        vue.selected_job = jQuery.extend(true, {}, job);
+        
+        // More details.
+        vue.job_command = (vue.selected_job.job_id.toLowerCase()).replace(/ /g,'');
+        vue.job_color_rgb = self.hex_to_rgb(vue.selected_job.color);
+        vue.job_weapons = vue.selected_job.weapons.join(", ");
+        vue.job_weapons_arr = vue.selected_job.weapons;
+        vue.job_mine = (vue.selected_job.created_by == my_username);
+        vue.text_color = self.get_text_class(vue.selected_job.color);
+        
+        // The job ID
+        vue.view_id = vue.selected_job.id;
+        
+        // We are now showing the job details
+        vue.showing_job_details = true;
+        
+        // Reset the tab to the first.
+        vue.job_current_tab = 0;
+        
+        if (vue.selected_job.workshop) {
+            // Reset the Workshop details
+            vue.job_workshop_title = "Loading...";
+            vue.job_workshop_size = "Loading...";
+            
+            // Fetch the Workshop item details, if necessary.
+            self.get_workshop();
+        }
+        
+        // Get the job's comments.
+        self.get_comments();
+        
+        // Set the new URL.
+        self.set_new_url();
     }
     
+    // Closes the job details page.
+    self.close_job_details = function() {
+        var vue = self.vue;
+        // We are no longer editing a job/or waiting for it to process.
+        vue.edit_waiting = false;
+        vue.editing_job = false;
+        
+        // We are no longer showing job details.
+        vue.showing_job_details = false;
+        vue.view_id = null;
+        
+        self.set_new_url();
+    }
+    
+    // Gets comments
     self.get_comments = function() {
         $.post(comments_url,
             {
@@ -470,6 +381,8 @@ var app = function() {
             });
     };
     
+    
+    // Adds a comment
     self.add_comment = function () {
         // The submit button to add a track has been added.
         $.post(add_comment_url,
@@ -489,10 +402,7 @@ var app = function() {
             });
     };
     
-    self.add_comment_button = function() {
-        self.vue.is_adding_comment = !self.vue.is_adding_comment;
-    };
-    
+    // Gets more comments
     self.get_more = function() {
         var num_comments = self.vue.comments.length;
         
@@ -509,6 +419,47 @@ var app = function() {
             }
         );
     };
+    
+    /* 
+        Checks job inputs.
+        They are, of course, checked server-side again.
+        
+        Resources:
+                http://jsfiddle.net/gargdeendayal/4qqza69k/
+                https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
+    */
+    self.is_job_id = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+        
+        if(charCode === 32 || !(charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
+    }
+    
+    self.is_job_name = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+           
+        if(!(charCode == 32 || (charCode >= 48 && charCode <= 57) || (charCode == 39) || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
+    }
+    
+    self.is_job_description = function(e) {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+        
+        if(!((charCode >= 48 && charCode <= 57) || charCode === 32 || charCode == 33 || charCode == 46 || charCode == 39 || charCode == 44 || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
+    }
     
     // Toggles the edit page of a job.
     self.toggle_edit_job = function() {
@@ -537,39 +488,28 @@ var app = function() {
         }
     }
     
-    // Deletes a job.
-    self.delete_job = function() {
+    // Updates the job details.
+    self.update_job_details = function(job) {
         var vue = self.vue;
         
-        $.post(delete_job_url, 
-            {
-                job_id: vue.view_id
-            },
-            function(data) {
-                if (!data.error) {
-                    // Close the job details
-                    self.close_job_details();
-                    
-                    // Fetch jobs.
-                    self.get_jobs();
-                }
-            }
-        );
-    }
-    
-    // Toggles the visibility of a job (makes it either private or public).
-    self.toggle_public = function() {
-        var vue = self.vue;
+        // Make a deep copy of the object.
+        vue.selected_job = jQuery.extend(true, {}, job);
         
-        $.post(toggle_job_url,
-            {
-                job_id: vue.view_id
-            },
-            function (data) {
-                self.vue.selected_job.is_public = data.is_public;
-                self.get_jobs();
-            }
-        ); 
+        // More details.
+        vue.job_command = (vue.selected_job.job_id.toLowerCase()).replace(/ /g,'');
+        vue.job_color_rgb = self.hex_to_rgb(vue.selected_job.color);
+        vue.job_weapons = vue.selected_job.weapons.join(", ");
+        vue.job_weapons_arr = vue.selected_job.weapons;
+        vue.job_mine = (vue.selected_job.created_by == my_username);
+        
+        if (vue.selected_job.workshop) {
+            // Reset the Workshop details
+            vue.job_workshop_title = "Loading...";
+            vue.job_workshop_size = "Loading...";
+
+            // Fetch the Workshop item details, if necessary.
+            self.get_workshop();
+        }
     }
     
     // Submits changes made to a job.
@@ -643,49 +583,8 @@ var app = function() {
         );
     }
     
-    /* 
-        Checks job inputs.
-        They are, of course, checked server-side again.
-        
-        Resources:
-                http://jsfiddle.net/gargdeendayal/4qqza69k/
-                https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
-    */
-    self.isJobID = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-        
-        if(charCode === 32 || !(charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
-    }
-    
-    self.isJobName = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-           
-        if(!(charCode == 32 || (charCode >= 48 && charCode <= 57) || (charCode == 39) || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
-    }
-    
-    self.isJobDescription = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-        
-        if(!((charCode >= 48 && charCode <= 57) || charCode === 32 || charCode == 33 || charCode == 46 || charCode == 39 || charCode == 44 || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
-    }
-    
     // Sets the RGB value for the color input.
-    self.setRGB = function() {
+    self.set_rgb = function() {
         var hex = $("#colorpicker").spectrum("get").toHex();
         var bigint = parseInt(hex, 16);
         
@@ -696,52 +595,18 @@ var app = function() {
         self.vue.edit_job.color = hex;
     }
     
-    // Formats a money amount with commas.
-    self.comma = function(str) {
-        str = String(str)
-        
-        if (str.length < 4) {
-            return str;
-        } else {
-            var i = str.length - 3;
-            var newStr = "";
-            
-            while (i >= 0) {
-                newStr = "," + str.substring(i, i+3) + newStr;
-                i = i - 3;
-            }
-            
-            newStr = str.substring(0, i+3) + newStr;
-            return newStr;
-        }
-    }
-    
-    // Called when the user switches between public and private jobs.
-    self.changedPublicJobs = function() {
-        $('#header_text').html(self.vue.selectedPublic ? "Community" : "Your Jobs");
-        
-        // Toggle the class
-        $('#jobsLink').toggleClass('active');
-        $('#homeLink').toggleClass('active');
-        
-        self.fetch_new_results();
-    }
-    
-    
     /*
-        Attempts to scroll an element to the middle of the screen.
-        Source:
-                https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
-    */
-    function scrollToMiddle(id) {
-        var $window = $(window),
-        $element = $(id),
-        elementTop = $(id)[0].getBoundingClientRect().top + $(window)['scrollTop'](),
-        elementHeight = $element.height(),
-        viewportHeight = $window.height(),
-        scrollIt = elementTop - ((viewportHeight - elementHeight) / 2);
+        Converts a color represented by Hex to RGB
         
-        $window.scrollTop(scrollIt);
+        Source:
+                https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+    */
+    self.hex_to_rgb = function(hex) {
+        var bigint = parseInt(hex, 16);
+        var r = (bigint >> 16) & 255;
+        var g = (bigint >> 8) & 255;
+        var b = bigint & 255;
+        return [r, g, b];
     }
     
     // Shows the player model page.
@@ -770,31 +635,170 @@ var app = function() {
         self.close_player_models();
     }
     
+    // Toggles the visibility of a job (makes it either private or public).
+    self.toggle_public = function() {
+        var vue = self.vue;
+        
+        $.post(toggle_job_url,
+            {
+                job_id: vue.view_id
+            },
+            function (data) {
+                self.vue.selected_job.is_public = data.is_public;
+                self.get_jobs();
+            }
+        ); 
+    }
+    
+    // Deletes a job.
+    self.delete_job = function() {
+        var vue = self.vue;
+        
+        $.post(delete_job_url, 
+            {
+                job_id: vue.view_id
+            },
+            function(data) {
+                if (!data.error) {
+                    // Close the job details
+                    self.close_job_details();
+                    
+                    // Fetch jobs.
+                    self.get_jobs();
+                }
+            }
+        );
+    }
+    
+    // Gets the image URL to a player model
+    self.get_model_url = function(mdl) {
+        if (self.player_models_object[mdl] == null) {
+            return image_url + "/question_mark.jpg";
+        }
+        return image_url + "/" + self.player_models_object[mdl];
+    }
+    
+    /*
+        Gets the proper text class for light or dark text.
+        This is used to provide enough contrast between text and its background.
+        
+        Source:
+            https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
+    */
+    self.get_text_class = function(bgColor, faded) {
+        var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
+            var r = parseInt(color.substring(0, 2), 16); // hexToR
+            var g = parseInt(color.substring(2, 4), 16); // hexToG
+            var b = parseInt(color.substring(4, 6), 16); // hexToB
+            var uicolors = [r / 255, g / 255, b / 255];
+            var c = uicolors.map((col) => {
+            if (col <= 0.03928) {
+                return col / 12.92;
+            }
+            return Math.pow((col + 0.055) / 1.055, 2.4);
+        });
+        var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
+        
+        if (faded) {
+           return (L > 0.179) ? "textColorBlackFaded" : "textColorWhiteFaded"; 
+        }
+        
+        return (L > 0.179) ? "textColorBlack" : "textColorWhite";
+    }
+    
+    // Opens a tab in the job details page.
+    self.open_tab = function(idx) {
+        self.vue.job_current_tab = idx;
+    }
+    
+    // Copies the GLua code (from the 'Code' tab).
+    self.copy_code = function() {
+            $("#copyButton").text("Copied!");
+            setTimeout(function() {
+                $("#copyButton").text("Copy");
+                copied = false;
+            }, 1000);
+            
+            var $temp = $("<textarea>");
+            $("body").append($temp);
+            $temp.val($("#genCode").text()).select();
+            document.execCommand("copy");
+            $temp.remove();
+    }
+    
+    // Formats a money amount with commas.
+    self.comma = function(str) {
+        str = String(str)
+        
+        if (str.length < 4) {
+            return str;
+        } else {
+            var i = str.length - 3;
+            var newStr = "";
+            
+            while (i >= 0) {
+                newStr = "," + str.substring(i, i+3) + newStr;
+                i = i - 3;
+            }
+            
+            newStr = str.substring(0, i+3) + newStr;
+            return newStr;
+        }
+    }
+    
+    /*
+        Attempts to scroll an element to the middle of the screen.
+        Source:
+                https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
+    */
+    self.scrollToMiddle = function(id) {
+        var $window = $(window),
+        $element = $(id),
+        elementTop = $(id)[0].getBoundingClientRect().top + $(window)['scrollTop'](),
+        elementHeight = $element.height(),
+        viewportHeight = $window.height(),
+        scrollIt = elementTop - ((viewportHeight - elementHeight) / 2);
+        
+        $window.scrollTop(scrollIt);
+    }
+    
+    // Called when the user switches between public and private jobs.
+    self.changed_public_jobs = function() {
+        $('#header_text').html(self.vue.selectedPublic ? "Community" : "Your Jobs");
+        
+        // Toggle the class
+        $('#jobsLink').toggleClass('active');
+        $('#homeLink').toggleClass('active');
+        
+        self.fetch_new_results();
+    }
+    
     // Vue.js router
     var router = new VueRouter({
         mode: 'history',
         routes: []
     });
     
-    // https://stackoverflow.com/questions/35914069/vue-js-query-parameters
-    
+    // Vue object
     self.vue = new Vue({
         router,
         el: "#vue-div-main",
         delimiters: ['${', '}'],
         unsafeDelimiters: ['!{', '}'],
         data: {
-            weps: self.weps,
-            first_load: true,
             jobs: [],
             even_jobs: [],
             odd_jobs: [],
             count: 0,
             pages: 0,
             current_page: 1,
+            
+            // Filter options
+            tags: ["Citizen", "Commercial", "Criminal", "Fun", "Government", "OP", "Misc."],
+            checkedWeapons: [],
+            checkedTags: [],
+            
             search_form: null,
-            tags: ['Citizen', 'Commercial', 'Criminal', 'Fun', 'Government', 'OP', 'Misc.'],
-            weapons: ['AK-47', 'AR2', 'Custom SWEP'],
             
             min_salary: null,
             max_salary: null,
@@ -802,21 +806,15 @@ var app = function() {
             min_players: null,
             max_players: null,
             
-            checkedWeapons: [],
-            checkedTags: [],
-            
             selectedPublic: true,
-            
             isLoadingResults: false,
             
-            selectedTimeRange: 'any',
-            selectedSort: 'newest',
+            selectedTimeRange: "any",
+            selectedSort: "newest",
             
+            // Job details page variables
             showing_job_details: false,
-            
-            // This is for the job details view.
             selected_job: null,
-            
             job_job_id: null,
             job_command: null,
             job_name: null,
@@ -829,17 +827,16 @@ var app = function() {
             job_weapons: null,
             job_weapons_arr: null,
             
-            job_workshop_title: "",
-            job_workshop_size: "",
-            
             job_vote: null,
             job_admin_only: null,
             
+            job_workshop_title: "",
+            job_workshop_size: "",
+            
+            // Whether the job belongs to the user or not.
             job_mine: false,
-            job_created_by: null,
             
-            job_tag: null,
-            
+            // The job ID the user is currently viewing.
             view_id: null,
             
             // 0 = 'Details', 1 = 'Code', 2 = 'Comments'
@@ -874,60 +871,85 @@ var app = function() {
             
             edit_errors: {},
             
+            // Player models page
             showing_player_models: false,
             player_models: self.player_models,
             image_url: player_model_image_url,
             
+            // Misc. variables
+            first_load: true,
+            weps: self.weapons,
             my_username: my_username
         },
         methods: {
-            fetchNewResults: self.fetch_new_results,
-            getJobViewURL: self.getJobViewURL,
-            setNewURL: self.setNewURL,
-            search_jobs: self.fetch_new_results,
-            set_page: self.set_page,
+            // Get jobs
+            get_jobs: self.get_jobs,
+            fetch_new_results: self.fetch_new_results,
+            
+            // Set new URL
+            set_new_url: self.set_new_url,
+            
+            // Page functions
             prev_page: self.prev_page,
             next_page: self.next_page,
-            getModelURL: self.getModelURL,
-            getTextClass: self.getTextClass,
+            set_page: self.set_page,
+            
+            // Job details page
             show_job_details: self.show_job_details,
             close_job_details: self.close_job_details,
-            toggle_public: self.toggle_public,
-            openTab: self.openTab,
-            hexToRGB: self.hexToRGB,
-            copy_code: self.copy_code,
             
-            add_comment_button: self.add_comment_button,
+            // Comment functions
             add_comment: self.add_comment,
             get_more: self.get_more,
             
-            // String method
-            comma: self.comma,
-            
             // Job editing
-            setRGB: self.setRGB,
-            isJobID: self.isJobID,
-            isJobName: self.isJobName,
-            isJobDescription: self.isJobDescription,
+            is_job_id: self.is_job_id,
+            is_job_name: self.is_job_name,
+            is_job_description: self.is_job_description,
             toggle_edit_job: self.toggle_edit_job,
             submit: self.submit,
+            set_rgb: self.set_rgb,
+            
+            // Player model page
             show_player_models: self.show_player_models,
             close_player_models: self.close_player_models,
             select_player_model: self.select_player_model,
             
+            // Job visibility
+            toggle_public: self.toggle_public,
+            
             // Job deletion
             delete_job: self.delete_job,
             
-            // Changed public jobs checkbox
-            changedPublicJobs: self.changedPublicJobs
+            // Misc. functions
+            get_model_url: self.get_model_url,
+            get_text_class: self.get_text_class,
+            open_tab: self.open_tab,
+            hex_to_rgb: self.hex_to_rgb,
+            copy_code: self.copy_code,
+            comma: self.comma,
+            changed_public_jobs: self.changed_public_jobs,
         }
     });
     
-    // Set the search form value.
-    self.vue.search_form = self.vue.$route.query.search;
+    /*
+        Set variables from the URL parameters.
+        
+        Resource:
+                https://stackoverflow.com/questions/35914069/vue-js-query-parameters
+    */
+    // Search by job title
+    self.vue.search_form =self.vue.$route.query.search;
+    
+    // The current page
     self.vue.current_page = Math.max(1, self.vue.$route.query.page);
+    
+    // Sort by newest or most recent
     self.vue.selectedSort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
-    self.vue.selectedPublic = (my_username == null || self.vue.$route.query.public == '1');
+    
+    
+    // Public or private jobs?
+    self.vue.selectedPublic = (my_username == null || self.vue.$route.query.public == "1");
     
     // Set the highlight of one of the top bottoms.
     if (self.vue.selectedPublic) {
@@ -938,9 +960,12 @@ var app = function() {
         $('#header_text').html("Your Jobs");
     }
     
+    
+    // Range for max players
     self.vue.min_players = self.vue.$route.query.min_p;
     self.vue.max_players = self.vue.$route.query.max_p;
     
+    // Range for job salary
     self.vue.min_salary = self.vue.$route.query.min_s;
     self.vue.max_salary = self.vue.$route.query.max_s;
     
@@ -953,11 +978,11 @@ var app = function() {
         self.vue.checkedWeapons = [ wepArr ];
     }
     
-    // Get the tags
+    // Get the job tags/types
     var tagArr = self.vue.$route.query["tags[]"];
     self.vue.checkedTags = (tagArr != null) ? tagArr : [];
     
-    // Convert it to an array, if necessary.
+    // Convert it to an array, if it's a string.
     if ((typeof tagArr) == "string") {
         self.vue.checkedTags = [ tagArr ];
     }

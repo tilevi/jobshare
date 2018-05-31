@@ -76,9 +76,9 @@
                 <div class="col-md-12">
                     <div class="form-inline pull-right" style="margin-right: -1px;">
                         <div class="input-group">
-                            <input v-on:keyup.enter="search_jobs()" v-model="search_form" type="text" class="form-control" name="search" placeholder="Search jobs..">
+                            <input v-on:keyup.enter="fetch_new_results()" v-model="search_form" type="text" class="form-control" name="search" placeholder="Search jobs..">
                             <span class="input-group-btn">
-                                <button v-on:click="fetchNewResults();" class="btn btn-info" type="submit" style="background-color: black;/"><i class="fa fa-search"></i>&#8203;</button>
+                                <button v-on:click="fetch_new_results();" class="btn btn-info" type="submit" style="background-color: black;/"><i class="fa fa-search"></i>&#8203;</button>
                             </span>
                         </div>
                     </div>
@@ -106,37 +106,37 @@
                         <div id="filterTags" class="collapse noSelect">
                             <div class="cPanel">
                                 <div class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_citizen" value="Citizen" v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_citizen" value="Citizen" v-model="checkedTags" onclick="return !isLoadingResults;">
                                     <label for="tag_citizen" class="noBottomMargin">Citizen</label>
                                 </div>
                             
                                 <div class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_commercial" value="Commercial" v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_commercial" value="Commercial" v-model="checkedTags" onclick="return !isLoadingResults;">
                                     <label for="tag_commercial" class="noBottomMargin">Commercial</label>
                                 </div>
                             
                                 <div class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_criminal" value="Criminal" v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_criminal" value="Criminal" v-model="checkedTags" onclick="return !isLoadingResults;">
                                     <label for="tag_criminal" class="noBottomMargin">Criminal</label>
                                 </div>
                             
                                 <div class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_fun" value="Fun" v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_fun" value="Fun" v-model="checkedTags" onclick="return !isLoadingResults;">
                                     <label for="tag_fun" class="noBottomMargin">Fun</label>
                                 </div>
 
                                 <div class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_government" value="Government" v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_government" value="Government" v-model="checkedTags" onclick="return !isLoadingResults;">
                                     <label for="tag_government" class="noBottomMargin">Government</label>
                                 </div>
 
                                 <div class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_op" value="OP" v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_op" value="OP" v-model="checkedTags" onclick="return !isLoadingResults;">
                                     <label for="tag_op" class="noBottomMargin">OP</label>
                                 </div>
 
                                 <div class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="tag_misc" value="Misc." v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_misc" value="Misc." v-model="checkedTags" onclick="return !isLoadingResults;">
                                     <label for="tag_misc" class="noBottomMargin">Misc.</label>
                                 </div>             
                             </div>
@@ -152,12 +152,12 @@
                         <div id="filterWeapons" class="collapse noSelect">
                             <div class="cPanel">
                                 <div v-for="wep in weps" class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checkedWeapons" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checkedWeapons" onclick="return !isLoadingResults;">
                                     <label v-bind:for="wep.class" class="noBottomMargin">${ wep.name }</label>
                                 </div>
 
                                 <div class="form-check">
-                                    <input v-on:change="fetchNewResults()" type="checkbox" class="form-check-input checkBox" id="custom_swep" value="custom_swep" v-model="checkedWeapons" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="custom_swep" value="custom_swep" v-model="checkedWeapons" onclick="return !isLoadingResults;">
                                     <label for="custom_swep" class="noBottomMargin">Custom SWEP</label>
                                 </div>
                             </div>
@@ -190,7 +190,7 @@
                                 </div>             
 
                                 <div style="margin-top: 8px;">
-                                    <button class="btn btn-default btn-block" v-on:click="fetchNewResults();">
+                                    <button class="btn btn-default btn-block" v-on:click="fetch_new_results();">
                                         <i class="fa fa-search"></i> Filter
                                     </button>
                                 </div>
@@ -215,7 +215,7 @@
                                     <input v-model="max_players" name="players_max" type="text" class="form-control" placeholder="4">
                                 </div>
                                 <div style="margin-top: 8px;">
-                                    <button class="btn btn-default btn-block" v-on:click="fetchNewResults();">
+                                    <button class="btn btn-default btn-block" v-on:click="fetch_new_results();">
                                         <i class="fa fa-search"></i> Filter
                                     </button>
                                 </div>
@@ -233,7 +233,7 @@
                         <div id="filterPersonal" class="collapse noSelect">
                             <div class="cPanel">
                                 <div class="form-check">
-                                    <input v-on:change="changedPublicJobs()" type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="selectedPublic" onclick="return !isLoadingResults;">
+                                    <input v-on:change="changed_public_jobs()" type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="selectedPublic" onclick="return !isLoadingResults;">
                                     <label for="personal" class="noBottomMargin">Public jobs</label>
                                 </div>
                             </div>
@@ -245,13 +245,13 @@
             <div class="col-sm-8 col-md-9 col-lg-10">
                 <div>
                     <select v-model="selectedSort" class="form-control" style="width: 200px; max-width: 100%; display: inline;"
-                            v-on:change="fetchNewResults()" onclick="return !isLoadingResults;">
+                            v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
                         <option value="newest">Sort by: Newest jobs</option>
                         <option value="recent">Recently updated</option>
                     </select>
 
                     <select v-model="selectedTimeRange" class="form-control" style="width: 200px; max-width: 100%; display: inline;"
-                            v-on:change="fetchNewResults()" onclick="return !isLoadingResults;">
+                            v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
                         <option value="any">Added: Any date</option>
                         <option value="day">In the past day</option>
                         <option value="week">In the past week</option>
@@ -272,20 +272,20 @@
                         <div class="row">
                             <div id="jobRowHeader" class="col-md-12" v-bind:style="{ background: '#' + selected_job.color }">
                                 <div class="closeJobDetails pointer pull-right">
-                                    <i v-on:click="close_job_details()" class="fa fa-close pointer" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 36px;"></i>
+                                    <i v-on:click="close_job_details()" class="fa fa-close pointer" v-bind:class="text_color" style="font-size: 36px;"></i>
                                 </div>
             
                                 <div v-if="job_mine">
                                     <div class="editJobDetails pointer pull-right">
-                                        <i class="fa fa-pencil" v-on:click="toggle_edit_job()" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 30px;"></i>
+                                        <i class="fa fa-pencil" v-on:click="toggle_edit_job()" v-bind:class="text_color" style="font-size: 30px;"></i>
                                     </div>
 
                                     <div class="deleteJobDetails pointer pull-right">
-                                        <i class="fa fa-trash" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 32px;" href="#" data-toggle="modal" data-target="#deleteModal"></i> 
+                                        <i class="fa fa-trash" v-bind:class="text_color" style="font-size: 32px;" href="#" data-toggle="modal" data-target="#deleteModal"></i> 
                                     </div>
-                
+                                    
                                     <div class="deleteJobDetails pointer pull-right">
-                                        <i id="public_icon" v-bind:class="{ 'fa fa-eye': selected_job.is_public, 'fa fa-eye-slash': !selected_job.is_public }" v-on:click="toggle_public()" v-bind:class="getTextClass(selected_job.color, true)" style="font-size: 30px;" data-toggle="tooltip" v-bind:title="selected_job.is_public ? 'Click to make this job private.' : 'Click to make this job public.'"></i>
+                                        <i id="public_icon" v-bind:class="{ 'textColorBlack': (text_color == 'textColorBlack'), 'textColorWhite': (text_color == 'textColorWhite'), 'fa fa-eye': selected_job.is_public, 'fa fa-eye-slash': !selected_job.is_public }" v-on:click="toggle_public()" style="font-size: 30px;" data-toggle="tooltip" v-bind:title="selected_job.is_public ? 'Click to make this job private.' : 'Click to make this job public.'"></i>
                                     </div>
                                 </div>
                             </div>
@@ -299,18 +299,18 @@
                                 <tbody>
                                     <tr style="border-top: hidden;">
                                         <td class="min">
-                                            <img v-if="selected_job.preview_url == ''" class="image64" v-bind:src="getModelURL(selected_job.model)"/>
+                                            <img v-if="selected_job.preview_url == ''" class="image64" v-bind:src="get_model_url(selected_job.model)"/>
 
                                             <img v-if="selected_job.preview_url != ''" class="image64" v-bind:src="selected_job.preview_url"/>
                                         </td>
                                         
                                         <td class="tableData">
                                             <div>
-                                                <div v-if="!editing_job" class="jobDetailsTextBottomLeft" v-bind:class="getTextClass(selected_job.color)">${ selected_job.name }</div>
+                                                <div v-if="!editing_job" class="jobDetailsTextBottomLeft" v-bind:class="text_color">${ selected_job.name }</div>
                                                 
-                                                <textarea v-model="edit_job.name" v-if="editing_job" v-on:keypress="isJobName" id="job_name" id="editJobText" class="form-control" maxlength=50></textarea>
+                                                <textarea v-model="edit_job.name" v-if="editing_job" v-on:keypress="is_job_name" id="job_name" id="editJobText" class="form-control" maxlength=50></textarea>
 
-                                                <div v-if="edit_errors.job_name != null" id="jobNameErrorText" v-bind:class="getTextClass(selected_job.color)">${ edit_errors.job_name }</div>
+                                                <div v-if="edit_errors.job_name != null" id="jobNameErrorText" v-bind:class="text_color">${ edit_errors.job_name }</div>
                                             </div>
                                         </td>
                                     </tr>
@@ -356,7 +356,7 @@
                         <div v-for="comment in comments"> 
                             <div class="comment">
                                 <div class="comment_top">
-                                    <b>${comment.username} <span v-if="comment.username == job_created_by" style="font-size: 9px; color: #e2e2e2; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
+                                    <b>${comment.username} <span v-if="comment.username == selected_job.created_by" style="font-size: 9px; color: #e2e2e2; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
                                 </div>
 
                                 <div class="comment_text">
@@ -444,7 +444,7 @@
 
                                             <span id="desc_form" v-if="!editing_job">${ selected_job.description }</span>
 
-                                            <textarea v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_description" class="tableData form-control descriptionText" style="width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
+                                            <textarea v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_description" class="tableData form-control descriptionText" style="width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
 
                                             <div v-if="edit_errors.job_desc != null" class="formError">${ edit_errors.job_desc }</div>
                                         </td>
@@ -566,7 +566,7 @@
                                             <td>
                                                 <span v-if="!editing_job">${ selected_job.workshop }</span>
 
-                                                <input v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.workshop" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Steam Workshop URL or Workshop ID" maxlength=200/>
+                                                <input v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.workshop" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Steam Workshop URL or Workshop ID" maxlength=200/>
 
                                                 <div v-if="edit_errors.job_workshop != null" class="formError">${ edit_errors.job_workshop }</div>
 
@@ -587,7 +587,7 @@
 
                                                 <span v-if="!editing_job">${ selected_job.suggested_model }</span>
 
-                                                <input v-on:keypress="isJobDescription" v-if="editing_job" v-model="edit_job.suggested_model" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Specify a character (e.g. Deadpool)" maxlength=200/>
+                                                <input v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.suggested_model" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Specify a character (e.g. Deadpool)" maxlength=200/>
 
                                                 <div v-if="edit_errors.job_suggested_model != null" class="formError">${ edit_errors.job_suggested_model }</div>
 
@@ -619,7 +619,7 @@
                     
                     <div class="postedBy">
                         <div class="postedByText">
-                            Posted by: ${ job_created_by }
+                            Posted by: ${ selected_job.created_by }
                         </div>
                     </div>
                 </div>
@@ -637,11 +637,11 @@
                         <div v-for="job in even_jobs" class="pointer noSelect" style="padding: 4px;">
                             <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
-                                    <img v-if="job.preview_url == ''" v-bind:src="getModelURL(job.model)" class="image64 imageFloatLeft"/>
+                                    <img v-if="job.preview_url == ''" v-bind:src="get_model_url(job.model)" class="image64 imageFloatLeft"/>
 
                                     <img v-if="job.preview_url != ''" v-bind:src="job.preview_url" class="image64 imageFloatLeft"/>
 
-                                    <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
+                                    <div class="myTextBottomLeft" v-bind:class="get_text_class(job.color)">
                                         ${job.name}
                                     </div>
                                 </div>
@@ -663,11 +663,11 @@
                         <div v-for="job in odd_jobs" class="pointer noSelect" style="padding: 4px;">
                             <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
-                                    <img v-if="job.preview_url == ''" v-bind:src="getModelURL(job.model)" class="image64 imageFloatLeft"/>
+                                    <img v-if="job.preview_url == ''" v-bind:src="get_model_url(job.model)" class="image64 imageFloatLeft"/>
 
                                     <img v-if="job.preview_url != ''" v-bind:src="job.preview_url" class="image64 imageFloatLeft"/>
 
-                                    <div class="myTextBottomLeft" v-bind:class="getTextClass(job.color)">
+                                    <div class="myTextBottomLeft" v-bind:class="get_text_class(job.color)">
                                         ${job.name}
                                     </div>
                                 </div>

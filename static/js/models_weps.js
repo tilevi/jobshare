@@ -31,7 +31,7 @@ var weapons = [
         { name: "USP", class: "weapon_usp" },
         { name: "P228", class: "weapon_p228" },
         { name: "Deagle", class: "weapon_deagle" },
-        { name: "FiveSeven", class: "weapon_fiveseven" },
+        { name: "Five-seven", class: "weapon_fiveseven" },
         { name: "Shotgun", class: "weapon_shotgun" },
         { name: "M3", class: "weapon_m3" },
         { name: "Galil", class: "weapon_galil" },

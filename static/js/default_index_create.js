@@ -1,5 +1,9 @@
-
-// This is for the job creation page.
+/*
+    File:
+            default_index_create.js
+    Purpose:
+            Holds the Vue.js code for the job creation page.
+*/
 
 var app = function() {
     var self = {};
@@ -127,7 +131,7 @@ var app = function() {
         );
     }
     
-    // Submit job (to be made public)
+    // Submits a job (to be made public)
     self.submit_share = function() {
         $("#submit_share_button").prop("disabled", true);
         self.submit(true);
@@ -138,7 +142,7 @@ var app = function() {
     // Of course, input is also checked server-side.
     
     /* 
-        Check the Job/Team ID
+        Checks the Job/Team ID
         
         Sources:
             http://jsfiddle.net/gargdeendayal/4qqza69k/
@@ -155,7 +159,7 @@ var app = function() {
         }
     }
     
-    // Check the job name
+    // Checks the job name
     self.isJobName = function(e) {
         e = (e) ? e : window.event;
         var charCode = (e.which) ? e.which : e.keyCode;
@@ -167,7 +171,7 @@ var app = function() {
         }
     }
     
-    // Check the job description
+    // Checks the job description
     self.isJobDescription = function(e) {
         e = (e) ? e : window.event;
         var charCode = (e.which) ? e.which : e.keyCode;
@@ -179,7 +183,7 @@ var app = function() {
         }
     }
     
-    // Copy the code (located at the bottom of the page).
+    // Copies the code (located at the bottom of the page).
     self.copy_code = function() {
         $("#copyButton").text("Copied!");
         setTimeout(function() {
@@ -195,7 +199,7 @@ var app = function() {
     }
     
     /*
-        Scroll to the player model input element.
+        Scrolls to an element.
         
         Source:
             https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
@@ -211,7 +215,7 @@ var app = function() {
         $window.scrollTop(scrollIt);
     }
     
-    // Show the player models page.
+    // Shows the player models page.
     self.show_player_models = function() {
         var position = $("#job_info").offset();
         scroll(0, position.top);
@@ -219,7 +223,7 @@ var app = function() {
         self.vue.showing_player_models = true;
     }
     
-    // Close the player models page.
+    // Closes the player models page.
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
         
@@ -229,7 +233,7 @@ var app = function() {
     }
     
     /*
-        Select a player model.
+        Selects a player model.
         Once a PM is selected, we want to close the player models page.
     */
     self.select_player_model = function(model) {
@@ -240,7 +244,7 @@ var app = function() {
         self.close_player_models();
     }
     
-    // Set the color of the job
+    // Sets the color of the job
     // This function is called when a user picks a color.
     self.setRGB = function() {
         var hex = $("#colorpicker").spectrum("get").toHex();
@@ -315,7 +319,6 @@ var app = function() {
     $("#vue-div").show();
     return self;
 };
-
 
 var APP = null;
 
