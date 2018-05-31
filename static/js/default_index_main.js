@@ -10,6 +10,7 @@ var app = function() {
     Vue.config.silent = false; // show all warnings
     Vue.config.ignoredElements = ['tags'];
     
+    // Player models
     self.player_models = player_models;
     self.player_models_object = {};
     
@@ -19,6 +20,7 @@ var app = function() {
        });
     });
     
+    // Weapons
     self.weps = weapons;
     
     self.wepClasses = [];
@@ -26,6 +28,7 @@ var app = function() {
         self.wepClasses.push(wepObj.class);
     });
     
+    // Vue components
     Vue.component('tag-it', {
         template: '<input/>',
         mounted: function() {
@@ -62,8 +65,10 @@ var app = function() {
         }
     });
     
-    
-    // Spectrum: https://github.com/bgrins/spectrum
+    /*
+        Spectrum:
+                https://github.com/bgrins/spectrum
+    */
     Vue.component('color-it', {
         template: '<input/>',
         mounted: function() {
@@ -97,15 +102,7 @@ var app = function() {
     });
     
     
-    
-    
-    
-    self.getModelURL = function(mdl) {
-        if (self.player_models_object[mdl] == null) {
-            return image_url + "/question_mark.jpg";
-        }
-        return image_url + "/" + self.player_models_object[mdl];
-    }
+    // FUNCTIONS //
     
     // Extends an array
     self.extend = function(a, b) {
@@ -122,30 +119,27 @@ var app = function() {
         });
     };
     
-    // Fetches the index of a memo, given a memo id.
-    var getJobIndex = function(id) {
-        for (var i = 0; i < self.vue.jobs.length; i++) {
-            if (self.vue.jobs[i].id == id) {
-                return i;
-            }
+    // Gets a model image URL
+    self.getModelURL = function(mdl) {
+        if (self.player_models_object[mdl] == null) {
+            return image_url + "/question_mark.jpg";
         }
-        return -1;
+        return image_url + "/" + self.player_models_object[mdl];
     }
     
-    self.getJobViewURL = function(id) {
-        return view_url + "/" + id;
-    }
-    
+    // Fetches job results and loads the first page.
     self.fetch_new_results = function() {
         self.vue.current_page = 1;
         self.get_jobs();        
     }
     
+    // Sets the page.
     self.set_page = function(page) {
         self.vue.current_page = page;
         self.get_jobs();
     }
     
+    // Gets the jobs.
     self.get_jobs = function() {
         var vue = self.vue;
         
@@ -178,7 +172,9 @@ var app = function() {
                 vue.first_load = false;
             }
             
+            // Even jobs belong to the left column
             vue.even_jobs = [];
+            // Odd jobs belong to the right column
             vue.odd_jobs = [];
             
             for (var i = 0; i < self.vue.jobs.length; i++) {
@@ -189,6 +185,7 @@ var app = function() {
                 }
             }
             
+            // Page stats
             vue.count = data.count;
             vue.pages = data.pages;
             
@@ -198,11 +195,16 @@ var app = function() {
             // Set the new URL.
             self.setNewURL();
             
+            // We are done loading.
             vue.isLoadingResults = false;
             isLoadingResults = false;
         })
     };
     
+    /*
+        Sets the page URL.
+        Note: The main page is never redirected. Only the URL is updated.
+    */
     self.setNewURL = function() {
         var vue = self.vue;
         var pp = {};
@@ -270,30 +272,26 @@ var app = function() {
             }
         }
         
-        var url = community_url + "?" + $.param(pp);
+        // Replace the URL in-place
+        var url = main_url + "?" + $.param(pp);
         window.history.replaceState(null, null, url);
     }
     
+    // Sets the page to previous page.
     self.prev_page = function() {
         if (self.vue.current_page > 1) {
             self.set_page(self.vue.current_page - 1);
         }
     }
     
+    // Sets the page to the next page.
     self.next_page = function() {
         if (self.vue.current_page < self.vue.pages) {
             self.set_page(self.vue.current_page + 1);
         }
     }
     
-    self.searchByPlayers = function() {
-        self.get_jobs();
-    }
-    
-    self.searchBySalary = function() {
-        self.get_jobs();
-    }
-    
+    // Converts hex to RGB
     self.hexToRGB = function(hex) {
         var bigint = parseInt(hex, 16);
         var r = (bigint >> 16) & 255;
@@ -302,8 +300,12 @@ var app = function() {
         return [r, g, b];
     }
     
-    // Source:
-    // https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
+    /*
+        Gets the proper text class for light or dark text.
+        
+        Source:
+            https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
+    */
     self.getTextClass = function(bgColor, faded) {
         var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
             var r = parseInt(color.substring(0, 2), 16); // hexToR
@@ -325,6 +327,7 @@ var app = function() {
         return (L > 0.179) ? "textColorBlack" : "textColorWhite";
     }
     
+    // Updates the job details.
     self.update_job_details = function(job) {
         var vue = self.vue;
         
@@ -349,7 +352,12 @@ var app = function() {
         }
     }
     
-    // https://stackoverflow.com/questions/6623231/remove-all-white-spaces-from-text
+    /*
+        Shows the job details page (when a user clicks on a job).
+        
+        Resource:
+                https://stackoverflow.com/questions/6623231/remove-all-white-spaces-from-text
+    */
     self.show_job_details = function(job) {
         var vue = self.vue;
         
@@ -387,6 +395,7 @@ var app = function() {
         self.setNewURL();
     }
     
+    // Closes the job details page.
     self.close_job_details = function() {
         var vue = self.vue;
         // We are no longer editing a job/or waiting for it to process.
@@ -400,10 +409,12 @@ var app = function() {
         self.setNewURL();
     }
     
+    // Opens a tab in the job details page.
     self.openTab = function(idx) {
         self.vue.job_current_tab = idx;
     }
     
+    // Copies the GLua code (from the 'Code' tab).
     self.copy_code = function() {
             $("#copyButton").text("Copied!");
             setTimeout(function() {
@@ -418,7 +429,7 @@ var app = function() {
             $temp.remove();
     }
     
-    
+    // Fetches Workshop details for a player model on the Steam Workshop.
     self.get_workshop = function() {
         var id = self.vue.view_id
         $.post(workshop_url,
@@ -499,7 +510,7 @@ var app = function() {
         );
     };
     
-    
+    // Toggles the edit page of a job.
     self.toggle_edit_job = function() {
         var vue = self.vue;
         // Prevent toggling editing for this job until we hear 
@@ -526,6 +537,7 @@ var app = function() {
         }
     }
     
+    // Deletes a job.
     self.delete_job = function() {
         var vue = self.vue;
         
@@ -545,6 +557,7 @@ var app = function() {
         );
     }
     
+    // Toggles the visibility of a job (makes it either private or public).
     self.toggle_public = function() {
         var vue = self.vue;
         
@@ -559,6 +572,7 @@ var app = function() {
         ); 
     }
     
+    // Submits changes made to a job.
     self.submit = function() {
         var vue = self.vue;
         vue.edit_waiting = true;
@@ -629,9 +643,13 @@ var app = function() {
         );
     }
     
-    /* Sources:
-        http://jsfiddle.net/gargdeendayal/4qqza69k/
-        https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
+    /* 
+        Checks job inputs.
+        They are, of course, checked server-side again.
+        
+        Resources:
+                http://jsfiddle.net/gargdeendayal/4qqza69k/
+                https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
     */
     self.isJobID = function(e) {
         e = (e) ? e : window.event;
@@ -666,6 +684,7 @@ var app = function() {
         }
     }
     
+    // Sets the RGB value for the color input.
     self.setRGB = function() {
         var hex = $("#colorpicker").spectrum("get").toHex();
         var bigint = parseInt(hex, 16);
@@ -677,6 +696,7 @@ var app = function() {
         self.vue.edit_job.color = hex;
     }
     
+    // Formats a money amount with commas.
     self.comma = function(str) {
         str = String(str)
         
@@ -696,6 +716,7 @@ var app = function() {
         }
     }
     
+    // Called when the user switches between public and private jobs.
     self.changedPublicJobs = function() {
         $('#header_text').html(self.vue.selectedPublic ? "Community" : "Your Jobs");
         
@@ -707,7 +728,11 @@ var app = function() {
     }
     
     
-    // Source: https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
+    /*
+        Attempts to scroll an element to the middle of the screen.
+        Source:
+                https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
+    */
     function scrollToMiddle(id) {
         var $window = $(window),
         $element = $(id),
@@ -719,6 +744,7 @@ var app = function() {
         $window.scrollTop(scrollIt);
     }
     
+    // Shows the player model page.
     self.show_player_models = function() {      
         var position = $("#Details").offset();
         scroll(0, position.top);
@@ -726,6 +752,7 @@ var app = function() {
         self.vue.showing_player_models = true;
     }
     
+    // Hides the player model page.
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
         
@@ -734,6 +761,7 @@ var app = function() {
         }, 0);
     }
     
+    // Called when a user clicks on a player model.
     self.select_player_model = function(model) {
         // Set the input field
         self.vue.edit_job.model = model;
@@ -742,6 +770,7 @@ var app = function() {
         self.close_player_models();
     }
     
+    // Vue.js router
     var router = new VueRouter({
         mode: 'history',
         routes: []
@@ -860,8 +889,6 @@ var app = function() {
             prev_page: self.prev_page,
             next_page: self.next_page,
             getModelURL: self.getModelURL,
-            searchByPlayers: self.searchByPlayers,
-            searchBySalary: self.searchBySalary,
             getTextClass: self.getTextClass,
             show_job_details: self.show_job_details,
             close_job_details: self.close_job_details,
