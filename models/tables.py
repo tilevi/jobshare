@@ -36,6 +36,7 @@ db.define_table('job',
                 Field('weapons', 'list:string', default=[]),
                 Field('is_public', 'boolean', default=False),
                 Field('has_custom_swep', 'boolean', default=False),
+                Field('resources', 'json'),
                 Field('created_by', default=get_username()),
                 Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
                 Field('updated_on', 'datetime', default=datetime.datetime.utcnow())
@@ -48,11 +49,6 @@ db.define_table('post',
                 Field('created_on', 'datetime', default=get_utc_time()),
                 Field('body', 'text')
                 )
-
-db.define_table('favorite',
-                Field('user_id', default=get_user_id()),
-                Field('job_id', 'reference job', ondelete='CASCADE')
-               )
 
 db.job.user_id.writable = db.job.user_id.readable = False
 db.job.is_public.writable = db.job.is_public.readable = False

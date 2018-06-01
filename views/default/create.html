@@ -208,7 +208,7 @@
                             <div v-if="job_errors.job_weapons != null" class="formError">${ job_errors.job_weapons }</div>
                         </transition>
                     </div>
-                    
+                                        
                     <div class="form-group">
                         <label>Miscellaneous</label>
                         <br/>
@@ -228,6 +228,27 @@
                             <input v-model="job_admin_only" type="checkbox" class="form-check-input" id="job_admin_only">
                             <label for="job_admin_only" class="noBottomMargin noSelect">Admin Only?</label>
                         </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Resource URLs (Workshop, garrysmod.org, etc.)</label>
+                        <br/>
+                        <div v-for="(res, index) in job_resources">
+                            
+                            <div style="margin-bottom: 5px;">
+                                <input v-model="res.name" v-on:keypress="is_job_name" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource Name" value="" maxlength=50/>
+                                
+                                <input v-model="res.url" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource URL" type="url" value="" maxlength=100/>
+                                
+                                <input class="deleteResource" type="button" value="Delete resource" v-on:click="delete_resource(index)"/>
+                            </div>
+                        </div>
+                        
+                        <input v-if="job_resources.length < 3" class="submitButton" type="button" value="Add resource" v-on:click="add_resource"/>
+                        
+                        <transition name="slide-fade">
+                            <div v-if="job_errors.job_resources != null" class="formError">${ job_errors.job_resources }</div>
+                        </transition>
                     </div>
                 </div>
             </div>

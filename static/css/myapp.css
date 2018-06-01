@@ -555,3 +555,28 @@ td.min {
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
 }
+
+
+.btn-primary {
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.w2p-form-button {
+    margin-right: 10px;
+    margin-top: 5px;
+}
+
+.whiteBackground {
+    background: white;
+}
+
+.deleteResource {
+    padding: 5px 10px 5px 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: white;
+    background: #9b0000;
+    border-radius: 2px;
+}

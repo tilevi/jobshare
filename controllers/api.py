@@ -1,4 +1,4 @@
-import datetime, requests
+import datetime, requests, json
 
 from dateutil.relativedelta import *
 from urlparse import urlparse, parse_qs
@@ -142,22 +142,23 @@ weapons = dict(
 # Check the weapons.
 def check_weapons(form, weps):
     okay = True
-    customSWEP = False
+    custom_swep = False
     
     for wep in weps:
         if not (wep in weapons):
-            customSWEP = True
+            custom_swep = True
         
-        if okay and (not (all(x.isalnum() or x == "_" for x in wep))):
+        if (len(wep) >= 25):
+            form["errors"]["job_weapons"] = "Each weapon has to be less than 25 characters."
+            okay = False
+        elif (not (all(x.isalnum() or x == "_" for x in wep))):
+            form["errors"]["job_weapons"] = "One of the weapons contains one or more invalid characters."
             okay = False
         
-        if ((not okay) and customSWEP):
+        if ((not okay) and custom_swep):
             break
-        
-    if (not okay):
-        form["errors"]["job_weapons"] = "One of the weapons contains one or more invalid characters."
     
-    return customSWEP
+    return custom_swep
 
 def check_workshop_id(form, id):
     preview_url = "";
@@ -188,6 +189,26 @@ def check_workshop_id(form, id):
     
     return preview_url
 
+def check_resources(form, job_resources):
+    if (len(job_resources) > 3):
+        form["errors"]["job_resources"] = "You can only have 3 resources."
+    else:
+        for res in job_resources:
+            if (res["url"].strip() == ""):
+                form["errors"]["job_resources"] = "One of the URLs is empty."
+                break
+            if (len(res["name"]) > 50 or len(res["url"]) > 100):
+                form["errors"]["job_resources"] = "Either the name or URL of a resource is too long."
+                break
+            if not (all(x.isalnum() or x.isspace() or x == "'" for x in res["name"])):
+                form["errors"]["job_resources"] = "At least one resource has an invalid name."
+                break
+            if not (all(x.isalnum() or x == ":" or x == "&" or x == "/" or x == "=" or x == "?" or x == "!" or x == "." or x == "_" for x in res["url"])):
+                form["errors"]["job_resources"] = "At least one resource has an invalid URL."
+                break
+        
+    
+
 # This function checks and verifies all of the job information.
 # verify_job() is used in both the create_job() and update_job() endpoints.
 def verify_job(form, request):
@@ -200,6 +221,10 @@ def verify_job(form, request):
     job_color = request.vars.job_color
     job_workshop = request.vars.job_workshop
     job_suggested_model = request.vars.job_suggested_model
+    
+    # Check the job resources
+    job_resources = json.loads(request.vars.job_resources)
+    check_resources(form, job_resources)
     
     # Dummy values.
     job_salary = 0
@@ -266,7 +291,6 @@ def verify_job(form, request):
     
     # Verify that all of the weapons contain valid characters.
     custom_swep = check_weapons(form, job_weapons)
-    logger.info("custom swep inside: %r" % custom_swep)
     
     preview_url = ""
     
@@ -320,7 +344,8 @@ def verify_job(form, request):
                 job_salary=job_salary,
                 make_public=make_public,
                 preview_url=preview_url,
-                custom_swep=custom_swep)
+                custom_swep=custom_swep,
+                job_resources=job_resources)
 
 @auth.requires_login()
 @auth.requires_signature()
@@ -361,7 +386,8 @@ def create_job():
             vote = result["job_vote"],
             weapons = result["job_weapons"],
             is_public = result["make_public"],
-            has_custom_swep = result["custom_swep"]
+            has_custom_swep = result["custom_swep"],
+            resources = json.dumps(result["job_resources"])
         )
         
         return response.json(dict(form=form, errors=False))
@@ -408,7 +434,8 @@ def update_job():
             vote = result["job_vote"],
             weapons = result["job_weapons"],
             has_custom_swep = result["custom_swep"],
-            updated_on = datetime.datetime.utcnow()
+            updated_on = datetime.datetime.utcnow(),
+            resources = json.dumps(result["job_resources"])
         )
         
         # Return the updated job.

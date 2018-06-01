@@ -610,7 +610,7 @@
                                         </tr>
 
                                         <tr v-if="editing_job || (selected_job.suggested_model != null && selected_job.suggested_model != '')">
-                                            <td class="min">Suggested Model:</td>
+                                            <td class="min">Character:</td>
                                             <td>
 
                                                 <span v-if="!editing_job">${ selected_job.suggested_model }</span>
@@ -622,7 +622,56 @@
                                                 </transition>
                                             </td>
                                         </tr>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            
+                            <div class="table-responsive" v-if="editing_job || (job_resources.length != 0)">
+                                <div class="jobDetailsHeaderText"><u>Resources</u></div>
+                                
+                                <table class="table table-striped" style="background: rgba(255, 255, 255, 0.1);">
+                                    <tbody>
+                                        
+                                        <tr v-for="(res, index) in edit_job_resources" v-if="editing_job">
+                                            <td class="min">Resource ${ index + 1 }:</td>
+                                            <td>
+                                                <div style="margin-bottom: 5px;">
+                                                    <input v-model="res.name" v-on:keypress="is_job_name" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource Name" value="" maxlength=50/>
+                                                    
+                                                    <input v-model="res.url" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource URL" type="url" value="" maxlength=100/>
 
+                                                    <input class="deleteResource" type="button" value="Delete resource" v-on:click="delete_resource(index)"/>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                        
+                                        <tr v-if="editing_job && edit_job_resources.length < 3">
+                                            <td v-if="edit_job_resources.length == 0" class="min">No Resources:</td>
+                                            <td v-if="edit_job_resources.length > 0" class="min"></td>
+                                            <td>
+                                                <input class="submitButton" type="button" value="Add resource" v-on:click="add_resource"/>
+                                                
+                                                <transition name="slide-fade">
+                                                    <div v-if="edit_errors.job_resources != null" class="formError">${ edit_errors.job_resources }</div>
+                                                </transition>
+                                            </td>
+                                        </tr>
+                                        
+                                        
+                                        
+                                        <tr v-for="(res, index) in job_resources" v-if="!editing_job">
+                                            <td class="min">Resource ${ index + 1 }:</td>
+                                            <td>
+                                                ${ res.name }
+                                                <br/>
+                                                <a style="color: black; font-weight: bold;" v-bind:href="res.url">${ res.url }</a>
+                                            </td>
+                                        </tr>
+                                        
                                         <tr v-if="editing_job">
                                             <td class="min"></td>
                                             <td>
@@ -640,9 +689,12 @@
                                                 
                                             </td>
                                         </tr>
+                                        
+                                        
                                     </tbody>
                                 </table>
                             </div>
+                            
                         </div>
                     </div>
                     

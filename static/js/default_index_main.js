@@ -342,6 +342,9 @@ var app = function() {
         vue.job_mine = (vue.selected_job.created_by == my_username);
         vue.text_color = self.get_text_class(vue.selected_job.color);
         
+        // Resources
+        vue.job_resources = JSON.parse(vue.selected_job.resources);
+        
         // The job ID
         vue.view_id = vue.selected_job.id;
         
@@ -506,6 +509,8 @@ var app = function() {
                 vue.edit_job.job_command = (vue.selected_job.job_id.toLowerCase()).replace(/ /g,'');
                 vue.edit_job.job_weapons = vue.selected_job.weapons.join(", ");
                 vue.edit_job.job_weapons_arr = vue.selected_job.weapons;
+                
+                vue.edit_job_resources = JSON.parse(vue.selected_job.resources);
             }
         }
     }
@@ -525,6 +530,9 @@ var app = function() {
         vue.job_mine = (vue.selected_job.created_by == my_username);
         vue.text_color = self.get_text_class(vue.selected_job.color);
         
+        // Resources
+        vue.job_resources = JSON.parse(vue.selected_job.resources);
+        
         if (vue.selected_job.workshop) {
             // Reset the Workshop details
             vue.job_workshop_title = "Loading...";
@@ -542,6 +550,14 @@ var app = function() {
         
         // Disable the button
         $("#submit_button").prop("disabled", true);
+        
+        // Grab the edit job resources
+        var res = [];
+        for (var i = 0; i < Math.min(self.vue.edit_job_resources.length, 3); i++) {
+            var job = self.vue.edit_job_resources[i];
+            res.push({"name": job.name, "url": job.url});
+        }        
+        self.vue.edit_job_resources.json = JSON.stringify(res);
         
         // Remove errors
         vue.edit_errors = {};
@@ -561,7 +577,9 @@ var app = function() {
                 weps: vue.edit_job.job_weapons_arr,
                 job_tag: vue.edit_job.tag,
                 job_vote: vue.edit_job.vote ? 1 : 0,
-                job_admin_only: vue.edit_job.admin_only ? 1 : 0
+                job_admin_only: vue.edit_job.admin_only ? 1 : 0,
+                
+                job_resources: vue.edit_job_resources.json
             },
             function (data) {
                 if (data.errors) {
@@ -794,7 +812,23 @@ var app = function() {
         
         self.fetch_new_results();
     }
-        
+    
+    // Resource functions
+    self.add_resource = function() {
+        var vue = self.vue;
+        if (vue.edit_job_resources.length < 3) {
+            vue.edit_job_resources.push({ name: "", url: "" });
+        }
+    }
+    
+    self.delete_resource = function(idx) {
+        var vue = self.vue;
+        if (idx != null && vue.edit_job_resources[idx] != null) {
+            // Remove the resource.
+            vue.edit_job_resources.splice(idx, 1);
+        }
+    }
+    
     // Vue.js router
     var router = new VueRouter({
         mode: 'history',
@@ -852,8 +886,11 @@ var app = function() {
             job_vote: null,
             job_admin_only: null,
             
+            // Workshop
             job_workshop_title: "",
             job_workshop_size: "",
+            
+            job_resources: [],
             
             // Whether the job belongs to the user or not.
             job_mine: false,
@@ -891,6 +928,11 @@ var app = function() {
             edit_job_admin_only: null,
             edit_job_tag: null,
             
+            // Resources
+            edit_job_resources: [{"name": "", "url": ""}],
+            edit_job_resources_json: "",
+            
+            // Edit errors
             edit_errors: {},
             
             // Player models page
@@ -942,6 +984,10 @@ var app = function() {
             
             // Job deletion
             delete_job: self.delete_job,
+            
+            // Add and delete resource
+            add_resource: self.add_resource,
+            delete_resource: self.delete_resource,
             
             // Misc. functions
             get_model_url: self.get_model_url,

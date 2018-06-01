@@ -94,6 +94,14 @@ var app = function() {
             $("#submit_button").prop("disabled", true);
         }
         
+        // Grab the job resources
+        var res = [];
+        for (var i = 0; i < Math.min(self.vue.job_resources.length, 3); i++) {
+            var job = self.vue.job_resources[i];
+            res.push({"name": job.name, "url": job.url});
+        }        
+        self.vue.job_resources.json = JSON.stringify(res);
+        
         // Clear the errors.
         self.vue.job_errors = {}
         
@@ -113,7 +121,9 @@ var app = function() {
                 job_vote: self.vue.job_vote ? 1 : 0,
                 job_admin_only: self.vue.job_admin_only ? 1 : 0,
                 
-                make_public: makePublic ? 1 : 0
+                make_public: makePublic ? 1 : 0,
+                
+                job_resources: self.vue.job_resources.json
             },
             function (data) {
                 if (data.errors) {
@@ -261,12 +271,32 @@ var app = function() {
         self.vue.job_color_arr = [r, g, b];
     }
     
+    // Resource functions
+    self.add_resource = function() {
+        var vue = self.vue;
+        if (vue.job_resources.length < 3) {
+            vue.job_resources.push({ name: "", url: "" });
+        }
+    }
+    
+    self.delete_resource = function(idx) {
+        var vue = self.vue;
+        if (idx != null && vue.job_resources[idx] != null) {
+            // Remove the resource.
+            vue.job_resources.splice(idx, 1);
+        }
+    }
+    
     // The Vue object
     self.vue = new Vue({
         el: "#vue-div",
         delimiters: ['${', '}'],
         unsafeDelimiters: ['!{', '}'],
         data: {
+            // Resources
+            job_resources: [],
+            job_resources_json: "",
+            
             // Job fields
             job_command: null,
             job_job_id: "",
@@ -301,6 +331,10 @@ var app = function() {
             is_job_id: self.is_job_id,
             is_job_name: self.is_job_name,
             is_job_description: self.is_job_description,
+            
+            // Add and delete resource
+            add_resource: self.add_resource,
+            delete_resource: self.delete_resource,
             
             // Copy code function
             copy_code: self.copy_code,
