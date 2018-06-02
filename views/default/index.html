@@ -21,7 +21,7 @@
     <script src="{{=URL('static', 'js/models_weps.js')}}"></script>
         
     <script>
-        var image_url = "{{=URL('static', 'images')}}";
+        var image_url = "{{=URL('static', 'images/player_icons')}}";
         var player_model_image_url = "{{=URL('static', 'images/player_models')}}";
         
         var jobs_url = "{{=URL('api', 'get_jobs')}}";
@@ -99,66 +99,34 @@
                     
                     <div  style="margin-top: 18px;">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterTags">
-                            <i class="fa fa-chevron-down" id="filterIcon" style="margin-right: 4px;"></i>
-                            <span id="filterText">FILTER BY TYPE</span>
+                            <p class="sideFix"><i id="filterIcon" class="fa fa-chevron-down"></i>FILTER BY TYPE</p>
                         </div>
                     
                         <div id="filterTags" class="collapse noSelect">
                             <div class="cPanel">
-                                <div class="form-check">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_citizen" value="Citizen" v-model="checkedTags" onclick="return !isLoadingResults;">
-                                    <label for="tag_citizen" class="noBottomMargin">Citizen</label>
-                                </div>
-                            
-                                <div class="form-check">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_commercial" value="Commercial" v-model="checkedTags" onclick="return !isLoadingResults;">
-                                    <label for="tag_commercial" class="noBottomMargin">Commercial</label>
-                                </div>
-                            
-                                <div class="form-check">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_criminal" value="Criminal" v-model="checkedTags" onclick="return !isLoadingResults;">
-                                    <label for="tag_criminal" class="noBottomMargin">Criminal</label>
-                                </div>
-                            
-                                <div class="form-check">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_fun" value="Fun" v-model="checkedTags" onclick="return !isLoadingResults;">
-                                    <label for="tag_fun" class="noBottomMargin">Fun</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_government" value="Government" v-model="checkedTags" onclick="return !isLoadingResults;">
-                                    <label for="tag_government" class="noBottomMargin">Government</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_op" value="OP" v-model="checkedTags" onclick="return !isLoadingResults;">
-                                    <label for="tag_op" class="noBottomMargin">OP</label>
-                                </div>
-
-                                <div class="form-check">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="tag_misc" value="Misc." v-model="checkedTags" onclick="return !isLoadingResults;">
-                                    <label for="tag_misc" class="noBottomMargin">Misc.</label>
-                                </div>             
+                                <div v-for="tag in tags" class="form-check oneLine">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="tag" v-bind:value="tag" v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <label v-bind:for="tag" class="noBottomMargin">${ tag }</label>
+                                </div>           
                             </div>
                         </div>
                     </div>
                 
                     <div style="margin-top: 10px;">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterWeapons">
-                            <i class="fa fa-chevron-down" id="filterWeaponIcon" style="margin-right: 4px;"></i>
-                            <span id="filterText">FILTER BY WEAPONS</span>
+                            <p class="sideFix"><i id="filterWeaponIcon" class="fa fa-chevron-down"></i>FILTER BY WEAPONS</p>
                         </div>
-                    
+                        
                         <div id="filterWeapons" class="collapse noSelect">
                             <div class="cPanel">
-                                <div v-for="wep in weps" class="form-check">
+                                <div v-for="wep in weps" class="form-check oneLine">
                                     <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checkedWeapons" onclick="return !isLoadingResults;">
                                     <label v-bind:for="wep.class" class="noBottomMargin">${ wep.name }</label>
                                 </div>
-
+                                
                                 <div class="form-check">
                                     <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="custom_swep" value="custom_swep" v-model="checkedWeapons" onclick="return !isLoadingResults;">
-                                    <label for="custom_swep" class="noBottomMargin">Custom SWEP</label>
+                                    <label for="custom_swep" class="hideOverflow noBottomMargin">Custom SWEP</label>
                                 </div>
                             </div>
                         </div>
@@ -166,9 +134,7 @@
                 
                     <div style="margin-top: 10px;">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterSalary">
-
-                            <i class="fa fa-chevron-down" id="filterSalaryIcon" style="margin-right: 4px;"></i>
-                            <span id="filterText">FILTER BY SALARY</span>
+                            <p class="sideFix"><i id="filterSalaryIcon" class="fa fa-chevron-down"></i>FILTER BY SALARY</p>
                         </div>
 
                         <div id="filterSalary" class="collapse noSelect">
@@ -197,13 +163,12 @@
                             </div>
                         </div>
                     </div>
-                                
+                    
                     <div style="margin-top: 10px;">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterMaxPlayers">
-                            <i class="fa fa-chevron-down" id="filterMaxPlayersIcon" style="margin-right: 4px;"></i>
-                            <span id="filterText">BY MAX PLAYERS</span>
+                            <p class="sideFix"><i id="filterMaxPlayersIcon" class="fa fa-chevron-down"></i>BY MAX PLAYERS</p>
                         </div>
-                    
+                        
                         <div id="filterMaxPlayers" class="collapse noSelect">
                             <div class="cPanel">
                                 <label for="price_min">From:</label>
@@ -222,12 +187,10 @@
                             </div>
                         </div>
                     </div>
-                
-                
+                    
                     <div style="margin-top: 10px;">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterPersonal">
-                            <i class="fa fa-chevron-down" id="filterPersonalIcon" style="margin-right: 4px;"></i>
-                            <span id="filterText">BY PUBLIC JOBS</span>
+                            <p class="sideFix"><i id="filterPersonalIcon" class="fa fa-chevron-down"></i>BY PUBLIC JOBS</p>
                         </div>
 
                         <div id="filterPersonal" class="collapse noSelect">
@@ -238,19 +201,24 @@
                                 </div>
                             </div>
                         </div>
-                    </div>                
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <div id="clearFilters" class="noSelect" v-on:click="clear_filters()" onclick="return !isLoadingResults;">
+                            <center><span>Clear Filters</span></center>
+                        </div>
+                    </div>
                 </div>
             </div>
             
             <div class="col-sm-8 col-md-9 col-lg-10">
                 <div>
-                    <select v-model="selectedSort" class="form-control" style="width: 200px; max-width: 100%; display: inline;"
+                    <select v-model="selectedSort" class="form-control" style="width: 200px; max-width: 100%; display: inline; margin: 4px 0px 4px 4px;"
                             v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
                         <option value="newest">Sort by: Newest jobs</option>
                         <option value="recent">Recently updated</option>
                     </select>
-
-                    <select v-model="selectedTimeRange" class="form-control" style="width: 200px; max-width: 100%; display: inline;"
+                    <select v-model="selectedTimeRange" class="form-control" style="width: 200px; max-width: 100%; display: inline; margin: 4px 4px 4px 4px;"
                             v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
                         <option value="any">Added: Any date</option>
                         <option value="day">In the past day</option>
@@ -261,12 +229,12 @@
 
                     <i v-if="isLoadingResults" class="fa fa-spinner fa-spin" style="color: black;"></i>
 
-                    <span class="pull-right hidden-sm">
+                    <span class="pull-right hidden-sm" style="margin: 4px;">
                         <a href="{{=URL('default', 'create')}}"><button class="createJobButton"><i class="fa fa-plus"></i>&#8203;</button></a>
                     </span>
                 </div>
                 
-                <div v-if="showing_job_details" id="jobDetailsRow" class="row no-gutters rounded" v-bind:style="{ background: '#' + selected_job.color + '59' }">
+                <div v-if="showing_job_details" id="jobDetailsRow" class="row no-gutters rounded" style="margin: 4px;" v-bind:style="{ background: '#' + selected_job.color + '59' }">
                 
                     <div class="container">
                         <div class="row">
@@ -336,8 +304,8 @@
                                 <div class="form-group" style="margin-bottom: 0px;">
                                     <textarea class="form-control" style="width: 100%;" placeholder="Leave a comment" v-model="comment_form"></textarea>
 
-                                    <div class="commentError" v-if="comment_error">
-                                        Comments cannot be empty.
+                                    <div class="commentError" v-if="comment_error != null">
+                                        ${ comment_error }
                                     </div>
                                 </div>
 
@@ -356,7 +324,7 @@
                         <div v-for="comment in comments"> 
                             <div class="comment">
                                 <div class="comment_top">
-                                    <b>${comment.username} <span v-if="comment.username == selected_job.created_by" style="font-size: 9px; color: #e2e2e2; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
+                                    <b>${comment.username} <span v-if="comment.username == selected_job.created_by" style="font-size: 9px; color: #ffffff; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
                                 </div>
 
                                 <div class="comment_text">
@@ -629,7 +597,7 @@
                             
                             
                             <div class="table-responsive" v-if="editing_job || (job_resources.length != 0)">
-                                <div class="jobDetailsHeaderText"><u>Resources</u></div>
+                                <div class="jobDetailsHeaderText"><u>Resource Links</u></div>
                                 
                                 <table class="table table-striped" style="background: rgba(255, 255, 255, 0.1);">
                                     <tbody>
@@ -650,7 +618,7 @@
                                         
                                         
                                         <tr v-if="editing_job && edit_job_resources.length < 3">
-                                            <td v-if="edit_job_resources.length == 0" class="min">No Resources:</td>
+                                            <td v-if="edit_job_resources.length == 0" class="min">No resources:</td>
                                             <td v-if="edit_job_resources.length > 0" class="min"></td>
                                             <td>
                                                 <input class="submitButton" type="button" value="Add resource" v-on:click="add_resource"/>
@@ -666,9 +634,7 @@
                                         <tr v-for="(res, index) in job_resources" v-if="!editing_job">
                                             <td class="min">Resource ${ index + 1 }:</td>
                                             <td>
-                                                ${ res.name }
-                                                <br/>
-                                                <a style="color: black; font-weight: bold;" v-bind:href="res.url">${ res.url }</a>
+                                                <a style="color: black; font-weight: bold;" v-bind:href="format_url(res.url)" target="_blank">${ res.name + " (" + format_url(res.url) + ")" }</a>
                                             </td>
                                         </tr>
                                         

@@ -16,7 +16,6 @@ function isJobModel(event) {
     }
 }
 
-
 function pickTextColorBasedOnBgColorAdvanced(bgColor, lightColor, darkColor) {
     var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
     var r = parseInt(color.substring(0, 2), 16); // hexToR

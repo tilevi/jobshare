@@ -9,9 +9,12 @@
 # -------------------------------------------------------------------------
 def index():
     return dict()
-
 @auth.requires_login()
+
 def create():
+    return dict()
+
+def about():
     return dict()
 
 def user():

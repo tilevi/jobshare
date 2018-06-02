@@ -48,13 +48,13 @@ html, body {max-width: 100vw; overflow-x: hidden}
 .messageText {
     font-size: 24px;
     font-weight: bold;
-    line-height: 100px;
 }
 
 .messageDiv {
     width: 100%;
-    height: 100px;
     background: white;
+    padding: 20px;
+    margin: 4px;
 }
 
 .createJobButton {
@@ -71,7 +71,7 @@ html, body {max-width: 100vw; overflow-x: hidden}
     color: rgba(32, 32, 32, 0.5);
 }
 
-#filterText:hover {
+.filterText:hover {
     text-decoration: underline;
 }
 
@@ -158,11 +158,6 @@ html, body {max-width: 100vw; overflow-x: hidden}
     margin-bottom: 5px;
 }
 
-.noBottomMargin {
-    margin-bottom: 0px !important;
-    word-break: break-all;
-}
-
 .submitButton {
     padding: 5px 15px;
     background: steelblue;
@@ -182,11 +177,10 @@ html, body {max-width: 100vw; overflow-x: hidden}
 }
 
 .filterByTags {
-    background-color: rgba(247, 247, 249, 1);
-    color: rgba(152, 151, 139, 1);
+    background: rgb(247, 247, 249);
+    color: rgb(152, 151, 139);
     font-size: 12px;
     padding: 10px 15px 10px 15px;
-    
     cursor: pointer;
 }
 
@@ -197,6 +191,40 @@ html, body {max-width: 100vw; overflow-x: hidden}
 #refineResultsDiv {
     color: #777;
     padding-top: 8px;
+}
+
+#clearFilters {
+    font-size: 14px;
+    background: white;
+    color: rgb(108, 139, 202);
+    padding: 5px 10px 5px 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+#clearFilters:hover {
+    text-decoration: underline;
+}
+
+/*
+    This fixes the spacing issue in the side bar.
+    
+    Source:
+        https://stackoverflow.com/questions/31296276/how-to-align-text-next-to-an-icon-with-css/31296396
+*/
+.sideFix {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 0px !important;
+}
+.sideFix .fa {
+    position: absolute;
+    left: 0px;
+    top: 3px;
+}
+
+.sideFix:hover {
+    text-decoration: underline;
 }
 
 /*
@@ -557,7 +585,7 @@ td.min {
 }
 
 
-.btn-primary {
+.btn-primary, .btn-secondary {
     margin-right: 10px;
     margin-top: 5px;
 }
@@ -579,4 +607,24 @@ td.min {
     color: white;
     background: #9b0000;
     border-radius: 2px;
+}
+
+.aboutFont {
+    font-size: 18px;
+    padding-top: 5px;
+}
+
+.noBottomMargin {
+    margin-bottom: 0px !important;
+}
+
+.hideOverflow {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.oneLine {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }

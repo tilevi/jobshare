@@ -1,0 +1,56 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+    <script>
+        $("#aboutLink").toggleClass("active");
+    </script>
+{{end}}
+
+<div class="mycontent lightBackground"> 
+    <div class="container-fluid darkBackground">
+        <div class="container" style="padding-left: 0px !important;">
+            <div id="createJobRow" class="row">
+                <div class="col-md-12" style="margin-left: 15px;"> 
+                    <h2 style="color: white;">About</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" style="margin-top: 15px; margin-bottom: 15px;">
+        <div class="row">
+            <div class="col-md-12" style="background: white; margin: 15px;">
+                
+                <div style="padding: 25px 10px 25px 10px;">
+                    <img src="{{=URL('static', 'images/favicon-256.png')}}" style="width: 64px; height: 64px; display: inline; vertical-align: bottom; margin-right: 5px;"/>
+                    <h1 style="display: inline; vertical-align: bottom;">What is JobShare?</h1>
+                    
+                    <p class="aboutFont">JobShare is a site that allows users to create and share DarkRP jobs for the game Garry’s Mod.</p>
+                    
+                    <h1 style="display: inline;">Garry's Mod</h1>
+                    
+                    <p class="aboutFont">Garry’s Mod, or simply GMod, is a sandbox physics game.
+                        One of the most popular game modes for GMod is DarkRP.</p>
+                    
+                    <h1>DarkRP</h1>
+                    <p class="aboutFont">DarkRP is a role-playing game mode that is rooted in "the idea of a simulation of urban life."<br/>
+                    In this game mode, players take on roles in the form of jobs. For example, a player may choose to be a Gun Dealer and sell weapons.</p>
+                    
+                    <h1>Problems</h1>
+                    <p class="aboutFont">DarkRP server owners are always looking for new jobs to keep the role-playing experience on their servers immersive.<br/>
+                        However, many server owners tend to tirelessly search the web and look for DarkRP jobs (and their code).</p>
+                    
+                    <p class="aboutFont">Moreover, players are always suggesting new jobs to keep their favorite servers from going stale.<br/>
+                        If players want to suggest jobs, they often have to post suggestions on community forums (and many times without the code).</p>
+                    
+                    <h1>Solution</h1>
+                    
+                    <p class="aboutFont">JobShare helps solve these problems by making it easy to create and share DarkRP jobs with others.</p>
+
+                    <p class="aboutFont">For example, server owners can either view a job directly (given a URL) or search among all of the public jobs. The resource URLs and code can then be used as tools to create a new job. Server owners may also choose to create and store DarkRP jobs.</p>
+
+                    <p class="aboutFont">Furthermore, players can create or find suggested DarkRP jobs and then share them with server communities.</p>
+                </div>
+        </div>
+    </div>
+</div>

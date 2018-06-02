@@ -194,8 +194,11 @@ def check_resources(form, job_resources):
         form["errors"]["job_resources"] = "You can only have 3 resources."
     else:
         for res in job_resources:
+            if (res["name"].strip() == ""):
+                form["errors"]["job_resources"] = "One of the resource names is empty."
+                break
             if (res["url"].strip() == ""):
-                form["errors"]["job_resources"] = "One of the URLs is empty."
+                form["errors"]["job_resources"] = "One of the resource URLs is empty."
                 break
             if (len(res["name"]) > 50 or len(res["url"]) > 100):
                 form["errors"]["job_resources"] = "Either the name or URL of a resource is too long."
@@ -203,7 +206,7 @@ def check_resources(form, job_resources):
             if not (all(x.isalnum() or x.isspace() or x == "'" for x in res["name"])):
                 form["errors"]["job_resources"] = "At least one resource has an invalid name."
                 break
-            if not (all(x.isalnum() or x == ":" or x == "&" or x == "/" or x == "=" or x == "?" or x == "!" or x == "." or x == "_" for x in res["url"])):
+            if not (all(x.isalnum() or x == ":" or x == "-" or x == "&" or x == "/" or x == "=" or x == "?" or x == "!" or x == "." or x == "_" for x in res["url"])):
                 form["errors"]["job_resources"] = "At least one resource has an invalid URL."
                 break
         
@@ -417,33 +420,36 @@ def update_job():
     else:
         q = ((db.job.id == request.vars.job_id) & (db.job.user_id == auth.user_id))
         row = db(q).select().first()
+        job = None
         
-        row.update_record(
-            job_id = result["job_job_id"],
-            name = result["job_name"],
-            description = result["job_desc"],
-            workshop = result["job_workshop"],
-            suggested_model = result["job_suggested_model"],
-            preview_url = result["preview_url"],
-            color = result["job_color"],
-            model = result["job_model"],
-            salary = result["job_salary"],
-            max_players = result["job_max_players"],
-            admin_only = result["job_admin_only"],
-            tag = result["job_tag"],
-            vote = result["job_vote"],
-            weapons = result["job_weapons"],
-            has_custom_swep = result["custom_swep"],
-            updated_on = datetime.datetime.utcnow(),
-            resources = json.dumps(result["job_resources"])
-        )
+        if (row is not None):
+            row.update_record(
+                job_id = result["job_job_id"],
+                name = result["job_name"],
+                description = result["job_desc"],
+                workshop = result["job_workshop"],
+                suggested_model = result["job_suggested_model"],
+                preview_url = result["preview_url"],
+                color = result["job_color"],
+                model = result["job_model"],
+                salary = result["job_salary"],
+                max_players = result["job_max_players"],
+                admin_only = result["job_admin_only"],
+                tag = result["job_tag"],
+                vote = result["job_vote"],
+                weapons = result["job_weapons"],
+                has_custom_swep = result["custom_swep"],
+                updated_on = datetime.datetime.utcnow(),
+                resources = json.dumps(result["job_resources"])
+            )
+            
+            # Fetch the updated job.
+            job = db((db.job.id == request.vars.job_id)).select().first()
         
-        # Return the updated job.
-        job = db((db.job.id == request.vars.job_id)).select().first()
         return response.json(dict(form=form, errors=False, job=job))
 
 def get_job():
-    job = db(db.job.id == request.vars.job_id).select().first()
+    job = db((db.job.id == request.vars.job_id) & ((db.job.user_id == auth.user_id) | (db.job.is_public == True))).select().first()
     return response.json(dict(error=(job is None), job=job))
 
 def get_jobs():
@@ -643,13 +649,16 @@ def add_comment():
     if request.vars.body.strip() == "":
         return response.json(dict(error="Comment cannot be empty."))
     else:
-        c_id = db.post.insert(
-            post_id = int(request.vars.id),
-            body = request.vars.body,
-            user_id = auth.user_id,
-            username = auth.user.username
-        )
-        c = db.post(c_id)
-        return response.json(dict(comment = dict(post_id = c.post_id, body=c.body,
-                                                user_id = c.user_id, username = c.username,
-                                                created_on = c.created_on.strftime("%B %d, %Y"))))
+        job = db((db.job.id == request.vars.id) & ((db.job.user_id == auth.user_id) | (db.job.is_public == True))).select().first()
+        
+        if (job is None):
+            return response.json(dict(error="Job no longer exists."))
+        else:
+            c_id = db.post.insert(
+                post_id = int(job.id),
+                body = request.vars.body
+            )
+            c = db.post(c_id)
+            return response.json(dict(comment = dict(post_id = c.post_id, body=c.body,
+                                                    user_id = c.user_id, username = c.username,
+                                                    created_on = c.created_on.strftime("%B %d, %Y"))))

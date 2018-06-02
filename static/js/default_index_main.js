@@ -378,7 +378,7 @@ var app = function() {
         vue.editing_job = false;
         
         // Hide the comment error
-        vue.comment_error = false;
+        vue.comment_error = null;
         
         // We are no longer showing job details.
         vue.showing_job_details = false;
@@ -413,11 +413,11 @@ var app = function() {
                 body: self.vue.comment_form
             },
             function (data) {
-                if (data.error) {
-                    self.vue.comment_error = true;
+                if (data.error != null) {
+                    self.vue.comment_error = data.error;
                 } else {
                     self.vue.comment_form = null;
-                    self.vue.comment_error = false;
+                    self.vue.comment_error = null;
                     self.vue.comments.unshift(data.comment);
                     enumerate(self.vue.comments);
                 }
@@ -594,7 +594,7 @@ var app = function() {
                 } else {
                     var job = data.job;
                     
-                    if (job != null && job) {
+                    if (job != null) {
                         // The form doesn't have errors, so update the job.
                         for (var i = 0; i < self.vue.jobs.length; i++) {
                             if (job.id == self.vue.jobs[i].id) {
@@ -622,6 +622,12 @@ var app = function() {
                         
                         // Update the jobs page.
                         self.get_jobs();
+                    } else {
+                        // The job doesn't exist anymore, so just go to un-edit mode.
+                        if (self.vue.edit_waiting) {
+                            self.vue.edit_waiting = false;
+                            self.toggle_edit_job();
+                        }
                     }
                 }
             }
@@ -655,19 +661,21 @@ var app = function() {
     }
     
     // Shows the player model page.
-    self.show_player_models = function() {      
-        var position = $("#Details").offset();
-        scroll(0, position.top);
-        
+    self.show_player_models = function() {
         self.vue.showing_player_models = true;
+        
+        setTimeout(function() {
+            self.scroll_to("Details", "start");
+        }, 20);
     }
     
     // Hides the player model page.
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
         
+        // We need to add a slight delay or it won't scroll on the first try.
         setTimeout(function() {
-            self.scroll_to_middle("#job_model");
+            self.scroll_to("job_model", "center");
         }, 0);
     }
     
@@ -791,15 +799,9 @@ var app = function() {
         Source:
                 https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
     */
-    self.scroll_to_middle = function(id) {
-        var $window = $(window),
-        $element = $(id),
-        elementTop = $(id)[0].getBoundingClientRect().top + $(window)['scrollTop'](),
-        elementHeight = $element.height(),
-        viewportHeight = $window.height(),
-        scrollIt = elementTop - ((viewportHeight - elementHeight) / 2);
-        
-        $window.scrollTop(scrollIt);
+    self.scroll_to = function(id, pos) {
+        var e = document.getElementById(id);
+        e.scrollIntoView({behavior: "smooth", block: pos, inline: pos});
     }
     
     // Called when the user switches between public and private jobs.
@@ -811,6 +813,16 @@ var app = function() {
         $('#homeLink').toggleClass('active');
         
         self.fetch_new_results();
+    }
+    
+    self.format_url = function(url) {
+        /*
+            Source: https://stackoverflow.com/questions/3543187/prepending-http-to-a-url-that-doesnt-already-contain-http
+        */
+        if (!/^https?:\/\//i.test(url)) {
+            url = 'http://' + url;
+        }
+        return url;
     }
     
     // Resource functions
@@ -827,6 +839,34 @@ var app = function() {
             // Remove the resource.
             vue.edit_job_resources.splice(idx, 1);
         }
+    }
+    
+    self.clear_filters = function() {
+        var vue = self.vue;
+        
+        vue.search_form = null;
+        
+        vue.min_players = null;
+        vue.max_players = null;
+        
+        vue.min_salary = null;
+        vue.max_salary = null;
+        
+        vue.checkedWeapons = [];
+        vue.checkedTags = [];
+        
+        vue.selectedTimeRange = "any";
+        vue.selectedSort = "newest";
+        
+        // Close the pannels
+        $("#filterTags").collapse("hide");
+        $("#filterWeapons").collapse("hide");
+        $("#filterSalary").collapse("hide");
+        $("#filterMaxPlayers").collapse("hide");
+        $("#filterPersonal").collapse("hide");
+        
+        // Fetch new results
+        self.fetch_new_results();
     }
     
     // Vue.js router
@@ -905,7 +945,7 @@ var app = function() {
             has_more: false,
             comments: [],
             comment_form: null,
-            comment_error: false,
+            comment_error: null,
             
             // Job editing
             editing_job: false,
@@ -989,6 +1029,9 @@ var app = function() {
             add_resource: self.add_resource,
             delete_resource: self.delete_resource,
             
+            // Clear filters
+            clear_filters: self.clear_filters,
+            
             // Misc. functions
             get_model_url: self.get_model_url,
             get_text_class: self.get_text_class,
@@ -997,6 +1040,7 @@ var app = function() {
             copy_code: self.copy_code,
             comma: self.comma,
             changed_public_jobs: self.changed_public_jobs,
+            format_url: self.format_url
         }
     });
     

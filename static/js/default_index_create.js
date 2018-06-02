@@ -217,23 +217,19 @@ var app = function() {
         Source:
             https://mikeauteri.com/2014/08/19/use-jquery-to-center-element-in-viewport/
     */
-    self.scroll_to_middle = function(id) {
-        var $window = $(window),
-        $element = $(id),
-        elementTop = $(id)[0].getBoundingClientRect().top + $(window)['scrollTop'](),
-        elementHeight = $element.height(),
-        viewportHeight = $window.height(),
-        scrollIt = elementTop - ((viewportHeight - elementHeight) / 2);
-        
-        $window.scrollTop(scrollIt);
+    self.scroll_to = function(id, pos) {
+        var e = document.getElementById(id);
+        e.scrollIntoView({behavior: "smooth", block: pos, inline: pos});
     }
     
     // Shows the player models page.
     self.show_player_models = function() {
-        var position = $("#job_info").offset();
-        scroll(0, position.top);
-        
         self.vue.showing_player_models = true;
+        
+        // We need to add a slight delay or it won't scroll on the first try.
+        setTimeout(function() {
+            self.scroll_to("createJobContainer", "start");
+        }, 20);
     }
     
     // Closes the player models page.
@@ -241,7 +237,7 @@ var app = function() {
         self.vue.showing_player_models = false;
         
         setTimeout(function() {
-            self.scroll_to_middle("#job_model");
+            self.scroll_to("job_model");
         }, 0);
     }
     
