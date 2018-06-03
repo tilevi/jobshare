@@ -9,7 +9,7 @@
     <script src="{{=URL('static','js/tagify.min.js')}}"></script>
     
     <!-- jQuery UI -->
-    <link href="{{=URL('static','css//jquery-ui.min.css')}}" rel="stylesheet" type="text/css"/>
+    <link href="{{=URL('static','css/jquery-ui.min.css')}}" rel="stylesheet" type="text/css"/>
     <script src="{{=URL('static','js/jquery-ui.min.js')}}"></script>
     
     <!-- Vue.js -->
@@ -78,7 +78,7 @@
 
                     <div class="form-group">
                         <label for="job_job_id">ID</label>
-                        <input v-model="job_job_id" v-on:keypress="is_job_id" id="job_job_id" class="form-control" placeholder="DOCTOR" maxlength=50/>
+                        <input v-model="job_job_id" v-on:keypress="is_job_id" id="job_job_id_input" class="form-control" placeholder="DOCTOR" maxlength=50/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_job_id != null" class="formError">${ job_errors.job_job_id }</div>
@@ -87,7 +87,7 @@
                     
                     <div class="form-group">
                         <label for="job_name">Name</label>
-                        <input v-model="job_name" v-on:keypress="is_job_name" id="job_name" class="form-control" placeholder="Doctor" maxlength=50/>
+                        <input v-model="job_name" v-on:keypress="is_job_name" id="job_name_input" class="form-control" placeholder="Doctor" maxlength=50/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_name != null" class="formError">${ job_errors.job_name }</div>
@@ -96,7 +96,7 @@
 
                     <div class="form-group">
                         <label for="job_description">Description</label>
-                        <input v-model="job_desc" v-on:keypress="is_job_description" id="job_description" class="form-control" placeholder="Heal the community." maxlength=50/>
+                        <input v-model="job_desc" v-on:keypress="is_job_description" id="job_desc_input" class="form-control" placeholder="Heal the community." maxlength=50/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_desc != null" class="formError">${ job_errors.job_desc }</div>
@@ -107,7 +107,7 @@
                         <label for="job_model">Player model</label>
                         <br/>
 
-                        <input id="job_model" v-model="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=50 onkeypress="return isJobModel(event);"/>
+                        <input id="job_model_input" v-model="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=50 onkeypress="return isJobModel(event);"/>
                         
                         <div style="margin-top: 5px;">
                             <span class="playerModelLink" v-on:click="show_player_models()">Browse player models</span>
@@ -121,7 +121,7 @@
                     <div class="form-group">
                         <label for="job_custom_model">Workshop Player Model</label>
                         
-                        <input id="job_custom_model" class="form-control" placeholder="Steam Workshop URL or Workshop ID" maxlength=200 v-model="job_workshop"/>
+                        <input id="job_workshop_input" class="form-control" placeholder="Steam Workshop URL or Workshop ID" maxlength=200 v-model="job_workshop"/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_workshop != null" class="formError">${ job_errors.job_workshop }</div>
@@ -129,7 +129,7 @@
                         
                         <label for="job_suggested_model" style="margin-top: 10px;">Suggested Character</label>
                         
-                        <input id="job_suggested_model" class="form-control" placeholder="Specify a character (e.g. Deadpool)" maxlength=200 v-model="job_suggested_model" v-on:keypress="is_job_description"/>
+                        <input id="job_suggested_model_input" class="form-control" placeholder="Specify a character (e.g. Deadpool)" maxlength=200 v-model="job_suggested_model" v-on:keypress="is_job_description"/>
                         
                         <div style="margin-top: 5px;">
                             <a href="https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Model" target="_blank">Browse the Steam Workshop</a>
@@ -148,7 +148,7 @@
                         <br/>
                         
                         <div style="min-height: 38px;">
-                            <color-it id="colorpicker" v-on:change="setRGB()" id="job_color" placeholder="" v-once></color-it>
+                            <color-it id="job_color_input" v-on:change="setRGB()" id="job_color" placeholder="" v-once></color-it>
                         </div>
                         
                         <transition name="slide-fade">
@@ -159,7 +159,7 @@
                     <div class="form-group">
                         <label for="job_salary">Salary</label>
                         <br/>
-                        <input v-model="job_salary" id="job_salary" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
+                        <input v-model="job_salary" id="job_salary_input" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_salary != null" class="formError">${ job_errors.job_salary }</div>
@@ -169,7 +169,7 @@
                     <div class="form-group">
                         <label for="job_salary">Max players</label>
                         <br/>
-                        <input v-model="job_max_players" id="job_max_players" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
+                        <input v-model="job_max_players" id="job_max_players_input" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_max_players != null" class="formError">${ job_errors.job_max_players }</div>
@@ -178,7 +178,7 @@
                     
                     <div class="form-group">
                         <label>Type</label>
-                        <select class="form-control" id="tag_form">
+                        <select class="form-control" id="job_tag_input">
                             <option value="Citizen" selected>Citizen</option>
                             <option value="Commercial">Commercial</option>
                             <option value="Criminal">Criminal</option>
@@ -199,7 +199,7 @@
                     <div class="form-group">
                         <label for="job_weapons">Weapons</label>
                         <br/>
-                        <tag-it id='weaponTags' name='tags' placeholder='Add weapon classes' value=''></tag-it>
+                        <tag-it id='job_weapons_input' name='tags' placeholder='Add weapon classes' value=''></tag-it>
                         <!-- Hidden input -->
                         <input v-model="job_weapons" id="job_weapons" placeholder="Add weapon classes" value="" type="hidden"/>
                         
@@ -216,21 +216,21 @@
                             <transition name="slide-fade">
                                 <div v-if="job_errors.job_vote != null" class="formError">${ job_errors.job_vote }</div>
                             </transition>
-                            <input v-model="job_vote" type="checkbox" class="form-check-input" id="job_vote">
-                            <label for="job_vote" class="noBottomMargin noSelect">Vote?</label>
+                            <input v-model="job_vote" type="checkbox" class="form-check-input" id="job_vote_input">
+                            <label for="job_vote_input" class="noBottomMargin noSelect">Vote?</label>
                         </div>
                         
                         <div class="form-check">
                             <transition name="slide-fade">
                                 <div v-if="job_errors.job_admin_only != null" class="formError">${ job_errors.job_admin_only }</div>
                             </transition>
-                            <input v-model="job_admin_only" type="checkbox" class="form-check-input" id="job_admin_only">
-                            <label for="job_admin_only" class="noBottomMargin noSelect">Admin Only?</label>
+                            <input v-model="job_admin_only" type="checkbox" class="form-check-input" id="job_admin_only_input">
+                            <label for="job_admin_only_input" class="noBottomMargin noSelect">Admin Only?</label>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label>Resource URLs (Workshop, garrysmod.org, etc.)</label>
+                        <label id="job_resources_input">Resource URLs (Workshop, garrysmod.org, etc.)</label>
                         <br/>
                         <div v-for="(res, index) in job_resources">
                             

@@ -16,7 +16,7 @@ var app = function() {
     Vue.component('tag-it', {
         template: '<input/>',
         mounted: function() {
-            var input = document.querySelector("#weaponTags");
+            var input = document.querySelector("#job_weapons_input");
             self.tagify = new Tagify(input, {
                 whitelist: self.wepClasses,
                 suggestionsMinChars: 0
@@ -58,7 +58,7 @@ var app = function() {
     Vue.component('color-it', {
         template: '<input/>',
         mounted: function() {
-            $("#colorpicker").spectrum({
+            $("#job_color_input").spectrum({
                 preferredFormat: "hex",
                 showInput: true,
                 color: "#" + ((self.vue) != null ? self.vue.job_color : "23B5EB"),
@@ -68,10 +68,9 @@ var app = function() {
             });
         },
         beforeDestroy: function() {
-            $("#colorpicker").spectrum("destroy");
+            $("#job_color_input").spectrum("destroy");
         }
     });
-    
     
     // Player models
     self.player_models = player_models;
@@ -83,8 +82,20 @@ var app = function() {
         self.wepClasses.push(wepObj.class);
     });
     
-    
     //// FUNCTIONS /////
+    
+    // The order is the level of priority from the top
+    self.error_order = ["job_name", "job_job_id", "job_desc", "job_tag", "job_salary", "job_max_players", "job_vote", "job_admin_only", "job_weapons", "job_color", "job_model", "job_workshop", "job_suggested_model", "job_resources"];
+    
+    self.scroll_to_top_error = function(errors) {
+        for (var i = 0; i < self.error_order.length; i++) {
+            var name = self.error_order[i];
+            if (errors[name] != null) {
+                self.scroll_to(name + "_input", "center");
+                break;
+            }
+        }
+    }
     
     // Submits the form.
     self.submit = function(makePublic) {
@@ -116,19 +127,20 @@ var app = function() {
                 job_salary: self.vue.job_salary,
                 job_max_players: self.vue.job_max_players,
                 job_color: self.vue.job_color,
-                weps: self.vue.job_weapons_arr,
-                job_tag: $("#tag_form").val(),
+                job_weapons: self.vue.job_weapons_arr,
+                job_tag: $("#job_tag_input").val(),
                 job_vote: self.vue.job_vote ? 1 : 0,
                 job_admin_only: self.vue.job_admin_only ? 1 : 0,
-                
-                make_public: makePublic ? 1 : 0,
-                
+                job_make_public: makePublic ? 1 : 0,
                 job_resources: self.vue.job_resources.json
             },
             function (data) {
                 if (data.errors) {
                     var vue = self.vue;
                     vue.job_errors = data.form.errors;
+                    
+                    // Scroll to the highest error
+                    self.scroll_to_top_error(vue.job_errors);
                     
                     // Re-enable the button
                     if (makePublic) {
@@ -196,7 +208,12 @@ var app = function() {
         }
     }
     
-    // Copies the code (located at the bottom of the page).
+    /*
+        Copies the GLua code (located at the bottom of the page).
+        
+        Code reference:
+            https://stackoverflow.com/questions/35841557/adding-new-line-in-jquery
+    */
     self.copy_code = function() {
         $("#copyButton").text("Copied!");
         setTimeout(function() {
@@ -229,15 +246,16 @@ var app = function() {
         // We need to add a slight delay or it won't scroll on the first try.
         setTimeout(function() {
             self.scroll_to("createJobContainer", "start");
-        }, 20);
+        }, 100);
     }
     
     // Closes the player models page.
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
         
+        // Scroll the model input
         setTimeout(function() {
-            self.scroll_to("job_model");
+            self.scroll_to("job_model_input", "end");
         }, 0);
     }
     
@@ -256,7 +274,7 @@ var app = function() {
     // Sets the color of the job
     // This function is called when a user picks a color.
     self.set_rgb = function() {
-        var hex = $("#colorpicker").spectrum("get").toHex();
+        var hex = $("#job_color_input").spectrum("get").toHex();
         var bigint = parseInt(hex, 16);
         
         var r = ((bigint >> 16) & 255);

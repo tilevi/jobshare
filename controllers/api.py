@@ -226,8 +226,11 @@ def verify_job(form, request):
     job_suggested_model = request.vars.job_suggested_model
     
     # Check the job resources
-    job_resources = json.loads(request.vars.job_resources)
-    check_resources(form, job_resources)
+    if (request.vars.job_resources is not None):
+        job_resources = json.loads(request.vars.job_resources)
+        check_resources(form, job_resources)
+    else:
+        job_resources = []
     
     # Dummy values.
     job_salary = 0
@@ -235,7 +238,7 @@ def verify_job(form, request):
     job_admin_only = False
     job_vote = False
     
-    job_weapons = request.vars.get("weps[]", [])
+    job_weapons = request.vars.get("job_weapons[]", [])
     if isinstance(job_weapons, basestring):
         job_weapons = [job_weapons]
     
@@ -286,8 +289,7 @@ def verify_job(form, request):
         check_players(form, job_max_players)
     
     # Determine whether or not this job should be made public.
-    if ((request.vars.make_public is not None) and 
-            int(request.vars.make_public) == 1):
+    if (request.vars.job_make_public == "true"):
         make_public = True
     else:
         make_public = False
@@ -319,18 +321,18 @@ def verify_job(form, request):
     if (request.vars.job_vote is None):
         form["errors"]["job_vote"] = "Vote option is missing."
     else:
-        if (int(request.vars.job_vote) == 0):
-            job_vote = False
-        else:
+        if (request.vars.job_vote == "true"):
             job_vote = True
+        else:
+            job_vote = False
     
     if (request.vars.job_admin_only is None):
         form["errors"]["job_admin_only"] = "Admin only option is missing."
     else:
-        if (int(request.vars.job_admin_only) == 0):
-            job_admin_only = False
-        else:
+        if (request.vars.job_admin_only == "true"):
             job_admin_only = True
+        else:
+            job_admin_only = False
     
     return dict(job_job_id=job_job_id,
                 job_name=job_name,
@@ -602,10 +604,14 @@ def toggle_job():
     return response.json(dict(is_public=row.is_public))
 
 def get_comments():
-    start_idx = int(request.vars.start) if request.vars.start is not None else 0
-    end_idx = int(request.vars.end) if request.vars.end is not None else 0
+    logged_in = auth.user is not None
     
-    id = int(request.vars.id)
+    try:
+        start_idx = int(request.vars.start)
+        end_idx = int(request.vars.end)
+        id = int(request.vars.id)
+    except:
+        return response.json(dict(comments=[], logged_in=logged_in, has_more=False))
     
     get_comments = []
     has_more = False
@@ -625,7 +631,7 @@ def get_comments():
             get_comments.append(c)
         else:
             has_more = True
-    logged_in = auth.user is not None
+    
     return response.json(dict(
         comments=get_comments,
         logged_in=logged_in,
@@ -647,7 +653,7 @@ def toggle_visibility():
 @auth.requires_signature()
 def add_comment():
     if request.vars.body.strip() == "":
-        return response.json(dict(error="Comment cannot be empty."))
+        return response.json(dict(error="Comments can't be empty."))
     else:
         job = db((db.job.id == request.vars.id) & ((db.job.user_id == auth.user_id) | (db.job.is_public == True))).select().first()
         

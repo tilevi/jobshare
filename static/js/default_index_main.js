@@ -39,7 +39,7 @@ var app = function() {
     Vue.component('tag-it', {
         template: '<input/>',
         mounted: function() {
-            var input = document.querySelector("#weaponTags");
+            var input = document.querySelector("#job_weapons_input");
             var tagify = new Tagify(input, {
                 whitelist : self.wepClasses,
                 suggestionsMinChars: 0
@@ -79,7 +79,7 @@ var app = function() {
     Vue.component('color-it', {
         template: '<input/>',
         mounted: function() {
-            $("#colorpicker").spectrum({
+            $("#job_color_input").spectrum({
                 preferredFormat: "hex",
                 showInput: true,
                 color: "#" + self.vue.selected_job.color,
@@ -87,6 +87,9 @@ var app = function() {
                     self.vue.set_rgb();
                 }
             });
+        },
+        beforeDestroy: function() {
+            $("#job_color_input").spectrum("destroy");
         }
     });
     
@@ -140,11 +143,11 @@ var app = function() {
             max_p: vue.max_players,
             min_s: vue.min_salary,
             max_s: vue.max_salary,
-            weps: vue.checkedWeapons,
-            tags: vue.checkedTags,
-            time_range: vue.selectedTimeRange,
-            sort: vue.selectedSort,
-            public: vue.selectedPublic
+            weps: vue.checked_weapons,
+            tags: vue.checked_tags,
+            time_range: vue.selected_time_range,
+            sort: vue.selected_sort,
+            public: vue.selected_public
         }, function (data) {
             vue.jobs = data.jobs;
             
@@ -232,9 +235,9 @@ var app = function() {
             var min_s = vue.min_salary;
             var max_s = vue.max_salary;
 
-            var time_range = vue.selectedTimeRange;
-            var selected_sort = vue.selectedSort;
-            var selected_public = vue.selectedPublic;
+            var time_range = vue.selected_time_range;
+            var selected_sort = vue.selected_sort;
+            var selected_public = vue.selected_public;
 
             if (search != null && search != '') {
                 pp.search = vue.search_form;
@@ -260,12 +263,12 @@ var app = function() {
                 pp.max_s = vue.max_salary;
             }
 
-            if (vue.checkedWeapons.length != 0) {
-                pp.weps = vue.checkedWeapons;
+            if (vue.checked_weapons.length != 0) {
+                pp.weps = vue.checked_weapons;
             }
             
-            if (vue.checkedTags.length != 0) {
-                pp.tags = vue.checkedTags;
+            if (vue.checked_tags.length != 0) {
+                pp.tags = vue.checked_tags;
             }
 
             if (time_range != null) {
@@ -277,7 +280,7 @@ var app = function() {
             }
             
             if (selected_public != null) {
-                pp.public = selected_public ? 1 : 0;
+                pp.public = selected_public;
             }
         }
         
@@ -543,6 +546,19 @@ var app = function() {
         }
     }
     
+    // The order is the level of priority from the top
+    self.error_order = ["job_name", "job_job_id", "job_desc", "job_tag", "job_salary", "job_max_players", "job_vote", "job_admin_only", "job_weapons", "job_color", "job_model", "job_workshop", "job_suggested_model", "job_resources"];
+    
+    self.scroll_to_top_error = function(errors) {
+        for (var i = 0; i < self.error_order.length; i++) {
+            var name = self.error_order[i];
+            if (errors[name] != null) {
+                self.scroll_to(name + "_input", "center");
+                break;
+            }
+        }
+    }
+    
     // Submits changes made to a job.
     self.submit = function() {
         var vue = self.vue;
@@ -574,11 +590,10 @@ var app = function() {
                 job_salary: vue.edit_job.salary,
                 job_max_players: vue.edit_job.max_players,
                 job_color: vue.edit_job.color,
-                weps: vue.edit_job.job_weapons_arr,
+                job_weapons: vue.edit_job.job_weapons_arr,
                 job_tag: vue.edit_job.tag,
-                job_vote: vue.edit_job.vote ? 1 : 0,
-                job_admin_only: vue.edit_job.admin_only ? 1 : 0,
-                
+                job_vote: vue.edit_job.vote,
+                job_admin_only: vue.edit_job.admin_only,
                 job_resources: vue.edit_job_resources.json
             },
             function (data) {
@@ -588,6 +603,9 @@ var app = function() {
                     var errors = data.form.errors;
                     vue.edit_errors = errors;
                     vue.edit_waiting = false;
+                    
+                    // Scroll to the highest error
+                    self.scroll_to_top_error(errors);
                     
                     // Re-enable the button
                     $("#submit_button").prop("disabled", false);
@@ -636,7 +654,7 @@ var app = function() {
     
     // Sets the RGB value for the color input.
     self.set_rgb = function() {
-        var hex = $("#colorpicker").spectrum("get").toHex();
+        var hex = $("#job_color_input").spectrum("get").toHex();
         var bigint = parseInt(hex, 16);
         
         var r = ((bigint >> 16) & 255);
@@ -666,7 +684,7 @@ var app = function() {
         
         setTimeout(function() {
             self.scroll_to("Details", "start");
-        }, 20);
+        }, 80);
     }
     
     // Hides the player model page.
@@ -675,7 +693,7 @@ var app = function() {
         
         // We need to add a slight delay or it won't scroll on the first try.
         setTimeout(function() {
-            self.scroll_to("job_model", "center");
+            self.scroll_to("job_model_input", "center");
         }, 0);
     }
     
@@ -806,7 +824,7 @@ var app = function() {
     
     // Called when the user switches between public and private jobs.
     self.changed_public_jobs = function() {
-        $('#header_text').html(self.vue.selectedPublic ? "Community" : "Your Jobs");
+        $('#header_text').html(self.vue.selected_public ? "Community" : "Your Jobs");
         
         // Toggle the class
         $('#jobsLink').toggleClass('active');
@@ -815,10 +833,13 @@ var app = function() {
         self.fetch_new_results();
     }
     
+    /*
+        Formats a URL.
+        
+        Source:
+            https://stackoverflow.com/questions/3543187/prepending-http-to-a-url-that-doesnt-already-contain-http
+    */
     self.format_url = function(url) {
-        /*
-            Source: https://stackoverflow.com/questions/3543187/prepending-http-to-a-url-that-doesnt-already-contain-http
-        */
         if (!/^https?:\/\//i.test(url)) {
             url = 'http://' + url;
         }
@@ -841,6 +862,7 @@ var app = function() {
         }
     }
     
+    // Clears the filters
     self.clear_filters = function() {
         var vue = self.vue;
         
@@ -852,11 +874,11 @@ var app = function() {
         vue.min_salary = null;
         vue.max_salary = null;
         
-        vue.checkedWeapons = [];
-        vue.checkedTags = [];
+        vue.checked_weapons = [];
+        vue.checked_tags = [];
         
-        vue.selectedTimeRange = "any";
-        vue.selectedSort = "newest";
+        vue.selected_time_range = "any";
+        vue.selected_sort = "newest";
         
         // Close the pannels
         $("#filterTags").collapse("hide");
@@ -891,8 +913,8 @@ var app = function() {
             
             // Filter options
             tags: ["Citizen", "Commercial", "Criminal", "Fun", "Government", "OP", "Misc."],
-            checkedWeapons: [],
-            checkedTags: [],
+            checked_weapons: [],
+            checked_tags: [],
             
             search_form: null,
             
@@ -902,11 +924,11 @@ var app = function() {
             min_players: null,
             max_players: null,
             
-            selectedPublic: true,
+            selected_public: true,
             isLoadingResults: false,
             
-            selectedTimeRange: "any",
-            selectedSort: "newest",
+            selected_time_range: "any",
+            selected_sort: "newest",
             
             // Job details page variables
             showing_job_details: false,
@@ -986,12 +1008,15 @@ var app = function() {
             my_username: my_username
         },
         methods: {
+            // Set new URL
+            set_new_url: self.set_new_url,
+            
             // Get jobs
             get_jobs: self.get_jobs,
             fetch_new_results: self.fetch_new_results,
             
-            // Set new URL
-            set_new_url: self.set_new_url,
+            // Clear filters
+            clear_filters: self.clear_filters,
             
             // Page functions
             prev_page: self.prev_page,
@@ -1029,9 +1054,6 @@ var app = function() {
             add_resource: self.add_resource,
             delete_resource: self.delete_resource,
             
-            // Clear filters
-            clear_filters: self.clear_filters,
-            
             // Misc. functions
             get_model_url: self.get_model_url,
             get_text_class: self.get_text_class,
@@ -1057,14 +1079,15 @@ var app = function() {
     self.vue.current_page = Math.max(1, self.vue.$route.query.page);
     
     // Sort by newest or most recent
-    self.vue.selectedSort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
+    self.vue.selected_sort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
     
+    ////
     
-    // Public or private jobs?
-    self.vue.selectedPublic = (my_username == null || self.vue.$route.query.public == "1");
+    /* Public or private jobs? */
+    self.vue.selected_public = (my_username == null || self.vue.$route.query.public == "true");
     
     // Set the highlight of one of the top bottoms.
-    if (self.vue.selectedPublic) {
+    if (self.vue.selected_public) {
         $('#jobsLink').addClass('active');
         $('#header_text').html("Community");
     } else {
@@ -1072,6 +1095,7 @@ var app = function() {
         $('#header_text').html("Your Jobs");
     }
     
+    ////
     
     // Range for max players
     self.vue.min_players = self.vue.$route.query.min_p;
@@ -1083,20 +1107,20 @@ var app = function() {
     
     // Get the weapons
     var wepArr = self.vue.$route.query["weps[]"];
-    self.vue.checkedWeapons = (wepArr != null) ? wepArr : [];
+    self.vue.checked_weapons = (wepArr != null) ? wepArr : [];
     
     // Convert it to an array, if necessary.
     if ((typeof wepArr) == "string") {
-        self.vue.checkedWeapons = [ wepArr ];
+        self.vue.checked_weapons = [ wepArr ];
     }
     
     // Get the job tags/types
     var tagArr = self.vue.$route.query["tags[]"];
-    self.vue.checkedTags = (tagArr != null) ? tagArr : [];
+    self.vue.checked_tags = (tagArr != null) ? tagArr : [];
     
     // Convert it to an array, if it's a string.
     if ((typeof tagArr) == "string") {
-        self.vue.checkedTags = [ tagArr ];
+        self.vue.checked_tags = [ tagArr ];
     }
     
     // Get the view id

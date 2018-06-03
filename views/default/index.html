@@ -105,7 +105,7 @@
                         <div id="filterTags" class="collapse noSelect">
                             <div class="cPanel">
                                 <div v-for="tag in tags" class="form-check oneLine">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="tag" v-bind:value="tag" v-model="checkedTags" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="tag" v-bind:value="tag" v-model="checked_tags" onclick="return !isLoadingResults;">
                                     <label v-bind:for="tag" class="noBottomMargin">${ tag }</label>
                                 </div>           
                             </div>
@@ -120,12 +120,12 @@
                         <div id="filterWeapons" class="collapse noSelect">
                             <div class="cPanel">
                                 <div v-for="wep in weps" class="form-check oneLine">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checkedWeapons" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checked_weapons" onclick="return !isLoadingResults;">
                                     <label v-bind:for="wep.class" class="noBottomMargin">${ wep.name }</label>
                                 </div>
                                 
                                 <div class="form-check">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="custom_swep" value="custom_swep" v-model="checkedWeapons" onclick="return !isLoadingResults;">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="custom_swep" value="custom_swep" v-model="checked_weapons" onclick="return !isLoadingResults;">
                                     <label for="custom_swep" class="hideOverflow noBottomMargin">Custom SWEP</label>
                                 </div>
                             </div>
@@ -196,7 +196,7 @@
                         <div id="filterPersonal" class="collapse noSelect">
                             <div class="cPanel">
                                 <div class="form-check">
-                                    <input v-on:change="changed_public_jobs()" type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="selectedPublic" onclick="return !isLoadingResults;">
+                                    <input v-on:change="changed_public_jobs()" type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="selected_public" onclick="return !isLoadingResults;">
                                     <label for="personal" class="noBottomMargin">Public jobs</label>
                                 </div>
                             </div>
@@ -213,12 +213,12 @@
             
             <div class="col-sm-8 col-md-9 col-lg-10">
                 <div>
-                    <select v-model="selectedSort" class="form-control" style="width: 200px; max-width: 100%; display: inline; margin: 4px 0px 4px 4px;"
+                    <select v-model="selected_sort" class="form-control" style="width: 200px; max-width: 100%; display: inline; margin: 4px 0px 4px 4px;"
                             v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
                         <option value="newest">Sort by: Newest jobs</option>
                         <option value="recent">Recently updated</option>
                     </select>
-                    <select v-model="selectedTimeRange" class="form-control" style="width: 200px; max-width: 100%; display: inline; margin: 4px 4px 4px 4px;"
+                    <select v-model="selected_time_range" class="form-control" style="width: 200px; max-width: 100%; display: inline; margin: 4px 4px 4px 4px;"
                             v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
                         <option value="any">Added: Any date</option>
                         <option value="day">In the past day</option>
@@ -276,10 +276,10 @@
                                             <div>
                                                 <div v-if="!editing_job" class="jobDetailsTextBottomLeft" v-bind:class="text_color">${ selected_job.name }</div>
                                                 
-                                                <textarea v-model="edit_job.name" v-if="editing_job" v-on:keypress="is_job_name" id="editTextJob" class="form-control" maxlength=50></textarea>
-
+                                                <textarea v-model="edit_job.name" v-if="editing_job" v-on:keypress="is_job_name" id="edit_job_name_input" class="form-control" maxlength=50></textarea>
+                                                
                                                 <transition name="slide-fade">
-                                                    <div v-if="edit_errors.job_name != null" id="jobNameErrorText" v-bind:class="text_color">${ edit_errors.job_name }</div>
+                                                    <div id="job_name_error" v-if="edit_errors.job_name != null" v-bind:class="text_color">${ edit_errors.job_name }</div>
                                                 </transition>
                                             </div>
                                         </td>
@@ -401,10 +401,10 @@
                                     <tr v-if="editing_job">
                                         <td class="min">Job ID:</td>
                                         <td>
-                                            <input v-model="edit_job.job_id" class="form-control" maxlength=50/>
+                                            <input id="job_job_id_input" v-model="edit_job.job_id" class="form-control" maxlength=50/>
                                             
                                             <transition name="slide-fade">
-                                                <div v-on:keypress="is_job_id" v-if="edit_errors.job_job_id != null" class="formError">${ edit_errors.job_job_id }</div>
+                                                <div id="job_job_id_error" v-on:keypress="is_job_id" v-if="edit_errors.job_job_id != null" class="formError">${ edit_errors.job_job_id }</div>
                                             </transition>
                                         </td>
                                     </tr>
@@ -415,10 +415,10 @@
 
                                             <span id="desc_form" v-if="!editing_job">${ selected_job.description }</span>
 
-                                            <textarea v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_description" class="tableData form-control descriptionText" style="width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
+                                            <textarea v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.description" v-on:blur="" id="job_desc_input" class="tableData form-control descriptionText" style="width: 100%; padding: 6px 12px 6px 12px;" maxlength=50></textarea>
                                             
                                             <transition name="slide-fade">
-                                                <div v-if="edit_errors.job_desc != null" class="formError">${ edit_errors.job_desc }</div>
+                                                <div id="job_desc_error" v-if="edit_errors.job_desc != null" class="formError">${ edit_errors.job_desc }</div>
                                             </transition>
                                         </td>
                                     </tr>
@@ -428,7 +428,7 @@
                                         <td class="tableData">
                                             <span v-if="!editing_job">${ selected_job.tag }</span>
 
-                                            <select v-model="edit_job.tag" class="form-control" id="tag_form" v-if="editing_job">
+                                            <select v-model="edit_job.tag" class="form-control" id="job_tag_input" v-if="editing_job">
                                                 <option>Citizen</option>
                                                 <option>Commercial</option>
                                                 <option>Criminal</option>
@@ -439,7 +439,7 @@
                                             </select>
                                             
                                             <transition name="slide-fade">
-                                                <div v-if="edit_errors.job_tag != null" class="formError">${ edit_errors.job_tag }</div>
+                                                <div id="job_tag_error" v-if="edit_errors.job_tag != null" class="formError">${ edit_errors.job_tag }</div>
                                             </transition>
                                         </td>
                                     </tr>
@@ -448,10 +448,10 @@
                                         <td class="min">Salary:</td>
                                         <td class="tableData">
                                             <span v-if="!editing_job"><span>$</span>${ comma(selected_job.salary) }</span>
-                                            <input v-model="edit_job.salary" v-if="editing_job" id="job_salary" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
+                                            <input v-model="edit_job.salary" v-if="editing_job" id="job_salary_input" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
                                             
                                             <transition name="slide-fade">
-                                                <div v-if="edit_errors.job_salary != null" class="formError">${ edit_errors.job_salary }</div>
+                                                <div  id="job_salary_error"v-if="edit_errors.job_salary != null" class="formError">${ edit_errors.job_salary }</div>
                                             </transition>
                                         </td>
                                     </tr>
@@ -460,10 +460,10 @@
                                         <td class="min">Max Players:</td>
                                         <td class="tableData">
                                             <span v-if="!editing_job">${ selected_job.max_players }</span>
-                                            <input v-model="edit_job.max_players" v-if="editing_job" id="job_max_players" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
+                                            <input v-model="edit_job.max_players" v-if="editing_job" id="job_max_players_input" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
                                             
                                             <transition name="slide-fade">
-                                                <div v-if="edit_errors.job_max_players != null" class="formError">${ edit_errors.job_max_players }</div>
+                                                <div id="job_max_players_error" v-if="edit_errors.job_max_players != null" class="formError">${ edit_errors.job_max_players }</div>
                                             </transition>
                                         </td>
                                     </tr>
@@ -474,11 +474,11 @@
                                             <span v-if="!editing_job">${ selected_job.vote ? "Yes" : "No" }</span>
 
                                             <div class="form-check" v-if="editing_job">
-                                                <input v-model="edit_job.vote" v-model="edit_job.vote" type="checkbox" class="form-check-input checkBox" id="job_vote">
-                                                <label for="job_vote" class="noBottomMargin noSelect">Vote?</label>
+                                                <input v-model="edit_job.vote" type="checkbox" class="form-check-input checkBox" id="job_vote_input">
+                                                <label for="job_vote_input" class="noBottomMargin noSelect">Vote?</label>
                                                 
                                                 <transition name="slide-fade">
-                                                    <div v-if="edit_errors.job_vote != null" class="formError">${ edit_errors.job_vote }</div>
+                                                    <div id="job_vote_error" v-if="edit_errors.job_vote != null" class="formError">${ edit_errors.job_vote }</div>
                                                 </transition>
                                             </div>
                                         </td>
@@ -489,11 +489,11 @@
                                         <td class="tableData">
                                             <span v-if="!editing_job">${ selected_job.admin_only  ? "Yes" : "No" }</span>
                                             <div class="form-check" v-if="editing_job">
-                                                <input v-model="edit_job.admin_only" type="checkbox" class="form-check-input checkBox" id="job_admin_only">
-                                                <label for="job_admin_only" class="noBottomMargin noSelect">Admin Only?</label>
+                                                <input v-model="edit_job.admin_only" type="checkbox" class="form-check-input checkBox" id="job_admin_only_input">
+                                                <label for="job_admin_only_input" class="noBottomMargin noSelect">Admin Only?</label>
                                                 
                                                 <transition name="slide-fade">
-                                                    <div v-if="edit_errors.job_admin_only != null" class="formError">${ edit_errors.job_admin_only }</div>
+                                                    <div id="job_admin_only_error" v-if="edit_errors.job_admin_only != null" class="formError">${ edit_errors.job_admin_only }</div>
                                                 </transition>
                                             </div>
                                         </td>
@@ -504,11 +504,11 @@
                                         <td class="tableData">
                                             <span v-if="!editing_job">${ job_weapons }</span>
                                             <div v-if="editing_job" style="background: white;">
-                                                <tag-it id='weaponTags' name='tags' placeholder='Add weapon classes' value=''></tag-it>
+                                                <tag-it id='job_weapons_input' name='tags' placeholder='Add weapon classes' value=''></tag-it>
                                             </div>
                                             
                                             <transition name="slide-fade">
-                                                <div v-if="edit_errors.job_weapons != null" class="formError">${ edit_errors.job_weapons }</div>
+                                                <div id="job_weapons_error" v-if="edit_errors.job_weapons != null" class="formError">${ edit_errors.job_weapons }</div>
                                             </transition>
                                         </td>
                                     </tr>
@@ -516,9 +516,9 @@
                                     <tr v-if="editing_job">
                                         <td class="min">Color:</td>
                                         <td>
-                                            <color-it id='colorpicker'></color-it>
+                                            <color-it id="job_color_input"></color-it>
                                             <transition name="slide-fade">
-                                                <div v-if="edit_errors.job_color != null" class="formError">${ edit_errors.job_color }</div>
+                                                <div id="job_color_error" v-if="edit_errors.job_color != null" class="formError">${ edit_errors.job_color }</div>
                                             </transition>
                                         </td>
                                     </tr>
@@ -526,10 +526,10 @@
                                     <tr v-if="editing_job">
                                         <td class="min">Player model:</td>
                                         <td>
-                                            <input id="job_model" v-model="edit_job.model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=50 onkeypress="return isJobModel(event);"/>
+                                            <input id="job_model_input" v-model="edit_job.model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=50 onkeypress="return isJobModel(event);"/>
                                             
                                             <transition name="slide-fade">
-                                                <div v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
+                                                <div id="job_model_error" v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
                                             </transition>
                                             
                                             <div style="margin-top: 5px;">
@@ -560,10 +560,10 @@
                                             <td>
                                                 <span v-if="!editing_job">${ selected_job.workshop }</span>
 
-                                                <input v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.workshop" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Steam Workshop URL or Workshop ID" maxlength=200/>
+                                                <input v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.workshop" id="job_workshop_input" class="tableData form-control" style="width: 100%;" placeholder="Steam Workshop URL or Workshop ID" maxlength=200/>
                                                 
                                                 <transition name="slide-fade">
-                                                    <div v-if="edit_errors.job_workshop != null" class="formError">${ edit_errors.job_workshop }</div>
+                                                    <div id="job_workshop_error" v-if="edit_errors.job_workshop != null" class="formError">${ edit_errors.job_workshop }</div>
                                                 </transition>
                                                 
                                                 <div v-if="editing_job" style="margin-top: 5px;">
@@ -580,13 +580,12 @@
                                         <tr v-if="editing_job || (selected_job.suggested_model != null && selected_job.suggested_model != '')">
                                             <td class="min">Character:</td>
                                             <td>
-
                                                 <span v-if="!editing_job">${ selected_job.suggested_model }</span>
 
-                                                <input v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.suggested_model" id="job_workshop" class="tableData form-control" style="width: 100%;" placeholder="Specify a character (e.g. Deadpool)" maxlength=200/>
+                                                <input v-on:keypress="is_job_description" v-if="editing_job" v-model="edit_job.suggested_model" id="job_suggested_model_input" class="tableData form-control" style="width: 100%;" placeholder="Specify a character (e.g. Deadpool)" maxlength=200/>
 
                                                 <transition name="slide-fade">
-                                                    <div v-if="edit_errors.job_suggested_model != null" class="formError">${ edit_errors.job_suggested_model }</div>
+                                                    <div id="job_suggested_model_error" v-if="edit_errors.job_suggested_model != null" class="formError">${ edit_errors.job_suggested_model }</div>
                                                 </transition>
                                             </td>
                                         </tr>
@@ -615,21 +614,17 @@
                                             </td>
                                         </tr>
                                         
-                                        
-                                        
-                                        <tr v-if="editing_job && edit_job_resources.length < 3">
+                                        <tr v-if="editing_job && edit_job_resources.length < 3" id="job_resources_input">
                                             <td v-if="edit_job_resources.length == 0" class="min">No resources:</td>
                                             <td v-if="edit_job_resources.length > 0" class="min"></td>
                                             <td>
                                                 <input class="submitButton" type="button" value="Add resource" v-on:click="add_resource"/>
                                                 
                                                 <transition name="slide-fade">
-                                                    <div v-if="edit_errors.job_resources != null" class="formError">${ edit_errors.job_resources }</div>
+                                                    <div id="job_resources_error" v-if="edit_errors.job_resources != null" class="formError">${ edit_errors.job_resources }</div>
                                                 </transition>
                                             </td>
                                         </tr>
-                                        
-                                        
                                         
                                         <tr v-for="(res, index) in job_resources" v-if="!editing_job">
                                             <td class="min">Resource ${ index + 1 }:</td>
@@ -672,11 +667,11 @@
                 </div>
             
                 <div v-if="!showing_job_details" class="row no-gutters" style="margin-top: 8px;">
-                    <div v-if="my_username == null && !selectedPublic && !isLoadingResults" class="messageDiv">
+                    <div v-if="my_username == null && !selected_public && !isLoadingResults" class="messageDiv">
                         <center><span class="messageText">You must be logged in to see your jobs.</span></center>
                     </div>
                 
-                    <div id="noViewableJobs" v-if="!first_load && !isLoadingResults && !(my_username == null && !selectedPublic) && (jobs.length == 0)" class="messageDiv">
+                    <div id="noViewableJobs" v-if="!first_load && !isLoadingResults && !(my_username == null && !selected_public) && (jobs.length == 0)" class="messageDiv">
                         <center><span class="messageText">Oops! There are no viewable jobs.</span></center>
                     </div>
 

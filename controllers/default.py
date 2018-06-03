@@ -37,8 +37,10 @@ def user():
     if request.args(0) == 'profile':
         db.auth_user.username.readable = db.auth_user.username.writable = False
     
+    # Source: https://groups.google.com/forum/#!topic/web2py/r_2nobzCGyc
+    
     if 'login' in request.args:
-        db.auth_user.username.label = T("Username/Email")
+        db.auth_user.username.label = T("Username")
         auth.settings.login_userfield = 'username'
         if request.vars.username and not IS_EMAIL()(request.vars.username)[1]:
             auth.settings.login_userfield = 'email'
