@@ -129,9 +129,9 @@ var app = function() {
                 job_color: self.vue.job_color,
                 job_weapons: self.vue.job_weapons_arr,
                 job_tag: $("#job_tag_input").val(),
-                job_vote: self.vue.job_vote ? 1 : 0,
-                job_admin_only: self.vue.job_admin_only ? 1 : 0,
-                job_make_public: makePublic ? 1 : 0,
+                job_vote: self.vue.job_vote,
+                job_admin_only: self.vue.job_admin_only,
+                job_make_public: makePublic,
                 job_resources: self.vue.job_resources.json
             },
             function (data) {
@@ -243,6 +243,9 @@ var app = function() {
     self.show_player_models = function() {
         self.vue.showing_player_models = true;
         
+        // Store the vertical scroll position
+        self.vue.scroll = $(window).scrollTop();
+        
         // We need to add a slight delay or it won't scroll on the first try.
         setTimeout(function() {
             self.scroll_to("createJobContainer", "start");
@@ -253,10 +256,8 @@ var app = function() {
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
         
-        // Scroll the model input
-        setTimeout(function() {
-            self.scroll_to("job_model_input", "end");
-        }, 0);
+        // Restore the vertical scroll position
+        $(window).scrollTop(self.vue.scroll);
     }
     
     /*
@@ -339,6 +340,7 @@ var app = function() {
             // Miscellaneous variables
             image_url: image_url,
             weps: self.weps,
+            scroll: 0
         },
         methods: {
             // Input field enforcers

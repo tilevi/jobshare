@@ -3,8 +3,8 @@ import datetime, requests, json
 from dateutil.relativedelta import *
 from urlparse import urlparse, parse_qs
 
-# The number of jobs to display per page.
-jobs_per_page = 6
+# The maximum number of jobs to display per page.
+jobs_per_page = 8
 
 # Workshop Endpoint
 # This function uses the Steam Web API to access Workshop information.
@@ -289,10 +289,16 @@ def verify_job(form, request):
         check_players(form, job_max_players)
     
     # Determine whether or not this job should be made public.
+    
+    logger.info("MAKE PUBLIC: %r" % request.vars.job_make_public)
+    
     if (request.vars.job_make_public == "true"):
         make_public = True
     else:
         make_public = False
+    
+    logger.info("SETTING TO: %r" % make_public)
+
     
     # Verify that all of the weapons contain valid characters.
     custom_swep = check_weapons(form, job_weapons)
@@ -518,6 +524,9 @@ def get_jobs():
         q = q & (db.job.is_public == True)
     else: # Otherwise, we just want our jobs.
         q = q & (db.job.user_id == auth.user_id)
+        # If public_jobs is true, then we only want to see our public jobs.
+        if (request.vars.public_jobs == "true"):
+            q = q & (db.job.is_public == True)
     
     # Filter the weapons.
     for wep in weps:

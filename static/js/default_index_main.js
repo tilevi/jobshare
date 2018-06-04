@@ -147,7 +147,8 @@ var app = function() {
             tags: vue.checked_tags,
             time_range: vue.selected_time_range,
             sort: vue.selected_sort,
-            public: vue.selected_public
+            public: vue.selected_public,
+            public_jobs: vue.public_jobs
         }, function (data) {
             vue.jobs = data.jobs;
             
@@ -371,6 +372,13 @@ var app = function() {
         
         // Set the new URL.
         self.set_new_url();
+        
+        // Store the vertical scroll position
+        self.vue.scroll_top = $(window).scrollTop();
+        
+        setTimeout(function() {
+            self.scroll_to("jobDetailsRow", "start");
+        }, 0);
     }
     
     // Closes the job details page.
@@ -387,7 +395,11 @@ var app = function() {
         vue.showing_job_details = false;
         vue.view_id = null;
         
+        // Set the URL
         self.set_new_url();
+        
+        // Set the vertical scroll position
+        $(window).scrollTop(self.vue.scroll_top);
     }
     
     // Gets comments
@@ -682,6 +694,9 @@ var app = function() {
     self.show_player_models = function() {
         self.vue.showing_player_models = true;
         
+        // Store the vertical scroll position
+        self.vue.edit_scroll = $(window).scrollTop();
+        
         setTimeout(function() {
             self.scroll_to("Details", "start");
         }, 80);
@@ -691,10 +706,9 @@ var app = function() {
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
         
-        // We need to add a slight delay or it won't scroll on the first try.
-        setTimeout(function() {
-            self.scroll_to("job_model_input", "center");
-        }, 0);
+        
+        // Restore the vertical scroll position
+        $(window).scrollTop(self.vue.edit_scroll);
     }
     
     // Called when a user clicks on a player model.
@@ -819,18 +833,14 @@ var app = function() {
     */
     self.scroll_to = function(id, pos) {
         var e = document.getElementById(id);
-        e.scrollIntoView({behavior: "smooth", block: pos, inline: pos});
-    }
-    
-    // Called when the user switches between public and private jobs.
-    self.changed_public_jobs = function() {
-        $('#header_text').html(self.vue.selected_public ? "Community" : "Your Jobs");
+        e.scrollIntoView({behavior: "instant", block: pos});
         
-        // Toggle the class
-        $('#jobsLink').toggleClass('active');
-        $('#homeLink').toggleClass('active');
-        
-        self.fetch_new_results();
+        // Show the top of the box.
+        var scrolledY = window.scrollY - 2;
+
+        if (scrolledY) {
+            window.scroll(0, scrolledY);
+        }
     }
     
     /*
@@ -880,6 +890,8 @@ var app = function() {
         vue.selected_time_range = "any";
         vue.selected_sort = "newest";
         
+        vue.public_jobs = false;
+        
         // Close the pannels
         $("#filterTags").collapse("hide");
         $("#filterWeapons").collapse("hide");
@@ -923,6 +935,9 @@ var app = function() {
             
             min_players: null,
             max_players: null,
+            
+            // True means that we want to show all of our public jobs.
+            public_jobs: false,
             
             selected_public: true,
             isLoadingResults: false,
@@ -990,6 +1005,8 @@ var app = function() {
             edit_job_admin_only: null,
             edit_job_tag: null,
             
+            edit_scroll: 0,
+            
             // Resources
             edit_job_resources: [{"name": "", "url": ""}],
             edit_job_resources_json: "",
@@ -1005,7 +1022,8 @@ var app = function() {
             // Misc. variables
             first_load: true,
             weps: self.weapons,
-            my_username: my_username
+            my_username: my_username,
+            scroll_top: 0
         },
         methods: {
             // Set new URL
@@ -1061,7 +1079,6 @@ var app = function() {
             hex_to_rgb: self.hex_to_rgb,
             copy_code: self.copy_code,
             comma: self.comma,
-            changed_public_jobs: self.changed_public_jobs,
             format_url: self.format_url
         }
     });
@@ -1088,11 +1105,11 @@ var app = function() {
     
     // Set the highlight of one of the top bottoms.
     if (self.vue.selected_public) {
-        $('#jobsLink').addClass('active');
-        $('#header_text').html("Community");
+        $("#jobsLink").addClass("active");
+        $("#header_text").text("Community");
     } else {
-        $('#homeLink').addClass('active');
-        $('#header_text').html("Your Jobs");
+        $("#homeLink").addClass("active");
+        $("#header_text").text("Your Jobs");
     }
     
     ////

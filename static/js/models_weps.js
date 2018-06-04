@@ -6,11 +6,36 @@ var player_models = [
         {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
         {image: "css_leet.png", model: "models/player/leet.mdl"}
     ],
+    
     [
         {image: "police.png", model: "models/player/police.mdl"},
         {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
         {image: "combineprison.png", model: "models/player/combine_soldier_prisonguard.mdl"},
         {image: "combine.png", model: "models/player/combine_soldier.mdl"}
+    ],
+    [
+        {image: "male11.png", model: "models/player/Group03/male_01.mdl"},
+        {image: "male12.png", model: "models/player/Group03/male_03.mdl"},
+        {image: "male13.png", model: "models/player/Group03/male_04.mdl"},
+        {image: "male14.png", model: "models/player/Group03/male_05.mdl"}
+    ],
+    [
+        {image: "male15.png", model: "models/player/Group03/male_06.mdl"},
+        {image: "male16.png", model: "models/player/Group03/male_07.mdl"},
+        {image: "male17.png", model: "models/player/Group03/male_08.mdl"},
+        {image: "male18.png", model: "models/player/Group03/male_09.mdl"}
+    ], 
+    [
+        {image: "mossmanarctic.png", model: "models/player/mossman_arctic.mdl"},
+        {image: "odessa.png", model: "models/player/odessa.mdl"},
+        {image: "magnusson.png", model: "models/player/magnusson.mdl"},
+        {image: "gman.png", model: "models/player/gman_high.mdl"}
+    ],
+    [
+        {image: "css_gasmask.png", model: "models/player/gasmask.mdl"},
+        {image: "css_urban.png", model: "models/player/urban.mdl"},
+        {image: "css_riot.png", model: "models/player/riot.mdl"},
+        {image: "css_swat.png", model: "models/player/swat.mdl"}
     ],
     [
         {image: "alyx.png", model: "models/player/alyx.mdl"},
