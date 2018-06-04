@@ -63,7 +63,7 @@ var app = function() {
                 showInput: true,
                 color: "#" + ((self.vue) != null ? self.vue.job_color : "23B5EB"),
                 change: function() {
-                    self.vue.set_rgb();
+                    self.set_rgb();
                 }
             });
         },
@@ -257,7 +257,9 @@ var app = function() {
         self.vue.showing_player_models = false;
         
         // Restore the vertical scroll position
-        $(window).scrollTop(self.vue.scroll);
+        setTimeout(function() {
+            $(window).scrollTop(self.vue.scroll);
+        }, 0);
     }
     
     /*
@@ -358,9 +360,6 @@ var app = function() {
             // Submit functions
             submit: self.submit,
             submit_share: self.submit_share,
-            
-            // Set RGB (for the color input field)
-            set_rgb: self.set_rgb,
             
             // Player model page functions
             show_player_models: self.show_player_models,

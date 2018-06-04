@@ -20,8 +20,8 @@ function toggleMaxPlayersIcon() {
     $("#filterMaxPlayersIcon").toggleClass("fa-rotate-180");
 }
 
-function togglePersonalIcon() {
-    $("#filterPersonalIcon").toggleClass("fa-rotate-180");
+function toggleMiscIcon() {
+    $("#filterMiscIcon").toggleClass("fa-rotate-180");
 }
 
 $(document).ready(function() {
@@ -43,7 +43,7 @@ $(document).ready(function() {
     $("#filterMaxPlayers").on("show.bs.collapse", toggleMaxPlayersIcon);
     $("#filterMaxPlayers").on("hide.bs.collapse", toggleMaxPlayersIcon);
 
-    // Filter personal jobs
-    $("#filterPersonal").on("show.bs.collapse", togglePersonalIcon);
-    $("#filterPersonal").on("hide.bs.collapse", togglePersonalIcon);
+    // Filter misc. options
+    $("#filterMisc").on("show.bs.collapse", toggleMiscIcon);
+    $("#filterMisc").on("hide.bs.collapse", toggleMiscIcon);
 });

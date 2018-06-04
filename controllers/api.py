@@ -1,3 +1,6 @@
+
+# Main controller
+
 import datetime, requests, json
 
 from dateutil.relativedelta import *
@@ -6,15 +9,25 @@ from urlparse import urlparse, parse_qs
 # The maximum number of jobs to display per page.
 jobs_per_page = 8
 
+# This was just for testing features.
+"""
+def setdate():
+    d = datetime.date(2017, 6, 15)
+    
+    q = (db.job.id == 8)
+    rows = db(q).select()
+    
+    for row in rows:
+        row.update_record(created_on=d)
+"""
+
 # Workshop Endpoint
 # This function uses the Steam Web API to access Workshop information.
 def workshop():
     id = request.vars.id
     
     r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***", data = {"itemcount": 1, "publishedfileids[0]": id})
-    
-    logger.info(r.text)
-    
+        
     title = "Not available"
     file_size = "Not available"
     
@@ -136,7 +149,13 @@ weapons = dict(
     weapon_mp5navy=True,
     weapon_ump45=True,
     weapon_p90=True,
-    weapon_m249=True
+    weapon_m249=True,
+    lockpick=True,
+    keypad_cracker=True,
+    weapon_stunstick=True,
+    arrest_stick=True,
+    unarrest_stick=True,
+    weapon_bugbait=True,
 )
 
 # Check the weapons.
@@ -528,6 +547,18 @@ def get_jobs():
         if (request.vars.public_jobs == "true"):
             q = q & (db.job.is_public == True)
     
+    # Search for custom models?
+    if (request.vars.custom_model == "true"):
+        q = q & (db.job.workshop != "")
+    
+    # Vote only?
+    if (request.vars.vote_only == "true"):
+        q = q & (db.job.vote == True)
+    
+    # Admin only?
+    if (request.vars.admin_only == "true"):
+        q = q & (db.job.admin_only == True)
+    
     # Filter the weapons.
     for wep in weps:
         if wep != "custom_swep":
@@ -552,15 +583,18 @@ def get_jobs():
     #   https://groups.google.com/forum/#!topic/web2py/PrIo2I-fgCc
     #   https://stackoverflow.com/questions/35066588/is-there-a-simple-way-to-increment-a-datetime-object-one-month-in-python
     if (time_range != "any"):
+        # Grab today's date.
+        todaysDate = datetime.datetime.utcnow().date()
+        
         if (time_range == "day"):
-            q = q & (db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(days=+1) ) )
+            q = q & (db.job.created_on >= ( todaysDate - relativedelta(days=+1) ) )
         elif (time_range == "week"):
-            q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(weeks=+1) ) )
+            q = q & ( db.job.created_on >= ( todaysDate - relativedelta(weeks=+1) ) )
         elif (time_range == "month"):
-            q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(months=+1) ) )
+            q = q & ( db.job.created_on >= ( todaysDate - relativedelta(months=+1) ) )
         elif (time_range == "year"):
-            q = q & ( db.job.created_on >= ( datetime.datetime.utcnow().date() - relativedelta(years=+1) ) ) 
-
+            q = q & ( db.job.created_on >= ( todaysDate - relativedelta(years=+1) ) )
+        
     if (max_salary >= 0):
         q = q & (db.job.salary <= max_salary)
 

@@ -240,6 +240,10 @@
                                 <input v-model="res.url" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource URL" type="url" value="" maxlength=100/>
                                 
                                 <input class="deleteResource" type="button" value="Delete resource" v-on:click="delete_resource(index)"/>
+                                
+                                <div v-if="index == (job_resources.length - 1)">
+                                    <a href="https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Weapon" target="_blank">Browse the Steam Workshop</a>
+                                </div>
                             </div>
                         </div>
                         
@@ -280,7 +284,8 @@
                         </div>
                     </div>    
                 </div>
-
+                
+                <!-- NOTE: This part is not fully tabbed on purpose. -->
                 <pre class="preCode"><code><div id="genCode">TEAM_${job_job_id} = DarkRP.createJob(<span class="red">"${ job_name }"</span>, {
     description = <span class="red">"${ job_desc }"</span>,
     color = Color(<span class="red">${ job_color_arr[0] }</span>, <span class="red">${ job_color_arr[1] }</span>, <span class="red">${ job_color_arr[2] }</span>),

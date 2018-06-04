@@ -14,6 +14,7 @@
     
     <!-- Vue.js -->
     <script src="{{=URL('static','js/vue.min.js')}}"></script>
+    <!-- Vue.js router -->
     <script src="{{=URL('static', 'js/vue-router.min.js')}}"></script>
     
     <!-- Misc. JS -->
@@ -112,7 +113,7 @@
                         </div>
                     </div>
                 
-                    <div style="margin-top: 10px;">
+                    <div class="marginTop10">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterWeapons">
                             <p class="sideFix"><i id="filterWeaponIcon" class="fa fa-chevron-down"></i>FILTER BY WEAPONS</p>
                         </div>
@@ -132,7 +133,7 @@
                         </div>
                     </div>
                 
-                    <div style="margin-top: 10px;">
+                    <div class="marginTop10">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterSalary">
                             <p class="sideFix"><i id="filterSalaryIcon" class="fa fa-chevron-down"></i>FILTER BY SALARY</p>
                         </div>
@@ -164,7 +165,7 @@
                         </div>
                     </div>
                     
-                    <div style="margin-top: 10px;">
+                    <div class="marginTop10">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterMaxPlayers">
                             <p class="sideFix"><i id="filterMaxPlayersIcon" class="fa fa-chevron-down"></i>BY MAX PLAYERS</p>
                         </div>
@@ -188,22 +189,37 @@
                         </div>
                     </div>
                     
-                    <div v-if="!selected_public" style="margin-top: 10px;">
-                        <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterPersonal">
-                            <p class="sideFix"><i id="filterPersonalIcon" class="fa fa-chevron-down"></i>BY PUBLIC JOBS</p>
+                    <div class="marginTop10">
+                        <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterMisc">
+                            <p class="sideFix"><i id="filterMiscIcon" class="fa fa-chevron-down"></i>BY MISCELLANEOUS</p>
                         </div>
-
-                        <div id="filterPersonal" class="collapse noSelect">
+                        
+                        <div id="filterMisc" class="collapse noSelect">
                             <div class="cPanel">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="public_jobs" v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
+                                <div v-if="!selected_public" class="form-check">
+                                    <input  type="checkbox" class="form-check-input checkBox" id="personal" value="personal" v-model="public_jobs" v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
                                     <label for="personal" class="noBottomMargin">Public jobs</label>
+                                </div>
+                                                        
+                                <div class="form-check">
+                                    <input  type="checkbox" class="form-check-input checkBox" id="vote_only" value="vote_only" v-model="vote_only" v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
+                                    <label for="vote_only" class="noBottomMargin">Vote?</label>
+                                </div>
+                                
+                                <div class="form-check">
+                                    <input  type="checkbox" class="form-check-input checkBox" id="admin_only" value="admin_only" v-model="admin_only" v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
+                                    <label for="admin_only" class="noBottomMargin">Admin only?</label>
+                                </div>
+                                
+                                <div class="form-check">
+                                    <input  type="checkbox" class="form-check-input checkBox" id="custom_model" value="custom_model" v-model="custom_model" v-on:change="fetch_new_results()" onclick="return !isLoadingResults;">
+                                    <label for="custom_model" class="noBottomMargin">Custom model</label>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div style="margin-top: 10px;">
+                    <div class="marginTop10">
                         <div id="clearFilters" class="noSelect" v-on:click="clear_filters()" onclick="return !isLoadingResults;">
                             <center><span>Clear Filters</span></center>
                         </div>
@@ -227,15 +243,14 @@
                         <option value="year">In the past year</option>
                     </select>
 
-                    <i v-if="isLoadingResults" class="fa fa-spinner fa-spin" style="color: black;"></i>
+                    <i v-if="is_loading_results" class="fa fa-spinner fa-spin" style="color: black;"></i>
 
                     <span class="pull-right hidden-sm" style="margin: 2px;">
                         <a href="{{=URL('default', 'create')}}"><button class="createJobButton"><i class="fa fa-plus"></i>&#8203;</button></a>
                     </span>
                 </div>
                 
-                <div v-if="showing_job_details" id="jobDetailsRow" class="row no-gutters rounded" style="margin: 4px;" v-bind:style="{ background: '#' + selected_job.color + '59' }">
-                
+                <div v-if="showing_job_details" id="jobDetailsRow" class="row no-gutters rounded" style="margin: 2px;" v-bind:style="{ background: '#' + selected_job.color + '59' }">
                     <div class="container">
                         <div class="row">
                             <div id="jobRowHeader" class="col-md-12" v-bind:style="{ background: '#' + selected_job.color }">
@@ -261,7 +276,6 @@
                     </div>
                              
                     <div style="width: 100%;" v-bind:style="{ background: '#' + selected_job.color }">
-                                        
                         <div class="table-responsive" style="padding-left: 8px; padding-right: 8px;">
                             <table class="table" style="margin-bottom: 0px !important;">
                                 <tbody>
@@ -300,77 +314,11 @@
                             <div class="tablinks" v-bind:class="{ active: (job_current_tab == 2) }" v-on:click="open_tab(2)">Comments</div>
                         </div>
                     </div>
-                
-                
-                    <div id="Comments" style="width: 100%;" v-bind:style="{ display: (job_current_tab == 2) ? 'block' : 'none' }">
-                        {{if auth.user is not None:}}
-                            <div class="container" style="padding: 20px; padding-top: 35px; background: white;">
-                                <div class="form-group" style="margin-bottom: 0px;">
-                                    <textarea class="form-control" style="width: 100%;" placeholder="Leave a comment" v-model="comment_form"></textarea>
-
-                                    <div class="commentError" v-if="comment_error != null">
-                                        ${ comment_error }
-                                    </div>
-                                </div>
-
-                                <div style="margin-bottom: 0px; margin-top: 0px; text-align: right;">
-                                    <input class="submitButton" type="button" value="Comment" v-on:click="add_comment()" style="display: inline-block;"/>
-                                </div>
-                            </div>
-                        {{else:}}
-                            <div class="container" style="padding: 20px; padding-top: 35px; background: white;">
-                                <div v-if="comments.length <= 0" class="commentError" style="font-size: 20px;">
-                                    <center>You must be logged in to post a comment.</center>
-                                </div>
-                            </div>
-                        {{pass}}
                     
-                        <div v-for="comment in comments"> 
-                            <div class="comment">
-                                <div class="comment_top">
-                                    <b>${comment.username} <span v-if="comment.username == selected_job.created_by" style="font-size: 9px; color: #ffffff; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
-                                </div>
+                    <!-- Details tab.
 
-                                <div class="comment_text">
-                                    ${comment.body}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div v-if="has_more" class="show_more">
-
-                            <div style="width: 100%; background: white; padding: 10px; padding-left: 20px; padding-right: 20px;">
-                                <button class="btn btn-default loadMore" v-on:click="get_more()">
-                                    Load more
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="Code" v-bind:style="{ display: (job_current_tab == 1) ? 'block' : 'none' }" style="width: 100%; background: white;">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-md-12" style="padding: 0 !important;">
-                                    <div id="copyButton" class="pull-right noSelect pointer" v-on:click="copy_code">Copy</div>
-                                </div>
-                            </div>
-                        </div>
-       
-<pre class="preCode"><code><div id="genCode">TEAM_${selected_job.job_id} = DarkRP.createJob(<span class="red">"${ selected_job.name }"</span>, {
-    color = Color(<span class="red">${ (job_color_rgb[0]) }</span>, <span class="red">${ (job_color_rgb[1]) }</span>, <span class="red">${ (job_color_rgb[2]) }</span>),
-    model = <span class="red">"${ selected_job.model }"</span>,
-    weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
-    description = <span class="red">"${ selected_job.description }"</span>
-    command = <span class="red">"${ job_command }"</span>
-    max = <span class="red">${ selected_job.max_players }</span>,
-    salary = <span class="red">${ selected_job.salary }</span>,
-    vote = <span class="blue">${ selected_job.vote }</span>,
-    admin = <span class="blue">${ selected_job.admin_only }</span>
-})</div></code></pre>
-                    </div>
-
-                    <!-- https://stackoverflow.com/questions/26983301/how-to-make-a-table-column-be-a-minimum-width -->
-                    <div id="Details" class="table-responsive" v-bind:style="{ display: (job_current_tab == 0) ? 'block' : 'none' }">
+                         Resource: https://stackoverflow.com/questions/26983301/how-to-make-a-table-column-be-a-minimum-width -->
+                    <div id="details" class="table-responsive" v-bind:style="{ display: (job_current_tab == 0) ? 'block' : 'none' }">
                         <div id="player_models" v-if="showing_player_models" style="padding: 20px; padding-top: 5px;">
                             <div class="container">
                                 <div class="row">
@@ -390,7 +338,7 @@
                                             <img style="width: 100%;" v-bind:src="image_url + '/' + obj.image"/>
                                         </div>
                                         <div style="padding: 0px 10px 10px 10px;">
-                                            <input class="form-control" style="margin-top: 10px;" type="text" v-bind:value="obj.model" disabled/>
+                                            <input class="form-control marginTop10" type="text" v-bind:value="obj.model" disabled/>
                                         </div>
                                     </div>
                                 </div>  
@@ -598,7 +546,6 @@
                                 </table>
                             </div>
                             
-                            
                             <div class="table-responsive" v-if="editing_job || (job_resources.length != 0)">
                                 <div class="jobDetailsHeaderText"><u>Resource Links</u></div>
                                 
@@ -606,7 +553,7 @@
                                     <tbody>
                                         
                                         <tr v-for="(res, index) in edit_job_resources" v-if="editing_job">
-                                            <td class="min">Resource ${ index + 1 }:</td>
+                                            <td class="min">External Resource ${ index + 1 }:</td>
                                             <td>
                                                 <div style="margin-bottom: 5px;">
                                                     <input v-model="res.name" v-on:keypress="is_job_name" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource Name" value="" maxlength=50/>
@@ -614,6 +561,10 @@
                                                     <input v-model="res.url" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource URL" type="url" value="" maxlength=100/>
 
                                                     <input class="deleteResource" type="button" value="Delete resource" v-on:click="delete_resource(index)"/>
+                                                    
+                                                    <div v-if="index == (edit_job_resources.length - 1)">
+                                                        <a href="https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Weapon" target="_blank" style="color: black; font-weight: bold;">Browse the Steam Workshop</a>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -631,16 +582,17 @@
                                         </tr>
                                         
                                         <tr v-for="(res, index) in job_resources" v-if="!editing_job">
-                                            <td class="min">Resource ${ index + 1 }:</td>
+                                            <td class="min">External Resource ${ index + 1 }:</td>
                                             <td>
-                                                <a style="color: black; font-weight: bold;" v-bind:href="format_url(res.url)" target="_blank">${ res.name + " (" + format_url(res.url) + ")" }</a>
+                                                <span style="color: black;">${ res.name }</span>
+                                                <br/>
+                                                <a style="color: black; font-weight: bold;" v-bind:href="format_url(res.url)" target="_blank">${ format_url(res.url) }</a>
                                             </td>
                                         </tr>
                                         
                                         <tr v-if="editing_job">
                                             <td class="min"></td>
                                             <td>
-                                                
                                                 <div class="container">
                                                     <div class="row">
                                                         <div id="rowHeader" class="col-md-12">
@@ -651,18 +603,84 @@
                                                         </div>
                                                     </div>    
                                                 </div>
-                                                
                                             </td>
                                         </tr>
-                                        
-                                        
                                     </tbody>
                                 </table>
                             </div>
-                            
                         </div>
                     </div>
                     
+                    <!-- Code tab -->
+                    <div id="code" v-bind:style="{ display: (job_current_tab == 1) ? 'block' : 'none' }" style="width: 100%; background: white;">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12" style="padding: 0 !important;">
+                                    <div id="copyButton" class="pull-right noSelect pointer" v-on:click="copy_code">Copy</div>
+                                </div>
+                            </div>
+                        </div>
+
+<!-- NOTE: This part is not tabbed on purpose. -->
+<pre class="preCode"><code><div id="genCode">TEAM_${selected_job.job_id} = DarkRP.createJob(<span class="red">"${ selected_job.name }"</span>, {
+    color = Color(<span class="red">${ (job_color_rgb[0]) }</span>, <span class="red">${ (job_color_rgb[1]) }</span>, <span class="red">${ (job_color_rgb[2]) }</span>),
+    model = <span class="red">"${ selected_job.model }"</span>,
+    weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
+    description = <span class="red">"${ selected_job.description }"</span>
+    command = <span class="red">"${ job_command }"</span>
+    max = <span class="red">${ selected_job.max_players }</span>,
+    salary = <span class="red">${ selected_job.salary }</span>,
+    vote = <span class="blue">${ selected_job.vote }</span>,
+    admin = <span class="blue">${ selected_job.admin_only }</span>
+})</div></code></pre>
+                    </div>
+                    
+                    <!-- Comments tab -->
+                    <div id="comments" style="width: 100%;" v-bind:style="{ display: (job_current_tab == 2) ? 'block' : 'none' }">
+                        {{if auth.user is not None:}}
+                            <div class="container" style="padding: 20px; padding-top: 35px; background: white;">
+                                <div class="form-group" style="margin-bottom: 0px;">
+                                    <textarea class="form-control" style="width: 100%;" placeholder="Leave a comment" v-model="comment_form"></textarea>
+
+                                    <div class="commentError" v-if="comment_error != null">
+                                        ${ comment_error }
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 0px; margin-top: 0px; text-align: right;">
+                                    <input class="submitButton" type="button" value="Comment" v-on:click="add_comment()" style="display: inline-block;"/>
+                                </div>
+                            </div>
+                        {{else:}}
+                            <div class="container" style="padding: 20px; padding-top: 35px; background: white;">
+                                <div v-if="comments.length <= 0" class="commentError" style="font-size: 20px;">
+                                    <center>You must be logged in to post a comment.</center>
+                                </div>
+                            </div>
+                        {{pass}}
+                    
+                        <div v-for="comment in comments"> 
+                            <div class="comment">
+                                <div class="comment_top">
+                                    <b>${comment.username} <span v-if="comment.username == selected_job.created_by" style="font-size: 9px; color: #ffffff; background: green; padding: 2px 4px 2px 4px;">author</span></b> commented on ${comment.created_on}
+                                </div>
+
+                                <div class="comment_text">
+                                    ${comment.body}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div v-if="has_more" class="show_more">
+
+                            <div style="width: 100%; background: white; padding: 10px; padding-left: 20px; padding-right: 20px;">
+                                <button class="btn btn-default loadMore" v-on:click="get_more()">
+                                    Load more
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                                        
                     <div class="postedBy">
                         <div class="postedByText">
                             Posted by: ${ selected_job.created_by }
@@ -671,17 +689,17 @@
                 </div>
             
                 <div v-if="!showing_job_details" class="row no-gutters" style="margin-top: 4px;">
-                    <div v-if="my_username == null && !selected_public && !isLoadingResults" class="messageDiv">
+                    <div v-if="my_username == null && !selected_public && !is_loading_results" class="messageDiv">
                         <center><span class="messageText">You must be logged in to see your jobs.</span></center>
                     </div>
                 
-                    <div id="noViewableJobs" v-if="!first_load && !isLoadingResults && !(my_username == null && !selected_public) && (jobs.length == 0)" class="messageDiv">
+                    <div id="noViewableJobs" v-if="!first_load && !is_loading_results && !(my_username == null && !selected_public) && (jobs.length == 0)" class="messageDiv">
                         <center><span class="messageText">Oops! There are no viewable jobs.</span></center>
                     </div>
 
                     <div class="col-lg-6">
-                        <div v-for="job in even_jobs" class="pointer noSelect" style="padding: 0px 2px 2px 2px;">
-                            <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
+                        <div v-for="(job, index) in even_jobs" class="pointer noSelect" style="padding: 0px 2px 2px 2px;">
+                            <div class="roundedCorners" v-bind:id="'even_job_' + index" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
                                     <img v-if="job.preview_url == ''" v-bind:src="get_model_url(job.model)" class="image64 imageFloatLeft"/>
 
@@ -706,8 +724,8 @@
                     </div>
                     
                     <div class="col-lg-6">
-                        <div v-for="job in odd_jobs" class="pointer noSelect" style="padding: 0px 2px 2px 2px;">
-                            <div class="roundedCorners" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
+                        <div v-for="(job, index) in odd_jobs" class="pointer noSelect" style="padding: 0px 2px 2px 2px;">
+                            <div class="roundedCorners" v-bind:id="'odd_job_' + index" v-bind:style="{ background: '#' + job.color + '59' }" v-on:click="show_job_details(job)">
                                 <div class="whiteGloss" v-bind:style="{ background: '#' + job.color }">
                                     <img v-if="job.preview_url == ''" v-bind:src="get_model_url(job.model)" class="image64 imageFloatLeft"/>
 
@@ -736,7 +754,6 @@
                     <div class="col-md-12">
                         <nav aria-label="Page navigation example">
                             <ul class="pagination justify-content-end" style="padding: 4px;">
-
                                 <li class="page-item noSelect" v-bind:class="{disabled: current_page == 1}">
                                     <a class="page-link" v-on:click="prev_page()">Previous</a>
                                 </li>
@@ -757,38 +774,11 @@
     </div>
 </div>
 
+<!-- Vue code for the page. -->
 <script src="{{=URL('static', 'js/default_index_main.js')}}"></script>
+
+<!-- Controls the icons for the side panel. -->
 <script src="{{=URL('static', 'js/icons.js')}}"></script>
 
-
-<script>
-    var homeOrisCommunityClicked = function(getCommunityJobs) {
-        var vue = APP.vue;
-        // selected_public is true when we're showing community jobs.
-        // It is false if we're showing personal jobs.
-        if (!isLoadingResults && (vue.selected_public != getCommunityJobs)) {
-            // Toggle the public variable
-            vue.selected_public = getCommunityJobs;
-            vue.fetch_new_results();
-            
-            $("#jobsLink").toggleClass("active");
-            $("#homeLink").toggleClass("active");
-            
-            // Change the header text
-            $("#header_text").html(getCommunityJobs ? "Community" : "Your Jobs");
-        } else if (!isLoadingResults && (vue.selected_public == getCommunityJobs)) {
-            // Otherwise, the user must want to refresh the results.
-            // So go ahead.
-            vue.fetch_new_results();
-        }
-    }
-    
-    $("#homeLink").click(function(e) {
-        e.preventDefault();
-        homeOrisCommunityClicked(false);
-    });
-    $("#jobsLink").click(function(e) {
-        e.preventDefault();
-        homeOrisCommunityClicked(true);
-    });
-</script>
+<!-- Controls the "Home" and "Community" buttons. -->
+<script src="{{=URL('static', 'js/top_buttons.js')}}"></script>

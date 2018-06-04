@@ -84,7 +84,7 @@ var app = function() {
                 showInput: true,
                 color: "#" + self.vue.selected_job.color,
                 change: function() {
-                    self.vue.set_rgb();
+                    self.set_rgb();
                 }
             });
         },
@@ -129,11 +129,29 @@ var app = function() {
         });
     };
     
+    /*
+        Scrolls an element into view
+        
+        Source:
+                https://stackoverflow.com/questions/5685589/scroll-to-element-only-if-not-in-view-jquery
+    */
+    var scrollIntoViewIfNeeded = function(target) {
+        if (target != null) {
+            var rect = target.getBoundingClientRect();
+            if (rect.bottom > window.innerHeight) {
+                target.scrollIntoView(false);
+            }
+            if (rect.top < 0) {
+                target.scrollIntoView();
+            }
+        }
+    }
+    
     // Gets the jobs.
     self.get_jobs = function() {
         var vue = self.vue;
         
-        vue.isLoadingResults = true;
+        vue.is_loading_results = true;
         isLoadingResults = true;
         
         $.post(jobs_url, {
@@ -148,7 +166,10 @@ var app = function() {
             time_range: vue.selected_time_range,
             sort: vue.selected_sort,
             public: vue.selected_public,
-            public_jobs: vue.public_jobs
+            public_jobs: vue.public_jobs,
+            custom_model: vue.custom_model,
+            vote_only: vue.vote_only,
+            admin_only: vue.admin_only
         }, function (data) {
             vue.jobs = data.jobs;
             
@@ -176,6 +197,12 @@ var app = function() {
                 }
             }
             
+            // Scroll the first job into view
+            setTimeout(function() {
+                scrollIntoViewIfNeeded(document.getElementById("even_job_0"));
+            }, 0);
+            
+            
             // Page stats
             vue.count = data.count;
             vue.pages = data.pages;
@@ -187,7 +214,7 @@ var app = function() {
             self.set_new_url();
             
             // We are done loading.
-            vue.isLoadingResults = false;
+            vue.is_loading_results = false;
             isLoadingResults = false;
         })
     };
@@ -306,8 +333,10 @@ var app = function() {
     
     // Sets the page.
     self.set_page = function(page) {
-        self.vue.current_page = page;
-        self.get_jobs();
+        if (!self.vue.is_loading_results) {
+            self.vue.current_page = page;
+            self.get_jobs();
+        }
     }
     
     // Fetches Workshop details for a player model on the Steam Workshop.
@@ -334,6 +363,9 @@ var app = function() {
     */
     self.show_job_details = function(job) {
         var vue = self.vue;
+        
+        // Store the vertical scroll position
+        self.vue.scroll_top = $(window).scrollTop();
         
         // Make a deep copy of the object.
         vue.selected_job = jQuery.extend(true, {}, job);
@@ -373,9 +405,6 @@ var app = function() {
         // Set the new URL.
         self.set_new_url();
         
-        // Store the vertical scroll position
-        self.vue.scroll_top = $(window).scrollTop();
-        
         setTimeout(function() {
             self.scroll_to("jobDetailsRow", "start");
         }, 0);
@@ -399,7 +428,9 @@ var app = function() {
         self.set_new_url();
         
         // Set the vertical scroll position
-        $(window).scrollTop(self.vue.scroll_top);
+        setTimeout(function() {
+            $(window).scrollTop(self.vue.scroll_top);
+        }, 0);
     }
     
     // Gets comments
@@ -706,9 +737,10 @@ var app = function() {
     self.close_player_models = function() {
         self.vue.showing_player_models = false;
         
-        
         // Restore the vertical scroll position
-        $(window).scrollTop(self.vue.edit_scroll);
+        setTimeout(function() {
+            $(window).scrollTop(self.vue.edit_scroll);
+        }, 0);
     }
     
     // Called when a user clicks on a player model.
@@ -837,7 +869,7 @@ var app = function() {
         
         // Show the top of the box.
         var scrolledY = window.scrollY - 2;
-
+        
         if (scrolledY) {
             window.scroll(0, scrolledY);
         }
@@ -890,14 +922,18 @@ var app = function() {
         vue.selected_time_range = "any";
         vue.selected_sort = "newest";
         
+        // Misc. filters
         vue.public_jobs = false;
+        vue.vote_only = false;
+        vue.admin_only = false;
+        vue.custom_model = false;
         
         // Close the pannels
         $("#filterTags").collapse("hide");
         $("#filterWeapons").collapse("hide");
         $("#filterSalary").collapse("hide");
         $("#filterMaxPlayers").collapse("hide");
-        $("#filterPersonal").collapse("hide");
+        $("#filterMisc").collapse("hide");
         
         // Fetch new results
         self.fetch_new_results();
@@ -936,11 +972,22 @@ var app = function() {
             min_players: null,
             max_players: null,
             
+            
+            //// Misc. filter options ////
+            
             // True means that we want to show all of our public jobs.
             public_jobs: false,
             
+            // True means that we want jobs with Workshop models
+            custom_model: false,
+            
+            vote_only: false,
+            admin_only: false,
+            
+            ////
+            
             selected_public: true,
-            isLoadingResults: false,
+            is_loading_results: false,
             
             selected_time_range: "any",
             selected_sort: "newest",
@@ -984,6 +1031,7 @@ var app = function() {
             comment_form: null,
             comment_error: null,
             
+            
             // Job editing
             editing_job: false,
             edit_waiting: false,
@@ -1013,6 +1061,7 @@ var app = function() {
             
             // Edit errors
             edit_errors: {},
+            
             
             // Player models page
             showing_player_models: false,
@@ -1055,7 +1104,6 @@ var app = function() {
             is_job_description: self.is_job_description,
             toggle_edit_job: self.toggle_edit_job,
             submit: self.submit,
-            set_rgb: self.set_rgb,
             
             // Player model page
             show_player_models: self.show_player_models,
@@ -1076,7 +1124,6 @@ var app = function() {
             get_model_url: self.get_model_url,
             get_text_class: self.get_text_class,
             open_tab: self.open_tab,
-            hex_to_rgb: self.hex_to_rgb,
             copy_code: self.copy_code,
             comma: self.comma,
             format_url: self.format_url
@@ -1095,8 +1142,11 @@ var app = function() {
     // The current page
     self.vue.current_page = Math.max(1, self.vue.$route.query.page);
     
-    // Sort by newest or most recent
+    // Sort by newest or recently updated
     self.vue.selected_sort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
+    
+    // Sort by time range
+    self.vue.selected_time_range = self.vue.$route.query.time_range != null ? self.vue.$route.query.time_range : "any";
     
     ////
     

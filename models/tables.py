@@ -1,13 +1,7 @@
-# Define your tables below (or better in another model file) for example
-#
-# >>> db.define_table('mytable', Field('myfield', 'string'))
-#
-# Fields can be 'string','text','password','integer','double','boolean'
-#       'date','time','datetime','blob','upload', 'reference TABLENAME'
-# There is an implicit 'id integer autoincrement' field
-# Consult manual for more options, validators, etc.
 
-import datetime
+# Tables.py
+
+import datetime, json
 
 def get_utc_time():
     return datetime.datetime.utcnow()
@@ -20,23 +14,31 @@ def get_username():
 
 db.define_table('job',
                 Field('user_id', 'reference auth_user', default=get_user_id()),
-                Field('job_id', 'string', placeholder='DOCTOR'),
-                Field('name', 'string', placeholder='Doctor'),
-                Field('description', 'text', placeholder="Heal the community."),
-                Field('workshop', 'string'),
-                Field('suggested_model', 'string'),
-                Field('preview_url', 'string'),
-                Field('color', 'string', default='23B5EB'),
-                Field('model', 'string', placeholder='models/player/kleiner.mdl'),
-                Field('salary', 'integer', placeholder=0),
-                Field('max_players', 'integer', placeholder=2),
-                Field('admin_only', 'boolean'),
-                Field('tag', 'string', default="Citizen"),
-                Field('vote', 'boolean'),
+                
+                Field('job_id', 'string', default=""),
+                Field('name', 'string', default=""),
+                Field('description', 'text', default=""),
+                Field('model', 'string',  default=""),
+                
+                Field('workshop', 'string', default=""),
+                Field('suggested_model', 'string', default=""),
+                Field('preview_url', 'string', default=""),
+                
+                Field('color', 'string', default=""),
+                
+                Field('salary', 'integer', default=45),
+                Field('max_players', 'integer', default=2),
+                Field('tag', 'string', default=""),
                 Field('weapons', 'list:string', default=[]),
+                
+                Field('vote', 'boolean', default=False),
+                Field('admin_only', 'boolean', default=False),
+                
                 Field('is_public', 'boolean', default=False),
                 Field('has_custom_swep', 'boolean', default=False),
-                Field('resources', 'json'),
+                
+                Field('resources', 'json', default=json.dumps([])),
+                
                 Field('created_by', default=get_username()),
                 Field('created_on', 'datetime', default=datetime.datetime.utcnow()),
                 Field('updated_on', 'datetime', default=datetime.datetime.utcnow())
@@ -47,7 +49,7 @@ db.define_table('post',
                 Field('username', default=get_username()),
                 Field('user_id', default=get_user_id()),
                 Field('created_on', 'datetime', default=get_utc_time()),
-                Field('body', 'text')
+                Field('body', 'text', default="")
                 )
 
 db.job.user_id.writable = db.job.user_id.readable = False

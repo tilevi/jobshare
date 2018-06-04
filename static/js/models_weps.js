@@ -1,4 +1,8 @@
 
+/*
+    Holds all of the player models and weapons.
+*/
+
 var player_models = [
     [
         {image: "css_arctic.png", model: "models/player/arctic.mdl"},
@@ -52,6 +56,12 @@ var player_models = [
 ];
 
 var weapons = [
+        { name: "Lockpick", class: "lockpick" },
+        { name: "Keypad Cracker", class: "keypad_cracker" },
+        { name: "Stunstick", class: "weapon_stunstick" },
+        { name: "Arrest Baton", class: "arrest_stick" },
+        { name: "Unarrest Baton", class: "unarrest_stick" },
+        { name: "Bugbait", class: "weapon_bugbait" },
         { name: "Glock", class: "weapon_glock" },
         { name: "USP", class: "weapon_usp" },
         { name: "P228", class: "weapon_p228" },
