@@ -420,6 +420,9 @@ var app = function() {
         // Hide the comment error
         vue.comment_error = null;
         
+        // We are no longer waiting for a comment to process.
+        vue.adding_comment = false;
+        
         // We are no longer showing job details.
         vue.showing_job_details = false;
         vue.view_id = null;
@@ -452,22 +455,30 @@ var app = function() {
     
     // Adds a comment
     self.add_comment = function () {
-        // The submit button to add a track has been added.
-        $.post(add_comment_url,
-            {
-                id: parseInt(self.vue.view_id),
-                body: self.vue.comment_form
-            },
-            function (data) {
-                if (data.error != null) {
-                    self.vue.comment_error = data.error;
-                } else {
-                    self.vue.comment_form = null;
-                    self.vue.comment_error = null;
-                    self.vue.comments.unshift(data.comment);
-                    enumerate(self.vue.comments);
-                }
-            });
+        if (self.vue.adding_comment) {
+            return;
+        } else {
+            self.vue.adding_comment = true;
+
+            // The submit button to add a track has been added.
+            $.post(add_comment_url,
+                {
+                    id: parseInt(self.vue.view_id),
+                    body: self.vue.comment_form
+                },
+                function (data) {
+                    var vue = self.vue;
+                    if (data.error != null) {
+                        vue.comment_error = data.error;
+                    } else {
+                        vue.comment_form = null;
+                        vue.comment_error = null;
+                        vue.comments.unshift(data.comment);
+                        enumerate(self.vue.comments);
+                    }
+                    vue.adding_comment = false;
+                });
+        }
     };
     
     // Gets more comments
@@ -1028,10 +1039,10 @@ var app = function() {
             
             // Comments
             has_more: false,
+            adding_comment: false,
             comments: [],
             comment_form: null,
             comment_error: null,
-            
             
             // Job editing
             editing_job: false,

@@ -648,7 +648,7 @@
                                 </div>
 
                                 <div style="margin-bottom: 0px; margin-top: 0px; text-align: right;">
-                                    <input class="submitButton" type="button" value="Comment" v-on:click="add_comment()" style="display: inline-block;"/>
+                                    <input class="submitButton" style="display: inline-block;" type="button" value="Comment" v-on:click="add_comment()" v-bind:disabled="adding_comment"/>
                                 </div>
                             </div>
                         {{else:}}
@@ -694,7 +694,7 @@
                     </div>
                 
                     <div id="noViewableJobs" v-if="!first_load && !is_loading_results && !(my_username == null && !selected_public) && (jobs.length == 0)" class="messageDiv">
-                        <center><span class="messageText">Oops! There are no viewable jobs.</span></center>
+                        <center><span class="messageText">Oops, there are no jobs!</span></center>
                     </div>
 
                     <div class="col-lg-6">
@@ -750,10 +750,10 @@
                     </div>
                 </div>
             
-                <div v-if="!showing_job_details" class="row" style="margin-top: 8px;">
+                <div v-if="!showing_job_details" class="row" style="margin-top: 10px;">
                     <div class="col-md-12">
                         <nav aria-label="Page navigation example">
-                            <ul class="pagination justify-content-end" style="padding: 4px;">
+                            <ul class="pagination justify-content-end" style="padding: 2px;">
                                 <li class="page-item noSelect" v-bind:class="{disabled: current_page == 1}">
                                     <a class="page-link" v-on:click="prev_page()">Previous</a>
                                 </li>

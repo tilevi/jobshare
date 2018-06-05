@@ -24,10 +24,19 @@ var homeOrisCommunityClicked = function(getCommunityJobs) {
     }
 }
 
+// "JobShare" button
+$("#jobShareLink").click(function(e) {
+    e.preventDefault();
+    homeOrisCommunityClicked(true);
+});
+
+// "Home" button
 $("#homeLink").click(function(e) {
     e.preventDefault();
     homeOrisCommunityClicked(false);
 });
+
+// "Community" button
 $("#jobsLink").click(function(e) {
     e.preventDefault();
     homeOrisCommunityClicked(true);

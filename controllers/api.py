@@ -80,7 +80,7 @@ def check_teamid(form, job_id):
 
 # Check the player model
 def check_model(form, job_model):
-    if (len(job_model) > 25):
+    if (len(job_model) > 50):
         form["errors"]["job_model"] = "Player model is too long."
     if not (all(x.isalnum() or x == "/" or x == "." or x == "_" for x in job_model)):
         form["errors"]["job_model"] = "Player model contains invalid characters."
