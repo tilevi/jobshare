@@ -267,7 +267,7 @@ var app = function() {
             var selected_sort = vue.selected_sort;
             var selected_public = vue.selected_public;
 
-            if (search != null && search != '') {
+            if (search != null && search != "") {
                 pp.search = vue.search_form;
             }
 
@@ -275,19 +275,19 @@ var app = function() {
                 pp.page = vue.current_page;
             }
 
-            if (min_p != null && min_p != '') {
+            if (min_p != null && min_p != "") {
                 pp.min_p = vue.min_players;
             }
 
-            if (max_p != null && max_p != '') {
+            if (max_p != null && max_p != "") {
                 pp.max_p = vue.max_players;
             }
 
-            if (min_s != null && min_s != '') {
+            if (min_s != null && min_s != "") {
                 pp.min_s = vue.min_salary;
             }
 
-            if (max_s != null && max_s != '') {
+            if (max_s != null && max_s != "") {
                 pp.max_s = vue.max_salary;
             }
 
@@ -883,7 +883,7 @@ var app = function() {
     */
     self.format_url = function(url) {
         if (!/^https?:\/\//i.test(url)) {
-            url = 'http://' + url;
+            url = "http://" + url;
         }
         return url;
     }
@@ -908,6 +908,7 @@ var app = function() {
     self.clear_filters = function() {
         var vue = self.vue;
         
+        // Regular filters
         vue.search_form = null;
         
         vue.min_players = null;
@@ -1121,11 +1122,11 @@ var app = function() {
             delete_resource: self.delete_resource,
             
             // Misc. functions
+            comma: self.comma,
             get_model_url: self.get_model_url,
             get_text_class: self.get_text_class,
             open_tab: self.open_tab,
             copy_code: self.copy_code,
-            comma: self.comma,
             format_url: self.format_url
         }
     });

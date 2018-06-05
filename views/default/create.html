@@ -75,10 +75,9 @@
             
             <div id="job_info" v-if="!showing_player_models" class="row">
                 <div class="col-md-6 col-sm-6 margin10TopBottom">
-
                     <div class="form-group">
                         <label for="job_job_id">ID</label>
-                        <input v-model="job_job_id" v-on:keypress="is_job_id" id="job_job_id_input" class="form-control" placeholder="DOCTOR" maxlength=50/>
+                        <input v-model="job_job_id" v-on:keypress="is_job_id" id="job_job_id_input" class="form-control" placeholder="DOCTOR" maxlength=25/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_job_id != null" class="formError">${ job_errors.job_job_id }</div>
@@ -87,16 +86,16 @@
                     
                     <div class="form-group">
                         <label for="job_name">Name</label>
-                        <input v-model="job_name" v-on:keypress="is_job_name" id="job_name_input" class="form-control" placeholder="Doctor" maxlength=50/>
+                        <input v-model="job_name" v-on:keypress="is_job_name" id="job_name_input" class="form-control" placeholder="Doctor" maxlength=25/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_name != null" class="formError">${ job_errors.job_name }</div>
                         </transition>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="job_description">Description</label>
-                        <input v-model="job_desc" v-on:keypress="is_job_description" id="job_desc_input" class="form-control" placeholder="Heal the community." maxlength=50/>
+                        <input v-model="job_desc" v-on:keypress="is_job_description" id="job_desc_input" class="form-control" placeholder="Heal the community." maxlength=100/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_desc != null" class="formError">${ job_errors.job_desc }</div>
@@ -106,7 +105,7 @@
                     <div class="form-group">
                         <label for="job_model">Player model</label>
                         <br/>
-
+                        
                         <input id="job_model_input" v-model="job_model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=50 onkeypress="return isJobModel(event);"/>
                         
                         <div style="margin-top: 5px;">
@@ -129,7 +128,7 @@
                         
                         <label for="job_suggested_model" style="margin-top: 10px;">Suggested Character</label>
                         
-                        <input id="job_suggested_model_input" class="form-control" placeholder="Specify a character (e.g. Deadpool)" maxlength=200 v-model="job_suggested_model" v-on:keypress="is_job_description"/>
+                        <input id="job_suggested_model_input" class="form-control" placeholder="Specify a character (e.g. Deadpool)" maxlength=50 v-model="job_suggested_model" v-on:keypress="is_job_description"/>
                         
                         <div style="margin-top: 5px;">
                             <a href="https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=&childpublishedfileid=0&browsesort=trend&section=readytouseitems&requiredtags%5B%5D=Model" target="_blank">Browse the Steam Workshop</a>
@@ -178,7 +177,7 @@
                     
                     <div class="form-group">
                         <label>Type</label>
-                        <select class="form-control" id="job_tag_input">
+                        <select class="form-control" id="job_tag_input" v-model="job_tag">
                             <option value="Citizen" selected>Citizen</option>
                             <option value="Commercial">Commercial</option>
                             <option value="Criminal">Criminal</option>
@@ -187,9 +186,6 @@
                             <option value="OP">Overpowered (OP)</option>
                             <option value="Misc.">Misc.</option>
                         </select>
-                        
-                        <!-- Hidden input -->
-                        <input id="job_tag" placeholder="" value="Citizen" type="hidden"/>
                         
                         <transition name="slide-fade">
                             <div v-if="job_errors.job_tag != null" class="formError">${ job_errors.job_tag }</div>
@@ -225,7 +221,7 @@
                                 <div v-if="job_errors.job_admin_only != null" class="formError">${ job_errors.job_admin_only }</div>
                             </transition>
                             <input v-model="job_admin_only" type="checkbox" class="form-check-input" id="job_admin_only_input">
-                            <label for="job_admin_only_input" class="noBottomMargin noSelect">Admin Only?</label>
+                            <label for="job_admin_only_input" class="noBottomMargin noSelect">Admin only?</label>
                         </div>
                     </div>
                     
@@ -237,7 +233,7 @@
                             <div style="margin-bottom: 5px;">
                                 <input v-model="res.name" v-on:keypress="is_job_name" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource Name" value="" maxlength=50/>
                                 
-                                <input v-model="res.url" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource URL" type="url" value="" maxlength=100/>
+                                <input v-model="res.url" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource URL" type="url" value="" maxlength=200/>
                                 
                                 <input class="deleteResource" type="button" value="Delete resource" v-on:click="delete_resource(index)"/>
                                 
@@ -287,15 +283,15 @@
                 
                 <!-- NOTE: This part is not fully tabbed on purpose. -->
                 <pre class="preCode"><code><div id="genCode">TEAM_${job_job_id} = DarkRP.createJob(<span class="red">"${ job_name }"</span>, {
-    description = <span class="red">"${ job_desc }"</span>,
     color = Color(<span class="red">${ job_color_arr[0] }</span>, <span class="red">${ job_color_arr[1] }</span>, <span class="red">${ job_color_arr[2] }</span>),
     model = <span class="red">"${ job_model }"</span>,
+    description = <span class="red">"${ job_desc }"</span>,
     weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
-    command = <span class="red">"${ (job_job_id.toLowerCase()).replace(/ /g,'') }"</span>
+    command = <span class="red">"${ (job_job_id.toLowerCase()).replace(/ /g,'') }"</span>,
     max = <span class="red">${ job_max_players }</span>,
     salary = <span class="red">${ job_salary }</span>,
+    admin = <span class="red">${ job_admin_only ? 1 : 0 }</span>,
     vote = <span class="blue">${ job_vote }</span>,
-    admin = <span class="blue">${ job_admin_only }</span>
 })</div></code></pre>   
             </div>
         </div>

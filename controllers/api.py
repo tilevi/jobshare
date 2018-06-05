@@ -44,7 +44,7 @@ def workshop():
 
 # Below contains job verification for forms.
 def is_none_or_empty(var):
-    return var is None or var == ""
+    return ((var is None) or (var.strip() == ""))
 
 # The allowed hex characters for colors
 allowed_hex_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -70,25 +70,31 @@ def check_players(form, job_max_players):
     elif job_max_players > 128:
         form["errors"]["job_max_players"] = "Max players must be less than 128."
 
-# Check Team ID
+# Check Team/Job ID
 # Resource: https://stackoverflow.com/questions/20890618/isalpha-python-function-wont-consider-spaces
 def check_teamid(form, job_id):
-    if not (all(x.isalnum() or x == "_" for x in job_id)):
+    if (len(job_id) > 25):
+        form["errors"]["job_job_id"] = "Job ID is too long."
+    elif not (all(x.isalnum() or x == "_" for x in job_id)):
         form["errors"]["job_job_id"] = "Job ID must have only alphanumeric characters or underscores."
 
 # Check the player model
 def check_model(form, job_model):
+    if (len(job_model) > 25):
+        form["errors"]["job_model"] = "Player model is too long."
     if not (all(x.isalnum() or x == "/" or x == "." or x == "_" for x in job_model)):
         form["errors"]["job_model"] = "Player model contains invalid characters."
 
 # Check job name
 def check_job(form, job_name):
-    if not (all(x.isalnum() or x.isspace() or x == "'" for x in job_name)):
+    if (len(job_name) > 25):
+        form["errors"]["job_name"] = "Job name is too long."
+    elif not (all(x.isalnum() or x.isspace() or x == "'" for x in job_name)):
         form["errors"]["job_name"] = "Job name must be alphanumeric."
 
 # Check job description
 def check_description(form, job_desc):
-    if len(job_desc) > 50:
+    if len(job_desc) > 100:
         form["errors"]["job_desc"] = "Job description is too long."
     elif not (all(x.isalnum() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_desc)):
         form["errors"]["job_desc"] = "Job description must be alphanumeric."
@@ -182,8 +188,10 @@ def check_weapons(form, weps):
 def check_workshop_id(form, id):
     preview_url = "";
     
-    if len(id) < 9 or not (all(x.isdigit() for x in id)):
-        form["errors"]["job_workshop"] = "Invalid workshop ID."
+    if (len(id) > 200):
+        form["errors"]["job_workshop"] = "Workshop URL/ID is too long."
+    elif len(id) < 9 or not (all(x.isdigit() for x in id)):
+        form["errors"]["job_workshop"] = "Invalid workshop URL/ID."
     else: 
         r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***", data = {"itemcount": 1, "publishedfileids[0]": id})
         
@@ -219,7 +227,7 @@ def check_resources(form, job_resources):
             if (res["url"].strip() == ""):
                 form["errors"]["job_resources"] = "One of the resource URLs is empty."
                 break
-            if (len(res["name"]) > 50 or len(res["url"]) > 100):
+            if (len(res["name"]) > 50 or len(res["url"]) > 200):
                 form["errors"]["job_resources"] = "Either the name or URL of a resource is too long."
                 break
             if not (all(x.isalnum() or x.isspace() or x == "'" for x in res["name"])):

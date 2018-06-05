@@ -360,8 +360,7 @@ input[type=checkbox].checkBox:checked:after {
 }
 
 .preCode {
-    padding: 0px 32px 32px 32px;
-    margin-bottom: 0px;
+    margin: 0px 32px 20px 32px;
 }
 
 .editButton {

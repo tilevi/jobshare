@@ -128,7 +128,7 @@ var app = function() {
                 job_max_players: self.vue.job_max_players,
                 job_color: self.vue.job_color,
                 job_weapons: self.vue.job_weapons_arr,
-                job_tag: $("#job_tag_input").val(),
+                job_tag: self.vue.job_tag,
                 job_vote: self.vue.job_vote,
                 job_admin_only: self.vue.job_admin_only,
                 job_make_public: makePublic,
@@ -328,9 +328,9 @@ var app = function() {
             job_color_arr: [35, 181, 235],
             job_weapons: null,
             job_weapons_arr: [],
-            job_vote: null,
-            job_admin_only: null,
-            job_tag: null,
+            job_vote: false,
+            job_admin_only: false,
+            job_tag: "Citizen",
             
             // Job errors
             job_errors: {},
