@@ -6,16 +6,80 @@ var create_job_url = "{{=URL('api', 'create_job', user_signature=True)}}";
 var default_url = "{{=URL('default', 'index')}}";
 var image_url = "{{=URL('static', 'images/player_models')}}";
 
-function isJobModel(event) {
-    var charCode = event.which;
+/*
+    Input validators
     
-    if(charCode === 32 || !(charCode == 46 || charCode == 47 || charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
-        return false;
+    Sources:
+            http://jsfiddle.net/gargdeendayal/4qqza69k/
+            https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
+*/
+
+const SPACE = 32;
+const EXCLAMATION_MARK = 33;
+const SINGLE_QUOTE = 39;
+const COMMA = 44;
+const DASH = 45;
+const PERIOD = 46;
+const SLASH = 47;
+
+const ZERO = 48;
+const NINE = 57;
+
+const A = 65;
+const Z = 90;
+
+const UNDERSCORE = 95;
+
+const a = 97;
+const z = 122;
+
+
+function isJobModel(e) {
+    var charCode = e.which;
+    
+    if(charCode === SPACE || !(charCode == A || charCode == SLASH || charCode == UNDERSCORE || (charCode >= A && charCode <= Z) || (charCode >= ZERO && charCode <= NINE) || (charCode >= a && charCode <= z))) {
+        e.preventDefault();
     } else {
         return true;
     }
 }
 
+function isJobID(e) {
+    e = (e) ? e : window.event;
+    var charCode = (e.which) ? e.which : e.keyCode;
+
+    if(charCode === SPACE || !(charCode == UNDERSCORE || (charCode >= A && charCode <= Z) || (charCode >= ZERO && charCode <= NINE) || (charCode >= a && charCode <= z))) {
+        e.preventDefault();
+    } else {
+        return true;
+    }
+}
+    
+function isJobName(e) {
+    e = (e) ? e : window.event;
+    var charCode = (e.which) ? e.which : e.keyCode;
+
+    if(!(charCode == SPACE || (charCode >= ZERO && charCode <= NINE) || (charCode == SINGLE_QUOTE) || (charCode >= A && charCode <= Z) || (charCode >= a && charCode <= z))) {
+        e.preventDefault();
+    } else {
+        return true;
+    }
+}
+    
+function isJobDescription(e) {
+    e = (e) ? e : window.event;
+    var charCode = (e.which) ? e.which : e.keyCode;
+
+    if(!((charCode >= ZERO && charCode <= NINE) || charCode == DASH || charCode === SPACE || charCode == EXCLAMATION_MARK || charCode == PERIOD || charCode == SINGLE_QUOTE || charCode == COMMA || (charCode >= A && charCode <= Z) || (charCode >= a && charCode <= z))) {
+        e.preventDefault();
+    } else {
+        return true;
+    }
+}
+
+/*
+    Decides if dark or light text should be used.
+*/
 function pickTextColorBasedOnBgColorAdvanced(bgColor, lightColor, darkColor) {
     var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
     var r = parseInt(color.substring(0, 2), 16); // hexToR

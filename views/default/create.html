@@ -19,9 +19,11 @@
     <script src="{{=URL('static','js/misc.js')}}"></script>
     <script src="{{=URL('static', 'js/models_weps.js')}}"></script>
     
+    <!-- URLs -->
     <script>
-        var create_job_url = "{{=URL('api', 'create_job', user_signature=True)}}";    
-        var default_url = "{{=URL('default', 'index')}}";
+        var create_job_url = "{{=URL('api', 'create_job', user_signature=True)}}";
+        var default_url = "{{=URL('default', 'index', vars=dict(public='true'))}}";
+        var home_url = "{{=URL('default', 'index', vars=dict(public='false'))}}";
         var image_url = "{{=URL('static', 'images/player_models')}}";
     </script>
 {{end}}

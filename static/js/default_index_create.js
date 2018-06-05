@@ -150,7 +150,11 @@ var app = function() {
                     }
                 } else {
                     // The form doesn't have errors, so redirect.
-                    window.location.replace(default_url);
+                    if (makePublic) {
+                        window.location.replace(default_url);
+                    } else {
+                        window.location.replace(home_url);
+                    }
                 }
             }
         );
@@ -160,52 +164,6 @@ var app = function() {
     self.submit_share = function() {
         $("#submit_share_button").prop("disabled", true);
         self.submit(true);
-    }
-    
-    
-    // Below are functions to check job information entry
-    // Of course, input is also checked server-side.
-    
-    /* 
-        Checks the Job/Team ID
-        
-        Sources:
-            http://jsfiddle.net/gargdeendayal/4qqza69k/
-            https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
-    */
-    self.is_job_id = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-        
-        if(charCode === 32 || !(charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
-    }
-    
-    // Checks the job name
-    self.is_job_name = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-           
-        if(!(charCode == 32 || (charCode >= 48 && charCode <= 57) || (charCode == 39) || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
-    }
-    
-    // Checks the job description
-    self.is_job_description = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-           
-        if(!(charCode === 32 || charCode == 33 || charCode == 46 || charCode == 39 || charCode == 44 || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122) || (charCode >= 48 && charCode <= 57))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
     }
     
     /*
@@ -236,7 +194,7 @@ var app = function() {
     */
     self.scroll_to = function(id, pos) {
         var e = document.getElementById(id);
-        e.scrollIntoView({behavior: "smooth", block: pos, inline: pos});
+        e.scrollIntoView({behavior: "smooth", block: pos});
     }
     
     // Shows the player models page.
@@ -346,9 +304,9 @@ var app = function() {
         },
         methods: {
             // Input field enforcers
-            is_job_id: self.is_job_id,
-            is_job_name: self.is_job_name,
-            is_job_description: self.is_job_description,
+            is_job_id: isJobID,
+            is_job_name: isJobName,
+            is_job_description: isJobDescription,
             
             // Add and delete resource
             add_resource: self.add_resource,

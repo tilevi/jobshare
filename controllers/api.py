@@ -96,7 +96,7 @@ def check_job(form, job_name):
 def check_description(form, job_desc):
     if len(job_desc) > 100:
         form["errors"]["job_desc"] = "Job description is too long."
-    elif not (all(x.isalnum() or x.isspace() or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_desc)):
+    elif not (all(x.isalnum() or x.isspace() or x == "-" or x == "," or x == "'"  or x == "." or x == "!" or x == "?" for x in job_desc)):
         form["errors"]["job_desc"] = "Job description must be alphanumeric."
 
 # Check salary

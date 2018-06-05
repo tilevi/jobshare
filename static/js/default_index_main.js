@@ -452,7 +452,6 @@ var app = function() {
             });
     };
     
-    
     // Adds a comment
     self.add_comment = function () {
         if (self.vue.adding_comment) {
@@ -498,48 +497,7 @@ var app = function() {
             }
         );
     };
-    
-    /* 
-        Checks job inputs.
-        They are, of course, checked server-side again.
         
-        Resources:
-                http://jsfiddle.net/gargdeendayal/4qqza69k/
-                https://stackoverflow.com/questions/39782176/filter-input-text-only-accept-number-and-dot-vue-js
-    */
-    self.is_job_id = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-        
-        if(charCode === 32 || !(charCode == 95 || (charCode >= 65 && charCode <= 90) || (charCode >= 48 && charCode <= 57) || (charCode >= 97 && charCode <= 122))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
-    }
-    
-    self.is_job_name = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-           
-        if(!(charCode == 32 || (charCode >= 48 && charCode <= 57) || (charCode == 39) || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
-    }
-    
-    self.is_job_description = function(e) {
-        e = (e) ? e : window.event;
-        var charCode = (e.which) ? e.which : e.keyCode;
-        
-        if(!((charCode >= 48 && charCode <= 57) || charCode === 32 || charCode == 33 || charCode == 46 || charCode == 39 || charCode == 44 || (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122))) {
-            e.preventDefault();
-        } else {
-            return true;
-        }
-    }
-    
     // Toggles the edit page of a job.
     self.toggle_edit_job = function() {
         var vue = self.vue;
@@ -1111,9 +1069,9 @@ var app = function() {
             get_more: self.get_more,
             
             // Job editing
-            is_job_id: self.is_job_id,
-            is_job_name: self.is_job_name,
-            is_job_description: self.is_job_description,
+            is_job_id: isJobID,
+            is_job_name: isJobName,
+            is_job_description: isJobDescription,
             toggle_edit_job: self.toggle_edit_job,
             submit: self.submit,
             

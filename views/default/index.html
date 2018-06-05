@@ -76,7 +76,7 @@
             <div class="row padding10TopBottom">
                 <div class="col-md-12">
                     <div class="form-inline pull-right" style="margin-right: -1px;">
-                        <div class="input-group">
+                        <div class="input-group" style="margin-right: 3px;">
                             <input v-on:keyup.enter="fetch_new_results()" v-model="search_form" type="text" class="form-control" name="search" placeholder="Search jobs..">
                             <span class="input-group-btn">
                                 <button v-on:click="fetch_new_results();" class="btn btn-info" type="submit" style="background-color: black;/"><i class="fa fa-search"></i>&#8203;</button>
@@ -189,9 +189,12 @@
                         </div>
                     </div>
                     
-                    <div class="marginTop10">
+                    <div class="marginTop10 hiddenText">
                         <div class="filterByTags noSelect" data-toggle="collapse" data-target="#filterMisc">
-                            <p class="sideFix"><i id="filterMiscIcon" class="fa fa-chevron-down"></i>BY MISCELLANEOUS</p>
+                            
+                            <div style="margin-right: 5px;">
+                                <p class="sideFix"><i id="filterMiscIcon" class="fa fa-chevron-down"></i>BY MISC.</p>
+                            </div>
                         </div>
                         
                         <div id="filterMisc" class="collapse noSelect">

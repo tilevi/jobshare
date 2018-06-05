@@ -530,6 +530,7 @@ td.min {
 
 .marginTop10 {
     margin-top: 10px;
+    word-wrap: break-word;
 }
 
 .marginBottom5 {
@@ -622,6 +623,11 @@ td.min {
 }
 
 .hideOverflow {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.hiddenText {
     text-overflow: ellipsis;
     overflow: hidden;
 }
