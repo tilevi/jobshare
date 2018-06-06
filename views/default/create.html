@@ -268,7 +268,7 @@
         
         <div v-if="!showing_player_models" class="container">
             <div id="codeDiv">
-
+    
                 <div class="darkBackground">
                     <h5 id="genCodeText"><b>Generated</b> code</h5>
                 </div>
@@ -282,10 +282,10 @@
                         </div>
                     </div>    
                 </div>
-                
-                <!-- NOTE: This part is not fully tabbed on purpose. -->
-                <pre class="preCode"><code><div id="genCode">TEAM_${job_job_id} = DarkRP.createJob(<span class="red">"${ job_name }"</span>, {
-    color = Color(<span class="red">${ job_color_arr[0] }</span>, <span class="red">${ job_color_arr[1] }</span>, <span class="red">${ job_color_arr[2] }</span>),
+
+<!-- NOTE: This part is not tabbed on purpose. -->
+<pre class="preCode"><code><div id="genCode">TEAM_${ job_job_id } = DarkRP.createJob(<span class="red">"${ job_name }"</span>, {
+    color = Color(<span class="red">${ (job_color_arr[0]) }</span>, <span class="red">${ (job_color_arr[1]) }</span>, <span class="red">${ (job_color_arr[2]) }</span>),
     model = <span class="red">"${ job_model }"</span>,
     description = <span class="red">"${ job_desc }"</span>,
     weapons = {<span v-for="(wep, index) in job_weapons_arr"><span class="red">"${ wep }"</span><span v-if="index != (job_weapons_arr.length-1)">, </span></span>},
@@ -293,8 +293,9 @@
     max = <span class="red">${ job_max_players }</span>,
     salary = <span class="red">${ job_salary }</span>,
     admin = <span class="red">${ job_admin_only ? 1 : 0 }</span>,
-    vote = <span class="blue">${ job_vote }</span>,
-})</div></code></pre>   
+    vote = <span class="blue">${ job_vote }</span>
+})</div></code></pre>
+                
             </div>
         </div>
     </div>

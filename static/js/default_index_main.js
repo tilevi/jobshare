@@ -199,9 +199,9 @@ var app = function() {
             
             // Scroll the first job into view
             setTimeout(function() {
-                scrollIntoViewIfNeeded(document.getElementById("even_job_0"));
+                var e = document.getElementById("mainRow");
+                scrollIntoViewIfNeeded(e);
             }, 0);
-            
             
             // Page stats
             vue.count = data.count;
@@ -355,6 +355,13 @@ var app = function() {
         );
     }
     
+    self.scroll_to_top_of_job = function() {
+        // Scroll to the top of the job's panels.
+        setTimeout(function() {
+            self.scroll_to("jobDetailsRow", "start");
+        }, 0);
+    }
+    
     /*
         Shows the job details page (when a user clicks on a job).
         
@@ -405,9 +412,8 @@ var app = function() {
         // Set the new URL.
         self.set_new_url();
         
-        setTimeout(function() {
-            self.scroll_to("jobDetailsRow", "start");
-        }, 0);
+        // Scroll
+        self.scroll_to_top_of_job();
     }
     
     // Closes the job details page.
@@ -526,6 +532,9 @@ var app = function() {
                 vue.edit_job.job_weapons_arr = vue.selected_job.weapons;
                 
                 vue.edit_job_resources = JSON.parse(vue.selected_job.resources);
+            } else {
+                // Scroll
+                self.scroll_to_top_of_job();
             }
         }
     }
@@ -698,8 +707,8 @@ var app = function() {
         self.vue.edit_scroll = $(window).scrollTop();
         
         setTimeout(function() {
-            self.scroll_to("Details", "start");
-        }, 80);
+            self.scroll_to("details", "start");
+        }, 100);
     }
     
     // Hides the player model page.
@@ -1121,7 +1130,7 @@ var app = function() {
     ////
     
     /* Public or private jobs? */
-    self.vue.selected_public = (my_username == null || self.vue.$route.query.public == "true");
+    self.vue.selected_public = (self.vue.$route.query.public != "false") 
     
     // Set the highlight of one of the top bottoms.
     if (self.vue.selected_public) {

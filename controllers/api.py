@@ -216,6 +216,9 @@ def check_workshop_id(form, id):
     
     return preview_url
 
+# These are the only sites that resources are allowed to come from.
+allowed_res_sites = ["steamcommunity.com", "garrysmods.org", "gmodstore.com", "gamebanana.com", "facepunch.com"]
+    
 def check_resources(form, job_resources):
     if (len(job_resources) > 3):
         form["errors"]["job_resources"] = "You can only have 3 resources."
@@ -236,6 +239,12 @@ def check_resources(form, job_resources):
             if not (all(x.isalnum() or x == ":" or x == "-" or x == "&" or x == "/" or x == "=" or x == "?" or x == "!" or x == "." or x == "_" for x in res["url"])):
                 form["errors"]["job_resources"] = "At least one resource has an invalid URL."
                 break
+            
+            # Source: https://stackoverflow.com/questions/9626535/get-domain-name-from-url
+            domain = urlparse(res["url"]).netloc
+            
+            if (domain not in allowed_res_sites):
+                form["errors"]["job_resources"] = "Every resource must come from either the Steam Workshop, garrysmods.org, gmodstore, or GameBanana."
         
     
 
@@ -303,29 +312,23 @@ def verify_job(form, request):
     
     # Check job salary
     if (is_none_or_empty(request.vars.job_salary)):
-        form["errors"]["job_salary"] = "Job salary is missing."
+        form["errors"]["job_salary"] = "Job salary is missing or invalid."
     else:
         job_salary = int(round(float(request.vars.job_salary)))
         check_salary(form, job_salary)
 
     # Check max players
     if (is_none_or_empty(request.vars.job_max_players)):
-        form["errors"]["job_max_players"] = "Max players is missing."
+        form["errors"]["job_max_players"] = "Max players is missing or invalid."
     else:
         job_max_players = int(request.vars.job_max_players)
         check_players(form, job_max_players)
     
     # Determine whether or not this job should be made public.
-    
-    logger.info("MAKE PUBLIC: %r" % request.vars.job_make_public)
-    
     if (request.vars.job_make_public == "true"):
         make_public = True
     else:
         make_public = False
-    
-    logger.info("SETTING TO: %r" % make_public)
-
     
     # Verify that all of the weapons contain valid characters.
     custom_swep = check_weapons(form, job_weapons)
@@ -594,14 +597,20 @@ def get_jobs():
         # Grab today's date.
         todaysDate = datetime.datetime.utcnow().date()
         
+        # If recently updated, then use the updated on date.
+        if (sort == "recent"):
+            createdOrUpdatedDate = db.job.updated_on
+        else:
+            createdOrUpdatedDate = db.job.created_on
+        
         if (time_range == "day"):
-            q = q & (db.job.created_on >= ( todaysDate - relativedelta(days=+1) ) )
+            q = q & ( createdOrUpdatedDate >= ( todaysDate - relativedelta(days=+1) ) )
         elif (time_range == "week"):
-            q = q & ( db.job.created_on >= ( todaysDate - relativedelta(weeks=+1) ) )
+            q = q & ( createdOrUpdatedDate >= ( todaysDate - relativedelta(weeks=+1) ) )
         elif (time_range == "month"):
-            q = q & ( db.job.created_on >= ( todaysDate - relativedelta(months=+1) ) )
+            q = q & ( createdOrUpdatedDate >= ( todaysDate - relativedelta(months=+1) ) )
         elif (time_range == "year"):
-            q = q & ( db.job.created_on >= ( todaysDate - relativedelta(years=+1) ) )
+            q = q & ( createdOrUpdatedDate >= ( todaysDate - relativedelta(years=+1) ) )
         
     if (max_salary >= 0):
         q = q & (db.job.salary <= max_salary)

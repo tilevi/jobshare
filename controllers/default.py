@@ -9,8 +9,8 @@
 # -------------------------------------------------------------------------
 def index():
     return dict()
-@auth.requires_login()
 
+@auth.requires_login()
 def create():
     return dict()
 

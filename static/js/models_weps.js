@@ -1,6 +1,11 @@
 
 /*
     Holds all of the player models and weapons.
+    
+    Sources (for the images):
+    
+        http://www.frostmournemc.com/gmod/orangebox/garrysmod/materials/spawnicons/models/
+        https://csite.io/tools/gmod-universal-mdl
 */
 
 var player_models = [
@@ -10,7 +15,12 @@ var player_models = [
         {image: "css_guerilla.png", model: "models/player/guerilla.mdl"},
         {image: "css_leet.png", model: "models/player/leet.mdl"}
     ],
-    
+    [
+        {image: "alyx.png", model: "models/player/alyx.mdl"},
+        {image: "eli.png", model: "models/player/eli.mdl"},
+        {image: "kleiner.png", model: "models/player/kleiner.mdl"},
+        {image: "monk.png", model: "models/player/monk.mdl"}
+    ],
     [
         {image: "police.png", model: "models/player/police.mdl"},
         {image: "combineelite.png", model: "models/player/combine_super_soldier.mdl"},
@@ -40,12 +50,6 @@ var player_models = [
         {image: "css_urban.png", model: "models/player/urban.mdl"},
         {image: "css_riot.png", model: "models/player/riot.mdl"},
         {image: "css_swat.png", model: "models/player/swat.mdl"}
-    ],
-    [
-        {image: "alyx.png", model: "models/player/alyx.mdl"},
-        {image: "eli.png", model: "models/player/eli.mdl"},
-        {image: "kleiner.png", model: "models/player/kleiner.mdl"},
-        {image: "monk.png", model: "models/player/monk.mdl"}
     ],
     [
         {image: "zombiefast.png", model: "models/player/zombie_fast.mdl"},

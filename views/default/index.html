@@ -120,14 +120,14 @@
                         
                         <div id="filterWeapons" class="collapse noSelect">
                             <div class="cPanel">
-                                <div v-for="wep in weps" class="form-check oneLine">
-                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checked_weapons" onclick="return !isLoadingResults;">
-                                    <label v-bind:for="wep.class" class="noBottomMargin">${ wep.name }</label>
-                                </div>
-                                
                                 <div class="form-check">
                                     <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" id="custom_swep" value="custom_swep" v-model="checked_weapons" onclick="return !isLoadingResults;">
                                     <label for="custom_swep" class="hideOverflow noBottomMargin">Custom SWEP</label>
+                                </div>
+                                
+                                <div v-for="wep in weps" class="form-check oneLine">
+                                    <input v-on:change="fetch_new_results()" type="checkbox" class="form-check-input checkBox" v-bind:id="wep.class" v-bind:value="wep.class" v-model="checked_weapons" onclick="return !isLoadingResults;">
+                                    <label v-bind:for="wep.class" class="noBottomMargin">${ wep.name }</label>
                                 </div>
                             </div>
                         </div>
@@ -146,14 +146,14 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input v-model="min_salary" name="price_min" type="text" class="form-control" placeholder="10">
+                                    <input v-model="min_salary" name="price_min" type="text" class="form-control" placeholder="">
                                 </div>                          
                                 <label for="price_max">To</label>
                                 <div class="input-group mb-3 marginBottom5">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">$</span>
                                     </div>
-                                    <input v-model="max_salary" name="price_max" type="text" class="form-control" placeholder="50">
+                                    <input v-model="max_salary" name="price_max" type="text" class="form-control" placeholder="">
                                 </div>             
 
                                 <div style="margin-top: 8px;">
@@ -174,11 +174,11 @@
                             <div class="cPanel">
                                 <label for="price_min">From:</label>
                                 <div class="input-group mb-3 marginBottom5">
-                                    <input v-model="min_players" name="players_min" type="text" class="form-control" placeholder="0">
+                                    <input v-model="min_players" name="players_min" type="text" class="form-control" placeholder="">
                                 </div>                          
                                 <label for="price_max">To:</label>
                                 <div class="input-group mb-3 marginBottom5">
-                                    <input v-model="max_players" name="players_max" type="text" class="form-control" placeholder="4">
+                                    <input v-model="max_players" name="players_max" type="text" class="form-control" placeholder="">
                                 </div>
                                 <div style="margin-top: 8px;">
                                     <button class="btn btn-default btn-block" v-on:click="fetch_new_results();">
@@ -402,7 +402,7 @@
                                     <tr v-if="editing_job">
                                         <td class="min">Player model:</td>
                                         <td>
-                                            <input id="job_model_input" v-model="edit_job.model" class="form-control" placeholder="models/player/kleiner.mdl" maxlength=50 onkeypress="return isJobModel(event);"/>
+                                            <input id="job_model_input" v-model="edit_job.model" class="form-control" placeholder="" maxlength=50 onkeypress="return isJobModel(event);"/>
                                             
                                             <transition name="slide-fade">
                                                 <div id="job_model_error" v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
@@ -428,7 +428,7 @@
                                         <td class="min">Salary:</td>
                                         <td class="tableData">
                                             <span v-if="!editing_job"><span>$</span>${ comma(selected_job.salary) }</span>
-                                            <input v-model="edit_job.salary" v-if="editing_job" id="job_salary_input" class="form-control" type="number" min=0 step=1 placeholder="45" value=""/>
+                                            <input v-model="edit_job.salary" v-if="editing_job" id="job_salary_input" class="form-control" type="number" min=0 step=1 placeholder="" value=""/>
                                             
                                             <transition name="slide-fade">
                                                 <div  id="job_salary_error"v-if="edit_errors.job_salary != null" class="formError">${ edit_errors.job_salary }</div>
@@ -440,7 +440,7 @@
                                         <td class="min">Max Players:</td>
                                         <td class="tableData">
                                             <span v-if="!editing_job">${ selected_job.max_players }</span>
-                                            <input v-model="edit_job.max_players" v-if="editing_job" id="job_max_players_input" class="form-control" type="number" min=1 step=1 placeholder="2" value=""/>
+                                            <input v-model="edit_job.max_players" v-if="editing_job" id="job_max_players_input" class="form-control" type="number" min=1 step=1 placeholder="" value=""/>
                                             
                                             <transition name="slide-fade">
                                                 <div id="job_max_players_error" v-if="edit_errors.job_max_players != null" class="formError">${ edit_errors.job_max_players }</div>
@@ -479,12 +479,12 @@
                                     </tr>
 
                                     <tr>
-                                        <td class="min">Admin Only:</td>
+                                        <td class="min">Admin only:</td>
                                         <td class="tableData">
                                             <span v-if="!editing_job">${ selected_job.admin_only  ? "Yes" : "No" }</span>
                                             <div class="form-check" v-if="editing_job">
                                                 <input v-model="edit_job.admin_only" type="checkbox" class="form-check-input checkBox" id="job_admin_only_input">
-                                                <label for="job_admin_only_input" class="noBottomMargin noSelect">Admin Only?</label>
+                                                <label for="job_admin_only_input" class="noBottomMargin noSelect">Admin only?</label>
                                                 
                                                 <transition name="slide-fade">
                                                     <div id="job_admin_only_error" v-if="edit_errors.job_admin_only != null" class="formError">${ edit_errors.job_admin_only }</div>
@@ -691,7 +691,7 @@
                     </div>
                 </div>
             
-                <div v-if="!showing_job_details" class="row no-gutters" style="margin-top: 4px;">
+                <div v-if="!showing_job_details" id="mainRow" class="row no-gutters" style="margin-top: 4px;">
                     <div v-if="my_username == null && !selected_public && !is_loading_results" class="messageDiv">
                         <center><span class="messageText">You must be logged in to see your jobs.</span></center>
                     </div>
