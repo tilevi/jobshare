@@ -683,10 +683,14 @@
                             </div>
                         </div>
                     </div>
-                                        
+                    
+                    <!--
+                            Reference (for zero-width space):
+                                https://stackoverflow.com/questions/26972529/is-there-a-html-character-that-is-blank-including-no-whitespace-on-all-browser -->
                     <div class="postedBy">
                         <div class="postedByText">
-                            Posted by: ${ selected_job.created_by }
+                            <span v-if="selected_job.created_by != my_username">Posted by: ${ selected_job.created_by }</span>
+                            <span v-if="selected_job.created_by == my_username">&#8203;</span>
                         </div>
                     </div>
                 </div>
@@ -717,9 +721,10 @@
                                     ${job.description}
                                 </div>
 
-                                <div class="postedBy">
+                                <div v-if="selected_public" class="postedBy">
                                     <div class="postedByText oneLine">
-                                        Posted by: ${job.created_by}
+                                        <span v-if="job.created_by != my_username">Posted by: ${job.created_by}</span>
+                                        <span v-if="job.created_by == my_username" style="color: yellow;">Posted by you</span>
                                     </div>
                                 </div>
                             </div>
@@ -743,9 +748,10 @@
                                     ${job.description}
                                 </div>
 
-                                <div class="postedBy">
-                                    <div class="postedByText">
-                                        Posted by: ${job.created_by}
+                                <div v-if="selected_public" class="postedBy">
+                                    <div class="postedByText oneLine">
+                                        <span v-if="job.created_by != my_username">Posted by: ${job.created_by}</span>
+                                        <span v-if="job.created_by == my_username" style="color: yellow;">Posted by you</span>
                                     </div>
                                 </div>
                             </div>

@@ -10,8 +10,8 @@ var homeOrisCommunityClicked = function(getCommunityJobs) {
     if (!isLoadingResults && (vue.selected_public != getCommunityJobs)) {
         // Toggle the public variable
         vue.selected_public = getCommunityJobs;
-        vue.fetch_new_results();
-
+        vue.fetch_new_results(true, true);
+        
         $("#jobsLink").toggleClass("active");
         $("#homeLink").toggleClass("active");
 
@@ -20,7 +20,7 @@ var homeOrisCommunityClicked = function(getCommunityJobs) {
     } else if (!isLoadingResults && (vue.selected_public == getCommunityJobs)) {
         // Otherwise, the user must want to refresh the results.
         // So go ahead.
-        vue.fetch_new_results();
+        vue.fetch_new_results(true, true);
     }
 }
 

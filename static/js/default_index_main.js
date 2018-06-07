@@ -135,7 +135,7 @@ var app = function() {
         Source:
                 https://stackoverflow.com/questions/5685589/scroll-to-element-only-if-not-in-view-jquery
     */
-    var scrollIntoViewIfNeeded = function(target) {
+    var scrollIntoViewIfNeeded = function(target, margin) {
         if (target != null) {
             var rect = target.getBoundingClientRect();
             if (rect.bottom > window.innerHeight) {
@@ -144,15 +144,32 @@ var app = function() {
             if (rect.top < 0) {
                 target.scrollIntoView();
             }
+            
+            if (margin) {
+                // Show the top of the box.
+                var scrolledY = window.scrollY - 4;
+
+                if (scrolledY) {
+                    window.scroll(0, scrolledY);
+                }
+            }
         }
     }
     
     // Gets the jobs.
-    self.get_jobs = function() {
+    self.get_jobs = function(scroll, changedTabs) {
         var vue = self.vue;
         
         vue.is_loading_results = true;
         isLoadingResults = true;
+        
+        // If we change from "Home" to "Community" jobs, or vice-versa, 
+        // blank reset the jobs.
+        if (changedTabs) {
+            vue.jobs = [];
+            vue.even_jobs = [];
+            vue.odd_jobs = [];
+        }
         
         $.post(jobs_url, {
             search: vue.search_form,
@@ -198,10 +215,15 @@ var app = function() {
             }
             
             // Scroll the first job into view
-            setTimeout(function() {
-                var e = document.getElementById("mainRow");
-                scrollIntoViewIfNeeded(e);
-            }, 0);
+            if (scroll) {
+                setTimeout(function() {
+                    var e = document.getElementById("even_job_0");
+                    if (e == null) {
+                        e = document.getElementById("mainRow");
+                    }
+                    scrollIntoViewIfNeeded(e, true);
+                }, 0)
+            }
             
             // Page stats
             vue.count = data.count;
@@ -236,9 +258,9 @@ var app = function() {
     }
     
     // Fetches job results and loads the first page.
-    self.fetch_new_results = function() {
+    self.fetch_new_results = function(scroll, changedTabs) {
         self.vue.current_page = 1;
-        self.get_jobs();        
+        self.get_jobs(scroll, changedTabs);        
     }
     
     /*
@@ -335,7 +357,7 @@ var app = function() {
     self.set_page = function(page) {
         if (!self.vue.is_loading_results) {
             self.vue.current_page = page;
-            self.get_jobs();
+            self.get_jobs(true);
         }
     }
     
