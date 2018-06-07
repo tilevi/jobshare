@@ -37,7 +37,7 @@ const z = 122;
 function isJobModel(e) {
     var charCode = e.which;
     
-    if(charCode === SPACE || !(charCode == A || charCode == SLASH || charCode == UNDERSCORE || (charCode >= A && charCode <= Z) || (charCode >= ZERO && charCode <= NINE) || (charCode >= a && charCode <= z))) {
+    if(charCode === SPACE || !(charCode == PERIOD || charCode == SLASH || charCode == UNDERSCORE || (charCode >= A && charCode <= Z) || (charCode >= ZERO && charCode <= NINE) || (charCode >= a && charCode <= z))) {
         e.preventDefault();
     } else {
         return true;

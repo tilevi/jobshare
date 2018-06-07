@@ -259,6 +259,10 @@
             <div class="row">
                 <div id="rowHeader" class="col-md-12">
                     <div class="pointer pull-right">
+                        <!-- Waiting icon -->
+                        <i v-if="waiting" class="fa fa-spinner fa-spin" style="color: black;"></i>
+                        
+                        <!-- Buttons -->
                         <input id="submit_share_button" class="submitButton" type="button" value="Share" v-on:click="submit_share"/>
                         <input id ="submit_button" class="submitButton" type="button" value="Create" v-on:click="submit(false)"/>
                     </div>

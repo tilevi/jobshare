@@ -304,7 +304,7 @@ input[type=checkbox].checkBox:checked:after {
 
 .visibleJobDetails {
     padding-top: 8px;
-    padding-right: 22px;
+    padding-right: 20px;
 }
 .visibleJobDetails:hover {
     opacity: 0.7;

@@ -645,13 +645,15 @@ var app = function() {
                     
                     var errors = data.form.errors;
                     vue.edit_errors = errors;
-                    vue.edit_waiting = false;
                     
                     // Scroll to the highest error
                     self.scroll_to_top_error(errors);
                     
                     // Re-enable the button
                     $("#submit_button").prop("disabled", false);
+                    
+                    // Done
+                    vue.edit_waiting = false;
                 } else {
                     var job = data.job;
                     
@@ -674,7 +676,9 @@ var app = function() {
                         if (self.vue.view_id == job.id) {
                             // We must have been waiting for the edit to complete.
                             if (self.vue.edit_waiting) {
+                                // Done
                                 self.vue.edit_waiting = false;
+                                // Toggle edit job
                                 self.toggle_edit_job();
                             }
                             // Update the new job details
@@ -686,7 +690,9 @@ var app = function() {
                     } else {
                         // The job doesn't exist anymore, so just go to un-edit mode.
                         if (self.vue.edit_waiting) {
+                            // Done
                             self.vue.edit_waiting = false;
+                            // Toggle edit job
                             self.toggle_edit_job();
                         }
                     }
@@ -1141,7 +1147,7 @@ var app = function() {
     self.vue.search_form =self.vue.$route.query.search;
     
     // The current page
-    self.vue.current_page = Math.max(1, self.vue.$route.query.page);
+    self.vue.current_page = Math.max(1, (self.vue.$route.query.page != null ? self.vue.$route.query.page != null : 1));
     
     // Sort by newest or recently updated
     self.vue.selected_sort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";

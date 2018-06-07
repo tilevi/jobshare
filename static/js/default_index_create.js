@@ -116,6 +116,9 @@ var app = function() {
         // Clear the errors.
         self.vue.job_errors = {}
         
+        // Waiting..
+        self.vue.waiting = true;
+        
         $.post(create_job_url,
             {
                 job_job_id: self.vue.job_job_id,
@@ -156,6 +159,8 @@ var app = function() {
                         window.location.replace(home_url);
                     }
                 }
+                // We are no longer waiting.
+                self.vue.waiting = false;
             }
         );
     }
@@ -300,7 +305,8 @@ var app = function() {
             // Miscellaneous variables
             image_url: image_url,
             weps: self.weps,
-            scroll: 0
+            scroll: 0,
+            waiting: false
         },
         methods: {
             // Input field enforcers

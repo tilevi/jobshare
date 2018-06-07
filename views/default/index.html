@@ -398,17 +398,19 @@
                                             </transition>
                                         </td>
                                     </tr>
-
-                                    <tr v-if="editing_job">
+                                    
+                                    <tr v-if="editing_job || selected_job.model != ''">
                                         <td class="min">Player model:</td>
                                         <td>
-                                            <input id="job_model_input" v-model="edit_job.model" class="form-control" placeholder="" maxlength=50 onkeypress="return isJobModel(event);"/>
+                                            <span v-if="!editing_job">${ selected_job.model }</span>
+                                            
+                                            <input v-if="editing_job" id="job_model_input" class="form-control" placeholder="" maxlength=50 onkeypress="return isJobModel(event);" v-model="edit_job.model"/>
                                             
                                             <transition name="slide-fade">
                                                 <div id="job_model_error" v-if="edit_errors.job_model != null" class="formError">${ edit_errors.job_model }</div>
                                             </transition>
                                             
-                                            <div style="margin-top: 5px;">
+                                            <div v-if="editing_job" style="margin-top: 5px;">
                                                 <span class="playerModelLinkEdit" v-on:click="show_player_models()">Browse player models</span>
                                             </div>
                                         </td>
@@ -600,6 +602,9 @@
                                                     <div class="row">
                                                         <div id="rowHeader" class="col-md-12">
                                                             <div class="pointer pull-right">
+                                                                <!-- Waiting icon -->
+                                                                <i v-if="edit_waiting" class="fa fa-spinner fa-spin" style="color: black;"></i>
+                                                                
                                                                 <input v-on:click="submit()" id="submit_button" class="editButton pointer" type="button" value="Save"/>
                                                                 <input v-on:click="toggle_edit_job()" class="editButton pointer" type="button" value="Cancel"/>
                                                             </div>

@@ -9,7 +9,7 @@ from urlparse import urlparse, parse_qs
 # The maximum number of jobs to display per page.
 jobs_per_page = 8
 
-# This was just for testing features.
+# This was just for testing.
 """
 def setdate():
     d = datetime.date(2017, 6, 15)
