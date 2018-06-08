@@ -3,6 +3,23 @@
             default_index_main.js
     Purpose:
             Holds the Vue.js code for the main page.
+            
+    References:
+    
+        Luca de Alfaro's provided code:
+                https://luca_de_alfaro@bitbucket.org/luca_de_alfaro/web2py_start_2016
+                
+        Vue.js components:
+                https://vuejs.org/v2/guide/components.html
+                
+        Tagify (tags):
+                https://yaireo.github.io/tagify/
+        
+        Spectrum (colorpicker):
+                http://bgrins.github.io/spectrum/
+        
+        jQuery:
+                https://jquery.com/
 */
 
 // VueRouter object
