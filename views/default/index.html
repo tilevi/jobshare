@@ -453,7 +453,7 @@
                                     </tr>
 
                                     <tr>
-                                        <td class="min">Max Players:</td>
+                                        <td class="min">Max players:</td>
                                         <td class="tableData">
                                             <span v-if="!editing_job">${ selected_job.max_players }</span>
                                             <input v-model="edit_job.max_players" v-if="editing_job" id="job_max_players_input" class="form-control" type="number" min=1 step=1 placeholder="" value=""/>
@@ -523,7 +523,7 @@
                                         </tr>
 
                                         <tr v-if="!editing_job">
-                                            <td class="min">File Size: &thinsp;&thinsp;&thinsp;&thinsp;</td>
+                                            <td class="min">File size: &thinsp;&thinsp;&thinsp;&thinsp;</td>
                                             <td>${ job_workshop_size }</td>
                                         </tr>
 
@@ -572,7 +572,7 @@
                                     <tbody>
                                         
                                         <tr v-for="(res, index) in edit_job_resources" v-if="editing_job">
-                                            <td class="min">External Resource ${ index + 1 }:</td>
+                                            <td class="min">External resource ${ index + 1 }:</td>
                                             <td>
                                                 <div style="margin-bottom: 5px;">
                                                     <input v-model="res.name" v-on:keypress="is_job_name" class="form-control form-control-sm" style="margin-bottom: 2px;" placeholder="Resource Name" value="" maxlength=50/>
@@ -601,7 +601,7 @@
                                         </tr>
                                         
                                         <tr v-for="(res, index) in job_resources" v-if="!editing_job">
-                                            <td class="min">External Resource ${ index + 1 }:</td>
+                                            <td class="min">External resource ${ index + 1 }:</td>
                                             <td>
                                                 <span style="color: black;">${ res.name }</span>
                                                 <br/>
