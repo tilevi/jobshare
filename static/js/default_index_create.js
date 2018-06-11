@@ -116,12 +116,10 @@ var app = function() {
     
     // Submits the form.
     self.submit = function(makePublic) {
-        if (makePublic) {
-            $("#submit_share_button").prop("disabled", true);
-        } else {
-            $("#submit_button").prop("disabled", true);
-        }
-        
+        // Disabled the buttons.
+        $("#submit_button").prop("disabled", true);
+        $("#submit_share_button").prop("disabled", true);
+
         // Grab the job resources
         var res = [];
         for (var i = 0; i < Math.min(self.vue.job_resources.length, 3); i++) {
@@ -162,12 +160,9 @@ var app = function() {
                     // Scroll to the highest error
                     self.scroll_to_top_error(vue.job_errors);
                     
-                    // Re-enable the button
-                    if (makePublic) {
-                        $("#submit_share_button").prop("disabled", false);
-                    } else {
-                        $("#submit_button").prop("disabled", false);
-                    }
+                    // Re-enable the buttons
+                    $("#submit_button").prop("disabled", false);
+                    $("#submit_share_button").prop("disabled", false);
                 } else {
                     // The form doesn't have errors, so redirect.
                     if (makePublic) {

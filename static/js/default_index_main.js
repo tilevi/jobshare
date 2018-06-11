@@ -1161,16 +1161,30 @@ var app = function() {
                 https://stackoverflow.com/questions/35914069/vue-js-query-parameters
     */
     // Search by job title
-    self.vue.search_form =self.vue.$route.query.search;
+    self.vue.search_form = self.vue.$route.query.search;
     
     // The current page
-    self.vue.current_page = Math.max(1, (self.vue.$route.query.page != null ? self.vue.$route.query.page != null : 1));
+    self.vue.current_page = Math.max(1, ((self.vue.$route.query.page != null) ? self.vue.$route.query.page : 1))
     
     // Sort by newest or recently updated
     self.vue.selected_sort = self.vue.$route.query.sort != null ? self.vue.$route.query.sort : "newest";
     
+    // Double-check the given sort.
+    var sort = self.vue.selected_sort;
+    if (sort != "newest" && sort != "recent") {
+        self.vue.selected_sort = "newest";
+    }
+    
+    
     // Sort by time range
     self.vue.selected_time_range = self.vue.$route.query.time_range != null ? self.vue.$route.query.time_range : "any";
+    
+    // Double-check the given time range.
+    var time = self.vue.selected_time_range;
+    if (time != "any" && time != "day" && time != "week" && time != "month" && time != "year") {
+        self.vue.selected_time_range = "any";
+    }
+    
     
     ////
     

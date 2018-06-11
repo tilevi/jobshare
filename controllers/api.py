@@ -26,7 +26,7 @@ def setdate():
 def workshop():
     id = request.vars.id
     
-    r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***", data = {"itemcount": 1, "publishedfileids[0]": id})
+    r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=18B740BA7E0F6C3DD0AC71FB28C18C22", data = {"itemcount": 1, "publishedfileids[0]": id})
         
     title = "Not available"
     file_size = "Not available"
@@ -193,7 +193,7 @@ def check_workshop_id(form, id):
     elif len(id) < 9 or not (all(x.isdigit() for x in id)):
         form["errors"]["job_workshop"] = "Invalid workshop URL/ID."
     else: 
-        r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=***REMOVED***", data = {"itemcount": 1, "publishedfileids[0]": id})
+        r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=18B740BA7E0F6C3DD0AC71FB28C18C22", data = {"itemcount": 1, "publishedfileids[0]": id})
         
         if (r.status_code != 200):
             form["errors"]["job_workshop"] = "Unable to verify Workshop item. Please try again."
