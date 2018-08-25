@@ -26,7 +26,7 @@ def setdate():
 def workshop():
     id = request.vars.id
     
-    r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=18B740BA7E0F6C3DD0AC71FB28C18C22", data = {"itemcount": 1, "publishedfileids[0]": id})
+    r = requests.post("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key=", data = {"itemcount": 1, "publishedfileids[0]": id})
         
     title = "Not available"
     file_size = "Not available"
